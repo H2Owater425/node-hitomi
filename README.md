@@ -1,4 +1,4 @@
-![pervert.png](https://cdn.h2owr.xyz/images/node-hitomi_banner.png)
+![node-hitomi_banner](https://cdn.h2owr.xyz/images/node-hitomi_banner.png)
 <h3 align="center">Hitomi.la api for Node.js</h3>
 <p align="center">Would you call me a gentleman?</p>
 
