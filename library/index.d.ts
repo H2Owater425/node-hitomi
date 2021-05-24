@@ -1,8 +1,8 @@
 export as namespace hitomi;
 
 interface PageRange {
-    startPage: number;
-    endPage?: number;
+	startIndex: number;
+	endIndex?: number;
 }
 
 export interface Image {
