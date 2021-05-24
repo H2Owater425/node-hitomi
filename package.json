@@ -1,0 +1,37 @@
+{
+	"name": "node-hitomi",
+	"version": "1.0.0",
+	"description": "Hitomi.la api for Node.js",
+	"main": "./library/index.js",
+	"types": "./library/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"dev": "nodemon --exec ts-node --files ./test.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/h2owater425/node-hitomi.git"
+	},
+	"keywords": [
+		"hitomi",
+		"hitomi.la",
+		"hentai"
+	],
+	"author": "H2Owater425 <h2o@h2owr.xyz> (https://h2owr.xyz/)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/h2owater425/node-hitomi/issues",
+		"email": "h2o@h2owr.xyz"
+	},
+	"homepage": "https://h2owr.xyz/",
+	"devDependencies": {
+		"@types/node": "^15.3.0",
+		"@types/node-fetch": "^2.5.10",
+		"nodemon": "^2.0.7",
+		"ts-node": "^9.1.1",
+		"typescript": "^4.2.4"
+	},
+	"dependencies": {
+		"node-fetch": "^2.6.1"
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"target": "es2015",
+		"module": "commonjs",
+		"outDir": "./library/",
+		"removeComments": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true
+	},
+	"exclude": ["./node_modules"],
+	"include": ["./source/**/*", "library/index.d.ts"]
+}
