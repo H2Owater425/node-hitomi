@@ -7,11 +7,11 @@ interface LooseObject {
 }
 
 interface PageRange {
-	startPage: number;
-	endPage?: number;
+	startIndex: number;
+	endIndex?: number;
 }
 
-interface Image {
+export interface Image {
 	index: number;
 	hash: string;
 	extension: 'jpg' | 'png';
@@ -21,13 +21,13 @@ interface Image {
 	height: number;
 }
 
-interface Tag {
+export interface Tag {
 	type: 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag';
 	name: string;
 	isNegative?: boolean;
 }
 
-interface Gallery {
+export interface Gallery {
 	id: number;
 	title: string;
 	titleJapanese: string | null;
@@ -214,19 +214,21 @@ export function getGalleryData(id: number, option?: { includeFiles: boolean; }):
 					publishedDate: new Date(`${responseJson['date']}:00`.replace(' ', 'T'))
 				}
 
-				for(let i = 0; i < responseJson['tags'].length; i++) {
-					let type: Tag['type'] = 'tag';
-
-					if(Boolean(responseJson['tags'][i]['male'])) {
-						type = 'male';
-					} else if(Boolean(responseJson['tags'][i]['female'])) {
-						type = 'female';
+				if(responseJson['tags'] !== null) {
+					for(let i = 0; i < responseJson['tags'].length; i++) {
+						let type: Tag['type'] = 'tag';
+	
+						if(Boolean(responseJson['tags'][i]['male'])) {
+							type = 'male';
+						} else if(Boolean(responseJson['tags'][i]['female'])) {
+							type = 'female';
+						}
+	
+						galleryData['tags'].push({
+							name: responseJson['tags'][i]['tag'],
+							type: type
+						});
 					}
-
-					galleryData['tags'].push({
-						name: responseJson['tags'][i]['tag'],
-						type: type
-					});
 				}
 
 				if(includeFiles) {
@@ -247,74 +249,55 @@ export function getGalleryData(id: number, option?: { includeFiles: boolean; }):
 
 				fetch(getGalleryUrl(galleryData), requestOption)
 				.then(function (_response: Response): string | PromiseLike<string> {
-					return _response.text()
+					return _response.text();
 				})
 				.then(function (_responseText: string): void | PromiseLike<void> {
 					const galleryContentHtml: string = _responseText.split('content">')[1];
 
-					if(typeof(galleryContentHtml) === 'undefined') {
-						resolve(galleryData);
-						return;
-					} else {
+					if(typeof(galleryContentHtml) !== 'undefined') {
 						galleryContentHtml.match(/(?<=\/artist\/)[a-z0-9%]+(?=-all\.html)/g)
 						?.map(function (value: string, index: number, array: string[]): void {
-							if(galleryData['artists'] === null) {
-								galleryData['artists'] = [];
-							}
-
 							galleryData['artists'].push(decodeURIComponent(value));
 						});
 
 						galleryContentHtml.match(/(?<=\/group\/)[a-z0-9%]+(?=-all\.html)/g)
 						?.map(function (value: string, index: number, array: string[]): void {
-							if(galleryData['groups'] === null) {
-								galleryData['groups'] = [];
-							}
-							
 							galleryData['groups'].push(decodeURIComponent(value));
 						});
 
 						galleryContentHtml.match(/(?<=\/series\/)[a-z0-9%]+(?=-all\.html)/g)
 						?.map(function (value: string, index: number, array: string[]): void {
-							if(galleryData['series'] === null) {
-								galleryData['series'] = [];
-							}
-							
 							galleryData['series'].push(decodeURIComponent(value));
 						});
 
 						galleryContentHtml.match(/(?<=\/character\/)[a-z0-9%]+(?=-all\.html)/g)
 						?.map(function (value: string, index: number, array: string[]): void {
-							if(galleryData['characters'] === null) {
-								galleryData['characters'] = [];
-							}
-							
 							galleryData['characters'].push(decodeURIComponent(value));
 						});
-
-						resolve(galleryData);
-						return;
 					}
+
+					resolve(galleryData);
+					return;
 				});
 			});
 		} catch(error: any) {
 			reject(error);
 			return;
 		}
-	})
+	});
 }
 
 export function getGalleryIdList(range: PageRange, option?: { reverse: boolean; }): Promise<number[]> {
-	if(!Number.isInteger(range['startPage']) || (Number.isInteger(range['startPage']) && range['startPage'] < 0)) {
-		throw Error('Invalid startPage value');
-	} else if(typeof(range['endPage']) !== 'undefined' && (!Number.isInteger(range['endPage']) || (Number.isInteger(range['endPage']) && range['endPage'] <= range['startPage']))) {
-		throw Error('Invalid endPage value');
+	if(!Number.isInteger(range['startIndex']) || (Number.isInteger(range['startIndex']) && range['startIndex'] < 0)) {
+		throw Error('Invalid startIndex value');
+	} else if(typeof(range['endIndex']) !== 'undefined' && (!Number.isInteger(range['endIndex']) || (Number.isInteger(range['endIndex']) && range['endIndex'] <= range['startIndex']))) {
+		throw Error('Invalid endIndex value');
 	}
 
 	return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason: any) => void) {
 		try {
-			const startByte: number = range['startPage'] * 4;
-			const endByte: number | string = typeof(range['endPage']) !== 'undefined' ? startByte + range['endPage'] * 4 - 1 : '';
+			const startByte: number = range['startIndex'] * 4;
+			const endByte: number | string = typeof(range['endIndex']) !== 'undefined' ? startByte + (range['endIndex'] + 1) * 4 - 1 : '';
 			const reverse: boolean = typeof(option) !== 'undefined' ? option['reverse'] : false;
 
 			fetch('https://ltn.hitomi.la/index-all.nozomi', {
@@ -389,7 +372,7 @@ export function parseTag(tagString: string): Tag[] {
 			type: type,
 			name: name,
 			isNegative: tagStringList[i].startsWith('-')
-		})
+		});
 	}
 
 	return tagList;
@@ -421,7 +404,7 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 			let idList: number[] = [];
 
 			if(positiveTagList.length === 0) {
-				idList = await getGalleryIdList({ startPage: 0 });
+				idList = await getGalleryIdList({ startIndex: 0 });
 			}
 
 			for(let i = 0; i < positiveTagList.length; i++) {
