@@ -1,8 +1,14 @@
-![node-hitomi_banner](https://cdn.h2owr.xyz/images/node-hitomi_banner.png)
-<h3 align="center">Hitomi.la api for Node.js</h3>
-<p align="center">Would you call me a gentleman?</p>
+<div align='center'>
+<img src='https://cdn.h2owr.xyz/images/node-hitomi/banner.png' alt='banner'/>
+<h3>Hitomi.la api for Node.js</h3>
+<sup>Would you call me a gentleman?</sup>
 
-<br/>
+[![npm version](https://img.shields.io/npm/v/node-hitomi?style=flat-square)](https://npmjs.org/package/node-hitomi)
+[![npm type definition](https://img.shields.io/npm/types/node-hitomi?style=flat-square)](https://npmjs.org/package/node-hitomi)
+[![license](https://img.shields.io/github/license/H2Owater425/node-hitomi?style=flat-square)](https://github.com/H2Owater425/node-hitomi/blob/main/LICENSE)
+</div>
+
+<br />
 
 ## Installation
 
