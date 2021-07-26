@@ -1,19 +1,10 @@
-import { Agent, Gallery, LooseObject, Tag } from "./types";
+import { Gallery, LooseObject, Tag } from "./types";
 import { getGalleryUrl } from "./url";
-import fetch, { RequestInit, Response } from 'node-fetch';
-
-const requestOption: RequestInit = {
-	method: 'GET',
-	agent: new Agent({ rejectUnauthorized: false, keepAlive: true }),
-	headers: {
-		'Accept': '*/*',
-		'Accept-Encoding': 'gzip, deflate, br',
-		'Connection': 'keep-alive'
-	}
-}
+import fetch, { Response } from 'node-fetch';
+import { isInteger, requestOption } from "./utilities";
 
 export function getGalleryData(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery> {
-	if(!Number.isInteger(id) || (Number.isInteger(id) && id < 1)) {
+	if(!isInteger(id) || (isInteger(id) && id < 1)) {
 		throw Error('Invalid id value');
 	}
 
@@ -113,9 +104,9 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 }
 
 export function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { reverse: boolean; }): Promise<number[]> {
-	if(!Number.isInteger(range['startIndex']) || (Number.isInteger(range['startIndex']) && range['startIndex'] < 0)) {
+	if(!isInteger(range['startIndex']) || (isInteger(range['startIndex']) && range['startIndex'] < 0)) {
 		throw Error('Invalid startIndex value');
-	} else if(typeof(range['endIndex']) !== 'undefined' && (!Number.isInteger(range['endIndex']) || (Number.isInteger(range['endIndex']) && range['endIndex'] <= range['startIndex']))) {
+	} else if(typeof(range['endIndex']) !== 'undefined' && (!isInteger(range['endIndex']) || (isInteger(range['endIndex']) && range['endIndex'] <= range['startIndex']))) {
 		throw Error('Invalid endIndex value');
 	}
 

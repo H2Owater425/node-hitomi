@@ -1,4 +1,5 @@
 import { Gallery, Image, Tag } from "./types";
+import { isInteger } from "./utilities";
 
 export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail: boolean; }): string {
 	const isThumbnail: boolean = typeof(option) !== 'undefined' ? option['isThumbnail'] : false;
@@ -36,7 +37,7 @@ export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' 
 
 	if(!/^[0-9a-f]{64}$/.test(imageData['hash'])) {
 		throw Error('Invalid hash value');
-	} else if(!Number.isInteger(imageData['index']) || imageData['index'] < 0) {
+	} else if(!isInteger(imageData['index']) || imageData['index'] < 0) {
 		throw Error('Invalid image index');
 	} else if(isThumbnail && imageData['index'] !== 0) {
 		throw Error('Invalid index for thumbnail');

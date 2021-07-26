@@ -1,6 +1,3 @@
-import https from 'https';
-import tls from 'tls';
-
 export interface Image {
 	index: number;
 	hash: string;
@@ -35,19 +32,4 @@ export interface Gallery {
 
 export interface LooseObject {
 	[key: string]: any;
-}
-
-export class Agent extends https.Agent {
-	public createConnection(options: https.AgentOptions, callback?: () => void): tls.TLSSocket {
-		options['servername'] = undefined;
-		return tls.connect(options, callback);
-	}
-}
-
-Number.isInteger = function (value: any): boolean {
-	if(Number.parseInt(value) === Number(value) && Number.isFinite(value) && typeof(value) !== 'object') {
-		return true;
-	} else {
-		return false;
-	}
 }
