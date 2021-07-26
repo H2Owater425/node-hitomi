@@ -1,8 +1,8 @@
 import { Gallery, Image, Tag } from "./types";
 import { isInteger } from "./utilities";
 
-export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail: boolean; }): string {
-	const isThumbnail: boolean = typeof(option) !== 'undefined' ? option['isThumbnail'] : false;
+export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string {
+	const isThumbnail: boolean = typeof(option) !== 'undefined' && typeof(option['isThumbnail']) !== 'undefined' ? option['isThumbnail'] : false;
 
 	switch(extension) {
 		case 'jpg':

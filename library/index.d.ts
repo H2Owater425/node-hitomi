@@ -33,9 +33,9 @@ export interface Gallery {
 }
 
 export declare function getGalleryData(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery>;
-export declare function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { reverse: boolean; }): Promise<number[]>;
+export declare function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { reverse?: boolean; }): Promise<number[]>;
 export declare function parseTag(tagString: string): Tag[];
 export declare function queryTag(tagList: Tag[]): Promise<number[]>;
-export declare function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail: boolean; }): string;
+export declare function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string;
 export declare function getGalleryUrl(galleryData: Gallery): string;
 export declare function getNozomiUrl(tag: Tag): string;
