@@ -1,17 +1,8 @@
 import { getNozomiUrl } from "./url";
-import { Agent, Tag } from "./types";
+import { Tag } from "./types";
 import { getGalleryIdList } from "./gallery";
-import fetch, { RequestInit, Response } from 'node-fetch';
-
-const requestOption: RequestInit = {
-	method: 'GET',
-	agent: new Agent({ rejectUnauthorized: false, keepAlive: true }),
-	headers: {
-		'Accept': '*/*',
-		'Accept-Encoding': 'gzip, deflate, br',
-		'Connection': 'keep-alive'
-	}
-}
+import fetch, { Response } from 'node-fetch';
+import { requestOption } from "./utilities";
 
 export function parseTag(tagString: string): Tag[] {
 	const tagStringList: string[] = tagString.split(' ');
