@@ -32,12 +32,14 @@ export interface Gallery {
 	publishedDate: Date;
 }
 
+export type OrderCriteria = 'index' | 'popularity';
+
 /**
  * Returns gallery data from hitomi from id
  * @param  {number} id
  * @param  {Object} [option]
- * @param  {boolean} [option.includeFullData=true] If set to false, the function will not return data including artists, groups, series, characters
- * @param  {boolean} [option.includeFiles=true] If set to false, the function will not return data including of files
+ * @param  {boolean} [option.includeFullData=true] If set to false, the function will not return gallery data including artists, groups, series, characters
+ * @param  {boolean} [option.includeFiles=true] If set to false, the function will not return gallery data including of files
  * @returns {Promise<Gallery>} Promise
  */
 export declare function getGalleryData(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery>;
@@ -48,10 +50,11 @@ export declare function getGalleryData(id: number, option?: { includeFullData?: 
  * @param  {number} range.startIndex
  * @param  {number} [range.endIndex=range.startIndex+1]
  * @param  {Object} [option]
- * @param  {boolean} [option.reverse=false] If set to true, the function will return reversed list
+ * @param  {OrderCriteria} [option.orderCriteria='index'] If set to 'popularity', the function will return id list order by popularity
+ * @param  {boolean} [option.reverse=false] If set to true, the function will return reversed id list
  * @returns {Promise<number[]>} Promise
  */
-export declare function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { reverse?: boolean; }): Promise<number[]>;
+export declare function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { orderCriteria?: OrderCriteria, reverse?: boolean; }): Promise<number[]>;
 
 /**
  * Returns tag list from string
@@ -87,6 +90,8 @@ export declare function getGalleryUrl(galleryData: Gallery): string;
 /**
  * Returns nozomi url from tag
  * @param  {Tag} tag
+ * @param  {Object} [option]
+ * @param  {OrderCriteria} [option.orderCriteria='index'] If set to 'popularity', the function will return nozomi url that responses data order by popularity
  * @returns {string} string
  */
-export declare function getNozomiUrl(tag: Tag): string;
+export declare function getNozomiUrl(tag: Tag, option?: { orderCriteria?: OrderCriteria }): string;
