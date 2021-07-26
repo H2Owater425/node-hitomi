@@ -103,7 +103,7 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 	});
 }
 
-export function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { reverse: boolean; }): Promise<number[]> {
+export function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { reverse?: boolean; }): Promise<number[]> {
 	if(!isInteger(range['startIndex']) || (isInteger(range['startIndex']) && range['startIndex'] < 0)) {
 		throw Error('Invalid startIndex value');
 	} else if(typeof(range['endIndex']) !== 'undefined' && (!isInteger(range['endIndex']) || (isInteger(range['endIndex']) && range['endIndex'] <= range['startIndex']))) {
@@ -114,7 +114,7 @@ export function getGalleryIdList(range: { startIndex: number; endIndex?: number;
 		try {
 			const startByte: number = range['startIndex'] * 4;
 			const endByte: number | string = typeof(range['endIndex']) !== 'undefined' ? startByte + (range['endIndex'] + 1) * 4 - 1 : '';
-			const reverse: boolean = typeof(option) !== 'undefined' ? option['reverse'] : false;
+			const reverse: boolean = typeof(option) !== 'undefined' && typeof(option['reverse']) !== 'undefined' ? option['reverse'] : false;
 
 			fetch('https://ltn.hitomi.la/index-all.nozomi', {
 				...requestOption,
