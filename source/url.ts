@@ -1,4 +1,4 @@
-import { Gallery, Image, Tag } from "./types";
+import { Gallery, Image, OrderCriteria, Tag } from "./types";
 import { isInteger } from "./utilities";
 
 export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string {
@@ -41,44 +41,44 @@ export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' 
 		throw Error('Invalid image index');
 	} else if(isThumbnail && imageData['index'] !== 0) {
 		throw Error('Invalid index for thumbnail');
-	}
-
-	const imagePath: string = `${imageData['hash'].slice(-1)}/${imageData['hash'].slice(-3, -1)}/${imageData['hash']}`;
-	let subdomain: string;
-	let folderName: string;
-
-	if(!isThumbnail) {
-		let frontendCount: number = 3;
-		let hexadecimalId: number = Number.parseInt(imageData['hash'].slice(-3, -1), 16);
-
-		if(hexadecimalId < 48) {
-			frontendCount = 2
-		}
-
-		if(hexadecimalId < 9) {
-			hexadecimalId = 1
-		}
-
-		subdomain = `${String.fromCharCode(hexadecimalId % frontendCount + 97)}`;
-
-		if(extension === 'jpg' || extension === 'png') {
-			subdomain += 'b';
-			folderName = 'images';
-		} else {
-			subdomain += 'a';
-			folderName = `${extension}`;
-		}
 	} else {
-		subdomain = 'tn';
-
-		if(extension === 'jpg' || extension === 'png') {
-			folderName = 'bigtn';
+		const imagePath: string = `${imageData['hash'].slice(-1)}/${imageData['hash'].slice(-3, -1)}/${imageData['hash']}`;
+		let subdomain: string;
+		let folderName: string;
+	
+		if(!isThumbnail) {
+			let frontendCount: number = 3;
+			let hexadecimalId: number = Number.parseInt(imageData['hash'].slice(-3, -1), 16);
+	
+			if(hexadecimalId < 48) {
+				frontendCount = 2
+			}
+	
+			if(hexadecimalId < 9) {
+				hexadecimalId = 1
+			}
+	
+			subdomain = `${String.fromCharCode(hexadecimalId % frontendCount + 97)}`;
+	
+			if(extension === 'jpg' || extension === 'png') {
+				subdomain += 'b';
+				folderName = 'images';
+			} else {
+				subdomain += 'a';
+				folderName = `${extension}`;
+			}
 		} else {
-			folderName = 'avifbigtn';
+			subdomain = 'tn';
+	
+			if(extension === 'jpg' || extension === 'png') {
+				folderName = 'bigtn';
+			} else {
+				folderName = 'avifbigtn';
+			}
 		}
+	
+		return `https://${subdomain}.hitomi.la/${folderName}/${imagePath}.${extension}`;
 	}
-
-	return `https://${subdomain}.hitomi.la/${folderName}/${imagePath}.${extension}`;
 }
 
 export function getGalleryUrl(galleryData: Gallery): string {
@@ -88,29 +88,35 @@ export function getGalleryUrl(galleryData: Gallery): string {
 	return `https://hitomi.la/${galleryData['type']}/${title}${language}-${galleryData['id']}.html`.toLocaleLowerCase();
 }
 
-export function getNozomiUrl(tag: Tag): string {
-	let area: string = '';
-	let tagString: string = '';
-	let language: string = 'all';
+export function getNozomiUrl(tag: Tag, option?: { orderCriteria?: OrderCriteria }): string {
+	if(tag['type'] !== 'language' && typeof(option) !== 'undefined' && typeof(option['orderCriteria'])) {
+		throw Error(`Invalid order criteria for ${tag['type']} tag type`);
+	} else {
+		const orderCriteria: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderCriteria']) !== 'undefined' ? option['orderCriteria'] : 'index';
 
-	switch(tag['type']) {
-		case 'male':
-		case 'female':
-			area = 'tag/';
-			tagString = `${tag['type']}:${tag['name'].replace(/_/g, ' ')}`;
+		let area: string = '';
+		let tagString: string = '';
+		let language: string = 'all';
 
-			break;
-		case 'language':
-			tagString = 'index';
-			language = tag['name'];
+		switch(tag['type']) {
+			case 'male':
+			case 'female':
+				area = 'tag/';
+				tagString = `${tag['type']}:${tag['name'].replace(/_/g, ' ')}`;
 
-			break;
-		default:
-			area = `${tag['type']}/`;
-			tagString = tag['name'].replace(/_/g, ' ');
+				break;
+			case 'language':
+				tagString = orderCriteria;
+				language = tag['name'];
 
-			break;
+				break;
+			default:
+				area = `${tag['type']}/`;
+				tagString = tag['name'].replace(/_/g, ' ');
+
+				break;
+		}
+
+		return `https://ltn.hitomi.la/n/${area}${tagString}-${language}.nozomi`;
 	}
-
-	return `https://ltn.hitomi.la/n/${area}${tagString}-${language}.nozomi`;
 }

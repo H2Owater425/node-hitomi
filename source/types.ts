@@ -30,6 +30,8 @@ export interface Gallery {
 	publishedDate: Date;
 }
 
+export type OrderCriteria = 'index' | 'popularity';
+
 export interface LooseObject {
 	[key: string]: any;
 }
