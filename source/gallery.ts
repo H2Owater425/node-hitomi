@@ -80,7 +80,7 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 								['artist', 'group', 'series', 'character'].forEach(function (value: string, index: number, array: string[]): void {
 									galleryContentHtml.match(RegExp(`(?<=\/${value}\/)[a-z0-9%]+(?=-all\.html)`, 'g'))
 									// @ts-expect-error :: Stupid typescript
-									?.forEach((_value: string, index: number, array: string[]) => galleryData[!value.endsWith('s') ? value : `${value}s`].push(decodeURIComponent(_value)))
+									?.forEach((_value: string, index: number, array: string[]) => galleryData[!value.endsWith('s') ? `${value}s` : value].push(decodeURIComponent(_value)));
 								});
 							}
 	
