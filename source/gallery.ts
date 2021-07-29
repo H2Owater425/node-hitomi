@@ -31,7 +31,7 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 						series: [],
 						characters: [],
 						tags: [],
-						files: null,
+						files: [],
 						publishedDate: new Date(`${responseJson['date']}:00`.replace(' ', 'T'))
 					}
 	
@@ -53,8 +53,6 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 					}
 	
 					if(includeFiles) {
-						galleryData['files'] = [];
-	
 						for(let i = 0; i < responseJson['files'].length; i++) {
 							galleryData['files'].push({
 								index: i,
