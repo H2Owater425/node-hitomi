@@ -26,7 +26,7 @@ export interface Gallery {
 	series: string[];
 	characters: string[];
 	tags: Tag[];
-	files: Image[] | null;
+	files: Image[];
 	publishedDate: Date;
 }
 
