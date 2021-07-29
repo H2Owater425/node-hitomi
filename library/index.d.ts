@@ -95,3 +95,13 @@ export declare function getGalleryUrl(galleryData: Gallery): string;
  * @returns {string} string
  */
 export declare function getNozomiUrl(tag: Tag, option?: { orderCriteria?: OrderCriteria }): string;
+
+export default {
+	getGalleryData,
+	getGalleryIdList,
+	parseTag,
+	queryTag,
+	getImageUrl,
+	getGalleryUrl,
+	getNozomiUrl
+};
