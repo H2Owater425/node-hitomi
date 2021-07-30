@@ -21,7 +21,7 @@ export function parseTag(tagString: string): Tag[] {
 			}
 		});
 	
-		for(let i = 0; i < positiveTagStringList.length; i++) {
+		for(let i: number = 0; i < positiveTagStringList.length; i++) {
 			const name: string = positiveTagStringList[i];
 			positiveTagStringList.splice(i, 1);
 	
@@ -34,7 +34,7 @@ export function parseTag(tagString: string): Tag[] {
 	
 		let tagList: Tag[] = [];
 	
-		for(let i = 0; i < tagStringList.length; i++) {
+		for(let i: number = 0; i < tagStringList.length; i++) {
 			const [type, name]: string[] = tagStringList[i].replace(/^-/, '').split(':');
 	
 			tagList.push({
@@ -57,7 +57,7 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 	let positiveTagList: Tag[] = [];
 	let negativeTagList: Tag[] = [];
 	
-	for(let i = 0; i < tagList.length; i++) {
+	for(let i: number = 0; i < tagList.length; i++) {
 		switch(typeof(tagList[i]['isNegative']) !== 'undefined' ? tagList[i]['isNegative'] : false) {
 			case false:
 				positiveTagList.push(tagList[i]);
@@ -86,7 +86,7 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 		.then(async function (value: number[]): Promise<void> {
 			let idList: number[] = value;
 
-			for(let i = 0; i < positiveTagList.length; i++) {
+			for(let i: number = 0; i < positiveTagList.length; i++) {
 				await fetch(getNozomiUrl(positiveTagList[i]), requestOption)
 				.then(function (response: Response): Promise<ArrayBuffer> {
 					return response.arrayBuffer();
@@ -119,7 +119,7 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 				});
 			}
 
-			for(let i = 0; i < negativeTagList.length; i++) {
+			for(let i: number = 0; i < negativeTagList.length; i++) {
 				await fetch(getNozomiUrl(negativeTagList[i]), requestOption)
 				.then(function (response: Response): ArrayBuffer | Promise<ArrayBuffer> {
 					return response.arrayBuffer();

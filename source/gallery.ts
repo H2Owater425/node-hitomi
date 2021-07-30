@@ -36,7 +36,7 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 					}
 	
 					if(responseJson['tags'] !== null) {
-						for(let i = 0; i < responseJson['tags'].length; i++) {
+						for(let i: number = 0; i < responseJson['tags'].length; i++) {
 							let type: Tag['type'] = 'tag';
 		
 							if(Boolean(responseJson['tags'][i]['male'])) {
@@ -53,7 +53,7 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 					}
 	
 					if(includeFiles) {
-						for(let i = 0; i < responseJson['files'].length; i++) {
+						for(let i: number = 0; i < responseJson['files'].length; i++) {
 							galleryData['files'].push({
 								index: i,
 								hash: responseJson['files'][i]['hash'],
@@ -130,11 +130,11 @@ export function getGalleryIdList(range: { startIndex: number; endIndex?: number;
 					let galleryIdList: number[] = [];
 					
 					if(reverse) {
-						for(let i = 0; i < totalLength; i++) {
+						for(let i: number = 0; i < totalLength; i++) {
 							galleryIdList.push(dataView.getInt32(i * 4, false));
 						}
 					}	else {
-						for(let i = totalLength - 1; i !== -1; i--) {
+						for(let i: number = totalLength - 1; i !== -1; i--) {
 							galleryIdList.push(dataView.getInt32(i * 4, false));
 						}
 					}
