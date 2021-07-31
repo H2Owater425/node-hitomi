@@ -43,22 +43,22 @@ export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' 
 		throw Error('Invalid index for thumbnail');
 	} else {
 		const imagePath: string = `${imageData['hash'].slice(-1)}/${imageData['hash'].slice(-3, -1)}/${imageData['hash']}`;
-		let subdomain: string;
-		let folderName: string;
-	
+		let subdomain: string = '';
+		let folderName: string = '';
+
 		if(!isThumbnail) {
-			let frontendCount: number = 3;
+			//let frontendCount: number = 3; Not used anymore
 			let hexadecimalId: number = Number.parseInt(imageData['hash'].slice(-3, -1), 16);
-	
-			if(hexadecimalId < 48) {
-				frontendCount = 2
+
+			let temporaryNumber: number = 0;
+
+			if(hexadecimalId < 64/* = 0x40 */) {
+				temporaryNumber = 2
+			} else if(hexadecimalId < 128/* = 0x80 */) {
+				temporaryNumber = 1
 			}
 	
-			if(hexadecimalId < 9) {
-				hexadecimalId = 1
-			}
-	
-			subdomain = `${String.fromCharCode(hexadecimalId % frontendCount + 97)}`;
+			subdomain = `${String.fromCharCode(temporaryNumber + 97)}`;
 	
 			if(extension === 'jpg' || extension === 'png') {
 				subdomain += 'b';
