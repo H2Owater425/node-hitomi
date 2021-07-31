@@ -18,11 +18,15 @@ export interface Tag {
 
 export interface Gallery {
 	id: number;
-	title: string;
-	japaneseTitle: string | null;
+	title: {
+		display: string;
+		japanese: string | null;
+	};
 	type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'anime';
-	languageName: string | null;
-	localLanguageName: string | null;
+	languageName: {
+		english: string | null;
+		local: string | null;
+	};
 	artistList: string[];
 	groupList: string[];
 	seriesList: string[];

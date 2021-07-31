@@ -20,11 +20,15 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 
 				let galleryData: Gallery = {
 					id: responseJson['id'],
-					title: responseJson['title'],
-					japaneseTitle: responseJson['japanese_title'],
+					title: {
+						display: responseJson['title'],
+						japanese: responseJson['japanese_title']
+					},
 					type: responseJson['type'],
-					languageName: responseJson['language'],
-					localLanguageName: responseJson['language_localname'],
+					languageName: {
+						english: responseJson['language'],
+						local: responseJson['language_localname']
+					},
 					artistList: [],
 					groupList: [],
 					seriesList: [],

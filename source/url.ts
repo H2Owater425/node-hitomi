@@ -82,17 +82,17 @@ export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' 
 }
 
 export function getGalleryUrl(galleryData: Gallery): string {
-	const title: string = encodeURIComponent(galleryData['japaneseTitle'] !== null ? galleryData['japaneseTitle'] : galleryData['title']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-');
-	const language: string = galleryData['localLanguageName'] !== null ? `-${encodeURIComponent(galleryData['localLanguageName'])}` : '';
+	const title: string = encodeURIComponent(galleryData['title']['japanese'] !== null ? galleryData['title']['japanese'] : galleryData['title']['display']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-');
+	const language: string = galleryData['languageName']['local'] !== null ? `-${encodeURIComponent(galleryData['languageName']['local'])}` : '';
 
 	return `https://hitomi.la/${galleryData['type']}/${title}${language}-${galleryData['id']}.html`.toLocaleLowerCase();
 }
 
-export function getNozomiUrl(tag: Tag, option?: { orderCriteria?: OrderCriteria }): string {
-	if(tag['type'] !== 'language' && typeof(option) !== 'undefined' && typeof(option['orderCriteria'])) {
+export function getNozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria }): string {
+	if(tag['type'] !== 'language' && typeof(option) !== 'undefined' && typeof(option['orderBy'])) {
 		throw Error(`Invalid order criteria for ${tag['type']} tag type`);
 	} else {
-		const orderCriteria: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderCriteria']) !== 'undefined' ? option['orderCriteria'] : 'index';
+		const orderBy: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
 
 		let area: string = '';
 		let tagString: string = '';
@@ -106,7 +106,7 @@ export function getNozomiUrl(tag: Tag, option?: { orderCriteria?: OrderCriteria 
 
 				break;
 			case 'language':
-				tagString = orderCriteria;
+				tagString = orderBy;
 				language = tag['name'];
 
 				break;
