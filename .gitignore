@@ -130,3 +130,9 @@ temp/
 !.yarn/sdks
 !.yarn/versions
 !.yarn/cache
+
+# Build file
+source/index.ts
+
+# Test file
+test.ts
