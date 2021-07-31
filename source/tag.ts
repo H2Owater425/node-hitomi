@@ -1,5 +1,5 @@
-import { getNozomiUrl } from "./url";
-import { Tag } from "./types";
+import { getNozomiUrl, getTagUrl } from "./url";
+import { StartingCharacter, Tag, TagType } from "./types";
 import { getGalleryIdList } from "./gallery";
 import fetch, { Response } from 'node-fetch';
 import { requestOption } from "./utilities";
@@ -150,6 +150,74 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 	
 				return;
 			});
+		}
+	});
+}
+
+export function getTagList(type: TagType, startingCharacter?: StartingCharacter): Promise<Tag[]> {
+	return new Promise<Tag[]>(function (resolve: (value: Tag[] | PromiseLike<Tag[]>) => void, reject: (reason?: any) => void): void {
+		if(type !== 'language' && type !== 'type' && typeof(startingCharacter) === 'undefined' || (type === 'language' || type === 'type') && typeof(startingCharacter) !== 'undefined') {
+			throw Error('Invalid startingCharacter');
+		} else {
+			if(type === 'type') {
+				resolve([
+					{
+						type: 'type',
+						name: 'doujinshi'
+					},
+					{
+						type: 'type',
+						name: 'manga'
+					},
+					{
+						type: 'type',
+						name: 'artistcg'
+					},
+					{
+						type: 'type',
+						name: 'gamecg'
+					},
+					{
+						type: 'type',
+						name: 'anime'
+					},
+				]);
+			} else {
+				fetch(getTagUrl(type, startingCharacter), {
+					...requestOption
+				})
+				.then(function (response: Response): string | PromiseLike<string> {
+					return response.text();
+				})
+				.then(function (text: string): void {
+					let nameMatchRegularExpressionString: string = '';
+	
+					if(type === 'language') {
+						nameMatchRegularExpressionString = '(?<=")(?!all)[a-z]+(?=":)';
+					} else {
+						nameMatchRegularExpressionString = `(?<=\/tag\/${type === 'male' || type === 'female' ? type + '%3A' : ''})[a-z0-9%]+(?=-all\\.html)`;
+					}
+
+					const mattchedNameList: string[] = text.match(RegExp(nameMatchRegularExpressionString, 'g')) || [];
+					const nameValidateRegularExpression: RegExp = RegExp(`^(?=[${startingCharacter !== '123' ? startingCharacter : '0-9'}])[a-z0-9%]+$`);
+					let tagList: Tag[] = [];
+
+					for(let i: number = 0; i < mattchedNameList.length; i++) {
+						const name: string = decodeURIComponent(mattchedNameList[i]);
+						
+						if(type !== 'male' && type !== 'female' || mattchedNameList[i].match(nameValidateRegularExpression)) {
+							tagList.push({
+								type: type,
+								name: name
+							});
+						}
+					}
+
+					resolve(tagList);
+	
+					return;
+				});
+			}
 		}
 	});
 }

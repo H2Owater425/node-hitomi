@@ -1,4 +1,4 @@
-import { Gallery, Image, OrderCriteria, Tag } from "./types";
+import { Gallery, Image, OrderCriteria, StartingCharacter, Tag, TagType } from "./types";
 import { isInteger } from "./utilities";
 
 export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string {
@@ -118,5 +118,49 @@ export function getNozomiUrl(tag: Tag, option?: { orderCriteria?: OrderCriteria 
 		}
 
 		return `https://ltn.hitomi.la/n/${area}${tagString}-${language}.nozomi`;
+	}
+}
+
+export function getTagUrl(type: TagType, startingCharacter?: StartingCharacter): string {
+	let url: string = '';
+
+	switch(type) {
+		case 'tag':
+		case 'male':
+		case 'female':
+			url = 'https://hitomi.la/alltags-';
+
+			break;
+		case 'artist':
+			url = 'https://hitomi.la/allartists-';
+
+			break;
+		case 'series':
+			url = 'https://hitomi.la/allseries-';
+			
+			break;
+		case 'character':
+			url = 'https://hitomi.la/allcharacters-';
+
+			break;
+		case 'group':
+			url = 'https://hitomi.la/allgroups-';
+
+			break;
+		case 'language':
+			url = 'https://ltn.hitomi.la/language_support.js';
+
+			break;
+	}
+
+
+	if(type === 'language') {
+		return url;
+	} else if(type === 'male') {
+		return `${url}m.html`;
+	} else if(type === 'female') {
+		return `${url}f.html`;
+	} else {
+		return `${url}${startingCharacter}.html`;
 	}
 }
