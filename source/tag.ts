@@ -50,107 +50,106 @@ export function parseTag(tagString: string): Tag[] {
 }
 
 export function queryTag(tagList: Tag[]): Promise<number[]> {
-	if(tagList.length < 1) {
-		throw Error('Lack of tag');
-	}
-
-	let positiveTagList: Tag[] = [];
-	let negativeTagList: Tag[] = [];
-	
-	for(let i: number = 0; i < tagList.length; i++) {
-		switch(typeof(tagList[i]['isNegative']) !== 'undefined' ? tagList[i]['isNegative'] : false) {
-			case false:
-				positiveTagList.push(tagList[i]);
-
-				break;
-			case true:
-				negativeTagList.push(tagList[i]);
-
-				break;
-		}
-	}
-
 	return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
-		new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
-			if(positiveTagList.length === 0) {
-				getGalleryIdList({ startIndex: 0 })
-				.then((value: number[]) => resolve(value));
-
-				return;
-			} else {
-				resolve([]);
-
-				return;
+		if(tagList.length < 1) {
+			throw Error('Lack of tag');
+		} else {
+			let [positiveTagList, negativeTagList]: Tag[][] = [[], []];
+		
+			for(let i: number = 0; i < tagList.length; i++) {
+				switch(typeof(tagList[i]['isNegative']) !== 'undefined' ? tagList[i]['isNegative'] : false) {
+					case false:
+						positiveTagList.push(tagList[i]);
+	
+						break;
+					case true:
+						negativeTagList.push(tagList[i]);
+	
+						break;
+				}
 			}
-		})
-		.then(async function (value: number[]): Promise<void> {
-			let idList: number[] = value;
-
-			for(let i: number = 0; i < positiveTagList.length; i++) {
-				await fetch(getNozomiUrl(positiveTagList[i]), requestOption)
-				.then(function (response: Response): Promise<ArrayBuffer> {
-					return response.arrayBuffer();
-				})
-				.then(function (arrayBuffer: ArrayBuffer): void {
-					const dataView: DataView = new DataView(arrayBuffer);
-					const totalLength: number = dataView.byteLength / 4;
-
-					let queryIdList: number[] = [];
-
-					for(let j = 0; j < totalLength; j++) {
-						queryIdList.push(dataView.getInt32(j * 4, false));
-					}
-
-					let settedQueryIdList: Set<number> = new Set(queryIdList);
-					
-					if(i !== 0) {
+		
+			new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
+				if(positiveTagList.length === 0) {
+					getGalleryIdList({ startIndex: 0 })
+					.then((value: number[]) => resolve(value));
+	
+					return;
+				} else {
+					resolve([]);
+	
+					return;
+				}
+			})
+			.then(async function (value: number[]): Promise<void> {
+				let idList: number[] = value;
+	
+				for(let i: number = 0; i < positiveTagList.length; i++) {
+					await fetch(getNozomiUrl(positiveTagList[i]), requestOption)
+					.then(function (response: Response): Promise<ArrayBuffer> {
+						return response.arrayBuffer();
+					})
+					.then(function (arrayBuffer: ArrayBuffer): void {
+						const dataView: DataView = new DataView(arrayBuffer);
+						const totalLength: number = dataView.byteLength / 4;
+	
+						let queryIdList: number[] = [];
+	
+						for(let j = 0; j < totalLength; j++) {
+							queryIdList.push(dataView.getInt32(j * 4, false));
+						}
+	
+						let settedQueryIdList: Set<number> = new Set(queryIdList);
+						
+						if(i !== 0) {
+							idList = idList.filter(function (value: number, index: number, array: number[]): number | void {
+								if(settedQueryIdList.has(value)) {
+									return value;
+								} else {
+									return;
+								}
+							});
+						} else {
+							idList = [...queryIdList];
+						}
+	
+						return;
+					});
+				}
+	
+				for(let i: number = 0; i < negativeTagList.length; i++) {
+					await fetch(getNozomiUrl(negativeTagList[i]), requestOption)
+					.then(function (response: Response): ArrayBuffer | Promise<ArrayBuffer> {
+						return response.arrayBuffer();
+					})
+					.then(function (arrayBuffer: ArrayBuffer): void | PromiseLike<void> {
+						const dataView: DataView = new DataView(arrayBuffer);
+						const totalLength: number = dataView.byteLength / 4;
+	
+						let queryIdList: number[] = [];
+	
+						for(let j = 0; j < totalLength; j++) {
+							queryIdList.push(dataView.getInt32(j * 4, false));
+						}
+	
+						let settedQueryIdList: Set<number> = new Set(queryIdList);
+	
 						idList = idList.filter(function (value: number, index: number, array: number[]): number | void {
-							if(settedQueryIdList.has(value)) {
+							if(!settedQueryIdList.has(value)) {
 								return value;
 							} else {
 								return;
 							}
 						});
-					} else {
-						idList = [...queryIdList];
-					}
-
-					return;
-				});
-			}
-
-			for(let i: number = 0; i < negativeTagList.length; i++) {
-				await fetch(getNozomiUrl(negativeTagList[i]), requestOption)
-				.then(function (response: Response): ArrayBuffer | Promise<ArrayBuffer> {
-					return response.arrayBuffer();
-				})
-				.then(function (arrayBuffer: ArrayBuffer): void | PromiseLike<void> {
-					const dataView: DataView = new DataView(arrayBuffer);
-					const totalLength: number = dataView.byteLength / 4;
-
-					let queryIdList: number[] = [];
-
-					for(let j = 0; j < totalLength; j++) {
-						queryIdList.push(dataView.getInt32(j * 4, false));
-					}
-
-					let settedQueryIdList: Set<number> = new Set(queryIdList);
-
-					idList = idList.filter(function (value: number, index: number, array: number[]): number | void {
-						if(!settedQueryIdList.has(value)) {
-							return value;
-						} else {
-							return;
-						}
+	
+						return;
 					});
-
-					return;
-				});
-			}
-
-			resolve(idList);
-
-			return;
-		});
+				}
+	
+				resolve(idList);
+	
+				return;
+			});
+		}
 	});
 }

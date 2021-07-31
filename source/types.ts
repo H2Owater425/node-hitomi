@@ -17,16 +17,16 @@ export interface Tag {
 export interface Gallery {
 	id: number;
 	title: string;
-	titleJapanese: string | null;
-	type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg';
-	language: string | null;
-	languageLocalName: string | null;
-	artists: string[];
-	groups: string[];
-	series: string[];
-	characters: string[];
-	tags: Tag[];
-	files: Image[];
+	japaneseTitle: string | null;
+	type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'anime';
+	languageName: string | null;
+	localLanguageName: string | null;
+	artistList: string[];
+	groupList: string[];
+	seriesList: string[];
+	characterList: string[];
+	tagList: Tag[];
+	fileList: Image[];
 	publishedDate: Date;
 }
 

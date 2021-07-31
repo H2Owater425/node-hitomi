@@ -82,8 +82,8 @@ export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' 
 }
 
 export function getGalleryUrl(galleryData: Gallery): string {
-	const title: string = encodeURIComponent(galleryData['titleJapanese'] !== null ? galleryData['titleJapanese'] : galleryData['title']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-');
-	const language: string = galleryData['languageLocalName'] !== null ? `-${encodeURIComponent(galleryData['languageLocalName'])}` : '';
+	const title: string = encodeURIComponent(galleryData['japaneseTitle'] !== null ? galleryData['japaneseTitle'] : galleryData['title']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-');
+	const language: string = galleryData['localLanguageName'] !== null ? `-${encodeURIComponent(galleryData['localLanguageName'])}` : '';
 
 	return `https://hitomi.la/${galleryData['type']}/${title}${language}-${galleryData['id']}.html`.toLocaleLowerCase();
 }
