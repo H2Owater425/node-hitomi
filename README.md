@@ -26,7 +26,7 @@ $ yarn add node-hitomi
 
 - Get gellary ids by index range
 - Get gallary data by id
-- Parse/query tags
+- Parse, query and get tags
 - Get hitomi-related urls
 
 ## Usage/Examples
@@ -44,7 +44,7 @@ printing title and id of gallery number `x`:
 ```javascript
 hitomi.getGalleryData(x)
 .then(function (value) {
-  console.log(value['title'], value['id']);
+  console.log(value['title']['display'], value['id']);
 });
 ```
 
