@@ -29,12 +29,14 @@ $ yarn add node-hitomi
 - Parse, query and get tags
 - Get hitomi-related urls
 
+Without any dependencies!
+
 ## Usage/Examples
 
 setup:
 ```javascript
 // CommonJS
-const hitomi = require('node-hitomi');
+const hitomi = require('node-hitomi').default;
 
 // ES Module
 import hitomi from 'node-hitomi';
