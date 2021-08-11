@@ -102,11 +102,11 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 						let settedQueryIdList: Set<number> = new Set(queryIdList);
 						
 						if(i !== 0) {
-							idList = idList.filter(function (value: number, index: number, array: number[]): number | void {
+							idList = idList.filter(function (value: number, index: number, array: number[]): boolean {
 								if(settedQueryIdList.has(value)) {
-									return value;
+									return true;
 								} else {
-									return;
+									return false;
 								}
 							});
 						} else {
@@ -134,11 +134,11 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 	
 						let settedQueryIdList: Set<number> = new Set(queryIdList);
 	
-						idList = idList.filter(function (value: number, index: number, array: number[]): number | void {
+						idList = idList.filter(function (value: number, index: number, array: number[]): boolean {
 							if(!settedQueryIdList.has(value)) {
-								return value;
+								return true;
 							} else {
-								return;
+								return false;
 							}
 						});
 	
