@@ -1,8 +1,7 @@
 import { getNozomiUrl, getTagUrl } from "./url";
 import { StartingCharacter, Tag, TagType } from "./types";
 import { getGalleryIdList } from "./gallery";
-import fetch, { Response } from 'node-fetch';
-import { requestOption } from "./utilities";
+import { fetchBuffer, getArrayBuffer } from "./utilities";
 
 export function parseTag(tagString: string): Tag[] {
 	const tagStringList: string[] = tagString.split(' ');
@@ -85,11 +84,9 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 				let idList: number[] = value;
 	
 				for(let i: number = 0; i < positiveTagList.length; i++) {
-					await fetch(getNozomiUrl(positiveTagList[i]), requestOption)
-					.then(function (response: Response): Promise<ArrayBuffer> {
-						return response.arrayBuffer();
-					})
-					.then(function (arrayBuffer: ArrayBuffer): void {
+					await fetchBuffer(getNozomiUrl(positiveTagList[i]))
+					.then(function (buffer: Buffer): void | PromiseLike<void> {
+						const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
 						const dataView: DataView = new DataView(arrayBuffer);
 						const totalLength: number = dataView.byteLength / 4;
 	
@@ -102,11 +99,11 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 						let settedQueryIdList: Set<number> = new Set(queryIdList);
 						
 						if(i !== 0) {
-							idList = idList.filter(function (value: number, index: number, array: number[]): number | void {
+							idList = idList.filter(function (value: number, index: number, array: number[]): boolean {
 								if(settedQueryIdList.has(value)) {
-									return value;
+									return true;
 								} else {
-									return;
+									return false;
 								}
 							});
 						} else {
@@ -118,11 +115,9 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 				}
 	
 				for(let i: number = 0; i < negativeTagList.length; i++) {
-					await fetch(getNozomiUrl(negativeTagList[i]), requestOption)
-					.then(function (response: Response): ArrayBuffer | Promise<ArrayBuffer> {
-						return response.arrayBuffer();
-					})
-					.then(function (arrayBuffer: ArrayBuffer): void | PromiseLike<void> {
+					await fetchBuffer(getNozomiUrl(negativeTagList[i]))
+					.then(function (buffer: Buffer): void | PromiseLike<void> {
+						const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
 						const dataView: DataView = new DataView(arrayBuffer);
 						const totalLength: number = dataView.byteLength / 4;
 	
@@ -134,11 +129,11 @@ export function queryTag(tagList: Tag[]): Promise<number[]> {
 	
 						let settedQueryIdList: Set<number> = new Set(queryIdList);
 	
-						idList = idList.filter(function (value: number, index: number, array: number[]): number | void {
+						idList = idList.filter(function (value: number, index: number, array: number[]): boolean {
 							if(!settedQueryIdList.has(value)) {
-								return value;
+								return true;
 							} else {
-								return;
+								return false;
 							}
 						});
 	
@@ -183,13 +178,8 @@ export function getTagList(type: TagType, startingCharacter?: StartingCharacter)
 					},
 				]);
 			} else {
-				fetch(getTagUrl(type, startingCharacter), {
-					...requestOption
-				})
-				.then(function (response: Response): string | PromiseLike<string> {
-					return response.text();
-				})
-				.then(function (text: string): void {
+				fetchBuffer(getTagUrl(type, startingCharacter))
+				.then(function (buffer: Buffer): void | PromiseLike<void> {
 					let nameMatchRegularExpressionString: string = '';
 	
 					if(type === 'language') {
@@ -198,7 +188,7 @@ export function getTagList(type: TagType, startingCharacter?: StartingCharacter)
 						nameMatchRegularExpressionString = `(?<=\/tag\/${type === 'male' || type === 'female' ? type + '%3A' : ''})[a-z0-9%]+(?=-all\\.html)`;
 					}
 
-					const mattchedNameList: string[] = text.match(RegExp(nameMatchRegularExpressionString, 'g')) || [];
+					const mattchedNameList: string[] = buffer.toString('utf8').match(RegExp(nameMatchRegularExpressionString, 'g')) || [];
 					const nameValidateRegularExpression: RegExp = RegExp(`^(?=[${startingCharacter !== '123' ? startingCharacter : '0-9'}])[a-z0-9%]+$`);
 					let tagList: Tag[] = [];
 
