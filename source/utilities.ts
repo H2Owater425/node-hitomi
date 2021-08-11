@@ -18,6 +18,8 @@ class _Agent extends Agent {
 	}
 }
 
+const agent: _Agent = new _Agent({ rejectUnauthorized: false, keepAlive: true });
+
 export function fetchBuffer(url: string, header?: LooseObject): Promise<Buffer> {
 	return new Promise<Buffer>(function (resolve: (value: Buffer | PromiseLike<Buffer>) => void, reject: (reason?: any) => void): void {
 		const _url: URL = new URL(url);
@@ -32,7 +34,7 @@ export function fetchBuffer(url: string, header?: LooseObject): Promise<Buffer> 
 				'Connection': 'keep-alive',
 				...header
 			},
-			agent: new _Agent({ rejectUnauthorized: false, keepAlive: true })
+			agent: agent
 		}, function (response: IncomingMessage): void {
 			let bufferList: Buffer[] = [];
 			let bufferLength: number = 0;
