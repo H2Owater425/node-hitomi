@@ -130,6 +130,7 @@ temp/
 !.yarn/sdks
 !.yarn/versions
 !.yarn/cache
+yarn.lock
 
 # Build file
 source/index.ts
