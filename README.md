@@ -46,7 +46,7 @@ printing title and id of gallery number `x`:
 ```javascript
 hitomi.getGalleryData(x)
 .then(function (value) {
-  console.log(value['title']['display'], value['id']);
+	console.log(value['title']['display'], value['id']);
 });
 ```
 
@@ -63,6 +63,6 @@ printing number of language `korean` gallery without female tag `netorare`:
 hitomi.queryTag([{ type: 'language', name: 'korean' },
 { type: 'female', name: 'netorare', isNegative: true }])
 .then(function (value) {
-  console.log(value.length);
+	console.log(value.length);
 });
 ```
