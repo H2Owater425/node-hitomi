@@ -1,7 +1,6 @@
 import { Gallery, LooseObject, OrderCriteria, Tag } from "./types";
 import { getGalleryUrl } from "./url";
-import fetch, { Response } from 'node-fetch';
-import { isInteger, requestOption } from "./utilities";
+import { fetchBuffer, getArrayBuffer, isInteger } from "./utilities";
 
 export function getGalleryData(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery> {
 	if(!isInteger(id) || (isInteger(id) && id < 1)) {
@@ -11,12 +10,9 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 		const includeFullData: boolean = typeof(option) !== 'undefined' && typeof(option['includeFullData']) !== 'undefined' ? option['includeFullData'] : true;
 	
 		return new Promise<Gallery>(function (resolve: (value: Gallery | PromiseLike<Gallery>) => void, reject: (reason?: any) => void): void {
-			fetch(`https://ltn.hitomi.la/galleries/${id}.js`, requestOption)
-			.then(function (response: Response): string | PromiseLike<string> {
-				return response.text();
-			})
-			.then(function (responseText: string): void | PromiseLike<void> {
-				const responseJson: LooseObject = JSON.parse(responseText.slice(18));
+			fetchBuffer(`https://ltn.hitomi.la/galleries/${id}.js`)
+			.then(function (buffer: Buffer): void | PromiseLike<void> {
+				const responseJson: LooseObject = JSON.parse(buffer.toString('utf8').slice(18));
 
 				let galleryData: Gallery = {
 					id: responseJson['id'],
@@ -70,12 +66,9 @@ export function getGalleryData(id: number, option?: { includeFullData?: boolean;
 				}
 
 				if(includeFullData) {
-					fetch(getGalleryUrl(galleryData), requestOption)
-					.then(function (_response: Response): string | PromiseLike<string> {
-						return _response.text();
-					})
-					.then(function (_responseText: string): void | PromiseLike<void> {
-						const galleryContentHtml: string = _responseText.split('content">')[1];
+					fetchBuffer(getGalleryUrl(galleryData))
+					.then(function (_buffer: Buffer): void | PromiseLike<void> {
+						const galleryContentHtml: string = _buffer.toString('utf8').split('content">')[1];
 
 						if(typeof(galleryContentHtml) !== 'undefined') {
 							['artist', 'group', 'series', 'character'].forEach(function (value: string, index: number, array: string[]): void {
@@ -111,16 +104,9 @@ export function getGalleryIdList(range: { startIndex: number; endIndex?: number;
 			const orderBy: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
 			const reverseResult: boolean = typeof(option) !== 'undefined' && typeof(option['reverseResult']) !== 'undefined' ? option['reverseResult'] : false;
 
-			fetch(`https://ltn.hitomi.la/${orderBy}-all.nozomi`, {
-				...requestOption,
-				headers: {
-					'Range': `bytes=${startByte}-${endByte}`
-				}
-			})
-			.then(function (response: Response): ArrayBuffer | PromiseLike<ArrayBuffer> {
-				return response.arrayBuffer();
-			})
-			.then(function (arrayBuffer: ArrayBuffer): void | PromiseLike<void> {
+			fetchBuffer(`https://ltn.hitomi.la/${orderBy}-all.nozomi`, { Range: `bytes=${startByte}-${endByte}` })
+			.then(function (buffer: Buffer): void | PromiseLike<void> {
+				const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
 				const dataView: DataView = new DataView(arrayBuffer);
 				const totalLength: number = dataView.byteLength / 4;
 			
