@@ -64,6 +64,5 @@ hitomi.queryTag([{ type: 'language', name: 'korean' },
 { type: 'female', name: 'netorare', isNegative: true }])
 .then(function (value) {
   console.log(value.length);
-  // 
 });
 ```
