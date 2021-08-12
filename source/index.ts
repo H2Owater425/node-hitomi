@@ -430,41 +430,32 @@ module hitomi {
 		if(tagStringList.length < 1) {
 			throw Error('Lack of tag');
 		} else {
-			let positiveTagStringList: string[] = [...tagStringList].map(function (value: string, index: number, array: string[]): string {
-				const splitedTag: string[] = value.replace(/^-/, '').split(':');
-				const [type, name]: string[] = [...splitedTag];
+			let tagList: Tag[] = [];
+			let positiveTagStringList: string[] = [];
+	
+			for(let i: number = 0; i < tagStringList.length; i++) {
+				const splitedTagWithoutMinus: string[] = tagStringList[i].replace(/^-/, '').split(':');
 		
-				if(splitedTag.length !== 2 || typeof(type) === 'undefined' || typeof(name) === 'undefined' || type === '' || name === '' || !/^(artist|group|type|language|series|tag|male|female)$/.test(type) || !/^[^-_\.][a-z0-9-_.]+$/.test(name)) {
+				if(splitedTagWithoutMinus.length !== 2 || typeof(splitedTagWithoutMinus[0]) === 'undefined' || typeof(splitedTagWithoutMinus[1]) === 'undefined' || splitedTagWithoutMinus[0] === '' || splitedTagWithoutMinus[1] === '' || !/^(artist|group|type|language|series|tag|male|female)$/.test(splitedTagWithoutMinus[0]) || !/^[^-_\.][a-z0-9-_.]+$/.test(splitedTagWithoutMinus[1])) {
 					throw Error('Invalid tag');
 				} else {
-					return `${type}:${name}`;
-				}
-			});
-		
-			for(let i: number = 0; i < positiveTagStringList.length; i++) {
-				const name: string = positiveTagStringList[i];
-				positiveTagStringList.splice(i, 1);
-		
-				if(positiveTagStringList.indexOf(name) !== -1) {
-					throw Error('Duplicated tag');
-				} else {
-					continue;
+					const _tagString: string = `${splitedTagWithoutMinus[0]}:${splitedTagWithoutMinus[1]}`;
+	
+					if(positiveTagStringList.includes(_tagString)) {
+						throw Error('Duplicated tag');
+					} else {
+						tagList.push({
+							// @ts-expect-error :: Since type element of Tag in node-hitomi is based on hitomi tag, parsing it will return corresponding type value
+							type: splitedTagWithoutMinus[0],
+							name: splitedTagWithoutMinus[1],
+							isNegative: tagStringList[i].startsWith('-')
+						});
+	
+						positiveTagStringList.push(_tagString);
+					}
 				}
 			}
-		
-			let tagList: Tag[] = [];
-		
-			for(let i: number = 0; i < tagStringList.length; i++) {
-				const [type, name]: string[] = tagStringList[i].replace(/^-/, '').split(':');
-		
-				tagList.push({
-					// @ts-expect-error :: Since type element of Tag in node-hitomi is based on hitomi tag, parsing it will return corresponding type value
-					type: type,
-					name: name,
-					isNegative: tagStringList[i].startsWith('-')
-				});
-			}
-		
+	
 			return tagList;
 		}
 	}
@@ -474,98 +465,94 @@ module hitomi {
 			if(tagList.length < 1) {
 				throw Error('Lack of tag');
 			} else {
-				let [positiveTagList, negativeTagList]: Tag[][] = [[], []];
-			
-				for(let i: number = 0; i < tagList.length; i++) {
-					switch(typeof(tagList[i]['isNegative']) !== 'undefined' ? tagList[i]['isNegative'] : false) {
-						case false:
-							positiveTagList.push(tagList[i]);
-		
-							break;
-						case true:
-							negativeTagList.push(tagList[i]);
-		
-							break;
-					}
-				}
-			
-				new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
-					if(positiveTagList.length === 0) {
-						getGalleryIdList({ startIndex: 0 })
-						.then((value: number[]) => resolve(value));
-		
-						return;
+				tagList.sort(function (a: Tag, b: Tag): number {
+					const [isANegative, isBNegative]: boolean[] = [typeof(a['isNegative']) !== 'undefined' ? a['isNegative'] : false, typeof(b['isNegative']) !== 'undefined' ? b['isNegative'] : false]
+	
+					if(!isANegative && !isBNegative){
+						return 0;
+					} else if(!isANegative) {
+						return -1;
 					} else {
-						resolve([]);
-		
-						return;
+						return 1;
 					}
-				})
-				.then(async function (value: number[]): Promise<void> {
-					let idList: number[] = value;
-		
-					for(let i: number = 0; i < positiveTagList.length; i++) {
-						await fetchBuffer(getNozomiUrl(positiveTagList[i]))
+				});
+	
+				let idSet: Set<number> = new Set<number>();
+	
+				let filterPromiseList: Promise<Set<number>>[] = tagList.map(function (tag: Tag, index: number, array: Tag[]): Promise<Set<number>> {
+					return new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
+						fetchBuffer(getNozomiUrl(tag))
 						.then(function (buffer: Buffer): void | PromiseLike<void> {
 							const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
 							const dataView: DataView = new DataView(arrayBuffer);
-							const totalLength: number = dataView.byteLength / 4;
-		
-							let queryIdList: number[] = [];
-		
-							for(let j = 0; j < totalLength; j++) {
-								queryIdList.push(dataView.getInt32(j * 4, false));
+							const dividedDataviewLength: number = dataView.byteLength / 4;
+	
+							let _idSet: Set<number> = new Set<number>();
+	
+							for(let i = 0; i < dividedDataviewLength; i++) {
+								_idSet.add(dataView.getInt32(i * 4, false));
 							}
-		
-							let settedQueryIdList: Set<number> = new Set(queryIdList);
-							
-							if(i !== 0) {
-								idList = idList.filter(function (value: number, index: number, array: number[]): boolean {
-									if(settedQueryIdList.has(value)) {
-										return true;
-									} else {
-										return false;
-									}
-								});
-							} else {
-								idList = [...queryIdList];
-							}
-		
+	
+							resolve(_idSet);
+	
 							return;
 						});
-					}
-		
-					for(let i: number = 0; i < negativeTagList.length; i++) {
-						await fetchBuffer(getNozomiUrl(negativeTagList[i]))
-						.then(function (buffer: Buffer): void | PromiseLike<void> {
-							const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
-							const dataView: DataView = new DataView(arrayBuffer);
-							const totalLength: number = dataView.byteLength / 4;
-		
-							let queryIdList: number[] = [];
-		
-							for(let j = 0; j < totalLength; j++) {
-								queryIdList.push(dataView.getInt32(j * 4, false));
-							}
-		
-							let settedQueryIdList: Set<number> = new Set(queryIdList);
-		
-							idList = idList.filter(function (value: number, index: number, array: number[]): boolean {
-								if(!settedQueryIdList.has(value)) {
-									return true;
-								} else {
-									return false;
+	
+						return;
+					});
+				});
+	
+				filterPromiseList.push(new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
+					resolve(new Set<number>());
+				}));
+	
+				if(typeof(tagList[0]['isNegative']) !== 'undefined' ? tagList[0]['isNegative'] : false) {
+					// Not affecting result, but to run properly it is needed to unshift one tag.
+					tagList.unshift({
+						type: 'female',
+						name: 'yandere'
+					});
+	
+					filterPromiseList.unshift(new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
+						getGalleryIdList({ startIndex: 0 })
+						.then(function (idList: number[]): void {
+							resolve(new Set<number>(idList));
+	
+							return;
+						});
+	
+						return;
+					}));
+				}
+	
+				filterPromiseList.reduce(function (previousPromise: Promise<Set<number>>, currentPromise: Promise<Set<number>>, currentIndex: number, array: Promise<Set<number>>[]): Promise<Set<number>> {
+					return previousPromise
+					.then(function (_idSet: Set<number>): Promise<Set<number>> {
+						const fixedCurrentIndex: number = currentIndex - 1;
+	
+						if(fixedCurrentIndex === 0) {
+							idSet = _idSet;
+						} else {
+							// @ts-expect-error :: Typescript's fault
+							const isPreviousTagNegative: boolean = typeof(tagList[fixedCurrentIndex]['isNegative']) !== 'undefined' ? tagList[fixedCurrentIndex]['isNegative'] : false;
+							
+							idSet.forEach(function (id: number, id2: number, set: Set<number>): void {
+								if(isPreviousTagNegative === _idSet.has(id)/* !(isPreviousTagNegative ^ _idSet.has(id)) */) {
+									idSet.delete(id);
 								}
 							});
-		
-							return;
-						});
-					}
-		
-					resolve(idList);
-		
+						}
+	
+						return currentPromise;
+					})
+				})
+				.then(function (_idSet: Set<number>): void | PromiseLike<void> {
+					resolve(Array.from(idSet));
+	
 					return;
 				});
+	
+				return;
 			}
 		});
 	}
