@@ -1,2 +1,6 @@
 # Stop people from downloading source file when they download package
 source/
+
+# Test file
+test.ts
+test.js
