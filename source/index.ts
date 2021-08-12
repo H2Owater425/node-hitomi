@@ -609,14 +609,14 @@ module hitomi {
 							nameMatchRegularExpressionString = `(?<=\/tag\/${type === 'male' || type === 'female' ? type + '%3A' : ''})[a-z0-9%]+(?=-all\\.html)`;
 						}
 	
-						const mattchedNameList: string[] = buffer.toString('utf8').match(RegExp(nameMatchRegularExpressionString, 'g')) || [];
+						const matchedNameList: string[] = buffer.toString('utf8').match(RegExp(nameMatchRegularExpressionString, 'g')) || [];
 						const nameValidateRegularExpression: RegExp = RegExp(`^(?=[${startingCharacter}])[a-z0-9%]+$`);
 						let tagList: Tag[] = [];
 	
-						for(let i: number = 0; i < mattchedNameList.length; i++) {
-							const name: string = decodeURIComponent(mattchedNameList[i]);
+						for(let i: number = 0; i < matchedNameList.length; i++) {
+							const name: string = decodeURIComponent(matchedNameList[i]);
 							
-							if(mattchedNameList[i].match(nameValidateRegularExpression) !== null) {
+							if(matchedNameList[i].match(nameValidateRegularExpression) !== null) {
 								tagList.push({
 									type: type,
 									name: name
