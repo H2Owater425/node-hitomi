@@ -8,7 +8,7 @@ module hitomi {
 	export interface Image {
 		index: number;
 		hash: string;
-		extension: 'jpg' | 'png';
+		extension: 'jpg' | 'png' | 'gif';
 		hasAvif: boolean;
 		hasWebp: boolean;
 		width: number;
