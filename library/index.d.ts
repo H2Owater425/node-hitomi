@@ -44,12 +44,12 @@ declare module hitomi {
 	/**
 	 * Returns image url from an image
 	 * @param  {Image} image
-	 * @param  {Object} [option]
 	 * @param  {Image['extension']|'avif'|'webp'} extension
+	 * @param  {object} [option]
 	 * @param  {boolean} [option.isThumbnail=false] If set to true, the function will return thumbnail url
 	 * @returns {string}
 	 */
-	export function getImageUrl(image: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string;
+	export function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string;
 
 	/**
 	 * Returns video url from gallery
@@ -68,7 +68,7 @@ declare module hitomi {
 	/**
 	 * Returns nozomi url from tag
 	 * @param  {Tag} tag
-	 * @param  {Object} [option]
+	 * @param  {object} [option]
 	 * @param  {OrderCriteria} [option.orderBy='index'] If set to 'popularity', the function will return nozomi url that responds id-data order by popularity
 	 * @returns {string}
 	 */
@@ -77,7 +77,7 @@ declare module hitomi {
 	/**
 	 * Returns tag list url with specific character
 	 * @param  {TagType} type
-	 * @param  {Object} [option]
+	 * @param  {object} [option]
 	 * @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return hitomi url that responds tag-data that starts with that character
 	 * @returns {string}
 	 */
@@ -86,7 +86,7 @@ declare module hitomi {
 	/**
 	 * Returns gallery from hitomi from id
 	 * @param  {number} id
-	 * @param  {Object} [option]
+	 * @param  {object} [option]
 	 * @param  {boolean} [option.includeFullData=true] If set to false, the function will not return gallery data including artists, groups, series, characters
 	 * @param  {boolean} [option.includeFiles=true] If set to false, the function will not return gallery data including files
 	 * @returns {Promise<Gallery>}
@@ -95,10 +95,10 @@ declare module hitomi {
 
 	/**
 	 * Returns id list from hitomi from range
-	 * @param  {Object} range
+	 * @param  {object} range
 	 * @param  {number} range.startIndex
 	 * @param  {number} [range.endIndex] If not set, the function will return a list contains every id
-	 * @param  {Object} [option]
+	 * @param  {object} [option]
 	 * @param  {OrderCriteria} [option.orderBy='index'] If set to 'popularity', the function will return id list ordered by popularity
 	 * @param  {boolean} [option.reverseResult=false] If set to true, the function will return reversed id list
 	 * @returns {Promise<number[]>}
