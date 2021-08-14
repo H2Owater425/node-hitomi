@@ -120,7 +120,9 @@ module hitomi {
 				});
 	
 				return;
-			}).end();
+			})
+			.on('error', reject)
+			.end();
 	
 			return;
 		});
@@ -134,40 +136,40 @@ module hitomi {
 		switch(extension) {
 			case 'jpg':
 				if(!isThumbnail && imageData['extension'] !== 'jpg') {
-					throw Error('Invalid extension');
+					throw new Error('Invalid extension');
 				} else {
 					break;
 				}
 			case 'png':
 				if(imageData['extension'] !== 'png') {
-					throw Error('Invalid extension');
+					throw new Error('Invalid extension');
 				} else if(isThumbnail) {
-					throw Error('Invalid extension for thumbnail');
+					throw new Error('Invalid extension for thumbnail');
 				} else {
 					break;
 				}
 			case 'avif':
 				if(!imageData['hasAvif']) {
-					throw Error('Invalid extension');
+					throw new Error('Invalid extension');
 				} else {
 					break;
 				}
 			case 'webp':
 				if(!imageData['hasWebp']) {
-					throw Error('Invalid extension');
+					throw new Error('Invalid extension');
 				} else if(isThumbnail) {
-					throw Error('Invalid extension for thumbnail');
+					throw new Error('Invalid extension for thumbnail');
 				} else {
 					break;
 				}
 		}
 	
 		if(!/^[0-9a-f]{64}$/.test(imageData['hash'])) {
-			throw Error('Invalid hash value');
+			throw new Error('Invalid hash value');
 		} else if(!isInteger(imageData['index']) || imageData['index'] < 0) {
-			throw Error('Invalid image index');
+			throw new Error('Invalid image index');
 		} else if(isThumbnail && imageData['index'] !== 0) {
-			throw Error('Invalid index for thumbnail');
+			throw new Error('Invalid index for thumbnail');
 		} else {
 			const imagePath: string = `${imageData['hash'].slice(-1)}/${imageData['hash'].slice(-3, -1)}/${imageData['hash']}`;
 			let subdomain: string = '';
@@ -221,7 +223,7 @@ module hitomi {
 	
 	export function getNozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria }): string {
 		if(tag['type'] !== 'language' && typeof(option) !== 'undefined' && typeof(option['orderBy'])) {
-			throw Error(`Invalid order criteria for ${tag['type']} tag type`);
+			throw new Error(`Invalid order criteria for ${tag['type']} tag type`);
 		} else {
 			const orderBy: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
 	
@@ -284,7 +286,6 @@ module hitomi {
 				break;
 		}
 	
-	
 		if(type === 'language') {
 			return url;
 		} else if(type === 'male') {
@@ -300,7 +301,7 @@ module hitomi {
 
 	export function getGalleryData(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery> {
 		if(!isInteger(id) || (isInteger(id) && id < 1)) {
-			throw Error('Invalid id value');
+			throw new Error('Invalid id value');
 		} else {
 			const includeFiles: boolean = typeof(option) !== 'undefined' && typeof(option['includeFiles']) !== 'undefined' ? option['includeFiles'] : true;
 			const includeFullData: boolean = typeof(option) !== 'undefined' && typeof(option['includeFullData']) !== 'undefined' ? option['includeFullData'] : true;
@@ -377,24 +378,30 @@ module hitomi {
 							resolve(galleryData);
 	
 							return;
-						});
+						})
+						.catch(reject);
 					} else {
 						resolve(galleryData);
 	
 						return;
 					}
-				});
+				})
+				.catch(reject);
 			});
 		}
 	}
 	
 	export function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria, reverseResult?: boolean; }): Promise<number[]> {
-		if(!isInteger(range['startIndex']) || (isInteger(range['startIndex']) && range['startIndex'] < 0)) {
-			throw Error('Invalid startIndex value');
-		} else if(typeof(range['endIndex']) !== 'undefined' && (!isInteger(range['endIndex']) || (isInteger(range['endIndex']) && range['endIndex'] <= range['startIndex']))) {
-			throw Error('Invalid endIndex value');
-		} else {
-			return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason: any) => void) {
+		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason: any) => void) {
+			if(!isInteger(range['startIndex']) || (isInteger(range['startIndex']) && range['startIndex'] < 0)) {
+				reject(new Error('Invalid startIndex value'));
+				
+				return;
+			} else if(typeof(range['endIndex']) !== 'undefined' && (!isInteger(range['endIndex']) || (isInteger(range['endIndex']) && range['endIndex'] <= range['startIndex']))) {
+				reject(new Error('Invalid endIndex value'));
+				
+				return;
+			} else {
 				const startByte: number = range['startIndex'] * 4;
 				const endByte: number | string = typeof(range['endIndex']) !== 'undefined' ? startByte + (range['endIndex'] + 1) * 4 - 1 : '';
 				const orderBy: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
@@ -421,9 +428,10 @@ module hitomi {
 					resolve(galleryIdList);
 	
 					return;
-				});
-			});
-		}
+				})
+				.catch(reject);
+			}
+		});
 	}
 
 	// tag
@@ -432,7 +440,7 @@ module hitomi {
 		const tagStringList: string[] = tagString.split(' ');
 	
 		if(tagStringList.length < 1) {
-			throw Error('Lack of tag');
+			throw new Error('Lack of tag');
 		} else {
 			let tagList: Tag[] = [];
 			let positiveTagStringList: string[] = [];
@@ -441,12 +449,12 @@ module hitomi {
 				const splitedTagWithoutMinus: string[] = tagStringList[i].replace(/^-/, '').split(':');
 		
 				if(splitedTagWithoutMinus.length !== 2 || typeof(splitedTagWithoutMinus[0]) === 'undefined' || typeof(splitedTagWithoutMinus[1]) === 'undefined' || splitedTagWithoutMinus[0] === '' || splitedTagWithoutMinus[1] === '' || !/^(artist|group|type|language|series|tag|male|female)$/.test(splitedTagWithoutMinus[0]) || !/^[^-_\.][a-z0-9-_.]+$/.test(splitedTagWithoutMinus[1])) {
-					throw Error('Invalid tag');
+					throw new Error('Invalid tag');
 				} else {
 					const _tagString: string = `${splitedTagWithoutMinus[0]}:${splitedTagWithoutMinus[1]}`;
 	
 					if(positiveTagStringList.includes(_tagString)) {
-						throw Error('Duplicated tag');
+						throw new Error('Duplicated tag');
 					} else {
 						tagList.push({
 							// @ts-expect-error :: Since type element of Tag in node-hitomi is based on hitomi tag, parsing it will return corresponding type value
@@ -467,7 +475,7 @@ module hitomi {
 	export function queryTag(tagList: Tag[]): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
 			if(tagList.length < 1) {
-				throw Error('Lack of tag');
+				throw new Error('Lack of tag');
 			} else {
 				tagList.sort(function (a: Tag, b: Tag): number {
 					const [isANegative, isBNegative]: boolean[] = [typeof(a['isNegative']) !== 'undefined' ? a['isNegative'] : false, typeof(b['isNegative']) !== 'undefined' ? b['isNegative'] : false]
@@ -500,7 +508,8 @@ module hitomi {
 							resolve(_idSet);
 	
 							return;
-						});
+						})
+						.catch(reject);
 	
 						return;
 					});
@@ -523,7 +532,8 @@ module hitomi {
 							resolve(new Set<number>(idList));
 	
 							return;
-						});
+						})
+						.catch(reject);
 	
 						return;
 					}));
@@ -554,7 +564,8 @@ module hitomi {
 					resolve(Array.from(idSet));
 	
 					return;
-				});
+				})
+				.catch(reject);
 	
 				return;
 			}
@@ -564,7 +575,9 @@ module hitomi {
 	export function getTagList(type: TagType, startingCharacter?: StartingCharacter): Promise<Tag[]> {
 		return new Promise<Tag[]>(function (resolve: (value: Tag[] | PromiseLike<Tag[]>) => void, reject: (reason?: any) => void): void {
 			if(type !== 'language' && type !== 'type' && typeof(startingCharacter) === 'undefined' || (type === 'language' || type === 'type') && typeof(startingCharacter) !== 'undefined') {
-				throw Error('Invalid startingCharacter');
+				reject(new Error('Invalid startingCharacter'));
+				
+				return;
 			} else {
 				if(type === 'type') {
 					resolve([
@@ -618,7 +631,8 @@ module hitomi {
 						resolve(tagList);
 		
 						return;
-					});
+					})
+					.catch(reject);
 				}
 			}
 		});
