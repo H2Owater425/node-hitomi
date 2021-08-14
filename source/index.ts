@@ -162,6 +162,14 @@ module hitomi {
 				} else {
 					break;
 				}
+			case 'gif':
+				if(image['extension'] !== 'gif') {
+					throw new Error('Invalid extension');
+				} else if(isThumbnail) {
+					throw new Error('Invalid extension for thumbnail');
+				} else {
+					break;
+				}
 		}
 	
 		if(!/^[0-9a-f]{64}$/.test(image['hash'])) {
