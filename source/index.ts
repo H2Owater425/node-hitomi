@@ -207,6 +207,10 @@ module hitomi {
 			return `https://${subdomain}.hitomi.la/${folderName}/${imagePath}.${extension}`;
 		}
 	}
+
+	export function getVideoUrl(gallery: Gallery): string {
+		return `https://streaming.hitomi.la/videos/${gallery['title']['display'].toLowerCase().replace(/\s/g, '-')}.mp4`;
+	}
 	
 	export function getGalleryUrl(galleryData: Gallery): string {
 		const title: string = encodeURIComponent(galleryData['title']['japanese'] !== null ? galleryData['title']['japanese'] : galleryData['title']['display']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-');
