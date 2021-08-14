@@ -130,18 +130,18 @@ module hitomi {
 
 	// url resolver
 
-	export function getImageUrl(imageData: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string {
+	export function getImageUrl(image: Image, extension: 'jpg' | 'png' | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string {
 		const isThumbnail: boolean = typeof(option) !== 'undefined' && typeof(option['isThumbnail']) !== 'undefined' ? option['isThumbnail'] : false;
 	
 		switch(extension) {
 			case 'jpg':
-				if(!isThumbnail && imageData['extension'] !== 'jpg') {
+				if(!isThumbnail && image['extension'] !== 'jpg') {
 					throw new Error('Invalid extension');
 				} else {
 					break;
 				}
 			case 'png':
-				if(imageData['extension'] !== 'png') {
+				if(image['extension'] !== 'png') {
 					throw new Error('Invalid extension');
 				} else if(isThumbnail) {
 					throw new Error('Invalid extension for thumbnail');
@@ -149,13 +149,13 @@ module hitomi {
 					break;
 				}
 			case 'avif':
-				if(!imageData['hasAvif']) {
+				if(!image['hasAvif']) {
 					throw new Error('Invalid extension');
 				} else {
 					break;
 				}
 			case 'webp':
-				if(!imageData['hasWebp']) {
+				if(!image['hasWebp']) {
 					throw new Error('Invalid extension');
 				} else if(isThumbnail) {
 					throw new Error('Invalid extension for thumbnail');
@@ -164,20 +164,20 @@ module hitomi {
 				}
 		}
 	
-		if(!/^[0-9a-f]{64}$/.test(imageData['hash'])) {
+		if(!/^[0-9a-f]{64}$/.test(image['hash'])) {
 			throw new Error('Invalid hash value');
-		} else if(!isInteger(imageData['index']) || imageData['index'] < 0) {
+		} else if(!isInteger(image['index']) || image['index'] < 0) {
 			throw new Error('Invalid image index');
-		} else if(isThumbnail && imageData['index'] !== 0) {
+		} else if(isThumbnail && image['index'] !== 0) {
 			throw new Error('Invalid index for thumbnail');
 		} else {
-			const imagePath: string = `${imageData['hash'].slice(-1)}/${imageData['hash'].slice(-3, -1)}/${imageData['hash']}`;
+			const imagePath: string = `${image['hash'].slice(-1)}/${image['hash'].slice(-3, -1)}/${image['hash']}`;
 			let subdomain: string = '';
 			let folderName: string = '';
 	
 			if(!isThumbnail) {
 				//let frontendCount: number = 3; Not used anymore
-				let hexadecimalId: number = Number.parseInt(imageData['hash'].slice(-3, -1), 16);
+				let hexadecimalId: number = Number.parseInt(image['hash'].slice(-3, -1), 16);
 	
 				let temporaryNumber: number = 0;
 	
@@ -214,11 +214,8 @@ module hitomi {
 		return `https://streaming.hitomi.la/videos/${gallery['title']['display'].toLowerCase().replace(/\s/g, '-')}.mp4`;
 	}
 	
-	export function getGalleryUrl(galleryData: Gallery): string {
-		const title: string = encodeURIComponent(galleryData['title']['japanese'] !== null ? galleryData['title']['japanese'] : galleryData['title']['display']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-');
-		const language: string = galleryData['languageName']['local'] !== null ? `-${encodeURIComponent(galleryData['languageName']['local'])}` : '';
-	
-		return `https://hitomi.la/${galleryData['type']}/${title}${language}-${galleryData['id']}.html`.toLocaleLowerCase();
+	export function getGalleryUrl(gallery: Gallery): string {
+		return `https://hitomi.la/${gallery['type']}/${encodeURIComponent(gallery['title']['japanese'] !== null ? gallery['title']['japanese'] : gallery['title']['display']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-')}${gallery['languageName']['local'] !== null ? `-${encodeURIComponent(gallery['languageName']['local'])}` : ''}-${gallery['id']}.html`.toLocaleLowerCase();
 	}
 	
 	export function getNozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria }): string {
@@ -254,7 +251,8 @@ module hitomi {
 		}
 	}
 	
-	export function getTagUrl(type: TagType, startingCharacter?: StartingCharacter): string {
+	export function getTagUrl(type: TagType, option: { startWith: StartingCharacter }): string {
+		const startingCharacter: StartingCharacter = option['startWith'];
 		let url: string = '';
 	
 		switch(type) {
@@ -299,7 +297,7 @@ module hitomi {
 
 	// gallery
 
-	export function getGalleryData(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery> {
+	export function getGallery(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery> {
 		if(!isInteger(id) || (isInteger(id) && id < 1)) {
 			throw new Error('Invalid id value');
 		} else {
@@ -391,7 +389,7 @@ module hitomi {
 		}
 	}
 	
-	export function getGalleryIdList(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria, reverseResult?: boolean; }): Promise<number[]> {
+	export function getIdList(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria, reverseResult?: boolean; }): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason: any) => void) {
 			if(!isInteger(range['startIndex']) || (isInteger(range['startIndex']) && range['startIndex'] < 0)) {
 				reject(new Error('Invalid startIndex value'));
@@ -436,7 +434,7 @@ module hitomi {
 
 	// tag
 
-	export function parseTag(tagString: string): Tag[] {
+	export function getParsedTagList(tagString: string): Tag[] {
 		const tagStringList: string[] = tagString.split(' ');
 	
 		if(tagStringList.length < 1) {
@@ -472,7 +470,7 @@ module hitomi {
 		}
 	}
 	
-	export function queryTag(tagList: Tag[]): Promise<number[]> {
+	export function getQueriedIdList(tagList: Tag[]): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
 			if(tagList.length < 1) {
 				throw new Error('Lack of tag');
@@ -527,7 +525,7 @@ module hitomi {
 					});
 	
 					filterPromiseList.unshift(new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
-						getGalleryIdList({ startIndex: 0 })
+						getIdList({ startIndex: 0 })
 						.then(function (idList: number[]): void {
 							resolve(new Set<number>(idList));
 	
@@ -572,9 +570,9 @@ module hitomi {
 		});
 	}
 	
-	export function getTagList(type: TagType, startingCharacter?: StartingCharacter): Promise<Tag[]> {
+	export function getTagList(type: TagType, option?: { startWith?: StartingCharacter }): Promise<Tag[]> {
 		return new Promise<Tag[]>(function (resolve: (value: Tag[] | PromiseLike<Tag[]>) => void, reject: (reason?: any) => void): void {
-			if(type !== 'language' && type !== 'type' && typeof(startingCharacter) === 'undefined' || (type === 'language' || type === 'type') && typeof(startingCharacter) !== 'undefined') {
+			if(type !== 'language' && type !== 'type' && (typeof(option) === 'undefined' || typeof(option['startWith']) === 'undefined') || (type === 'language' || type === 'type') && typeof(option) !== 'undefined' && typeof(option['startWith']) !== 'undefined') {
 				reject(new Error('Invalid startingCharacter'));
 				
 				return;
@@ -603,7 +601,10 @@ module hitomi {
 						},
 					]);
 				} else {
-					fetchBuffer(getTagUrl(type, startingCharacter))
+					// @ts-expect-error :: Already checked availability of startingCharacter
+					const startingCharacter: StartingCharacter = option['startWith'];
+
+					fetchBuffer(getTagUrl(type, { startWith: startingCharacter }))
 					.then(function (buffer: Buffer): void | PromiseLike<void> {
 						let nameMatchRegularExpressionString: string = '';
 		
