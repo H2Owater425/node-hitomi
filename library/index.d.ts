@@ -44,8 +44,8 @@ declare module hitomi {
 	/**
 	 * Returns image url from an image
 	 * @param  {Image} image
-	 * @param  {'jpg'|'png'|'avif'|'webp'} extension
 	 * @param  {Object} [option]
+	 * @param  {Image['extension']|'avif'|'webp'} extension
 	 * @param  {boolean} [option.isThumbnail=false] If set to true, the function will return thumbnail url
 	 * @returns {string}
 	 */
