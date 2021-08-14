@@ -6,6 +6,7 @@
 	"types": "./library/index.d.ts",
 	"scripts": {
 		"build": "tsc --project ./tsbuild.json",
+		"test": "jest --preset ts-jest ./test.ts",
 		"dev": "nodemon --exec ts-node --files ./test.ts"
 	},
 	"repository": {
@@ -25,11 +26,15 @@
 	},
 	"homepage": "https://h2owr.xyz/",
 	"devDependencies": {
+		"@babel/preset-env": "^7.15.0",
+		"@babel/preset-typescript": "^7.15.0",
+		"@types/jest": "^27.0.0",
 		"@types/node": "^15.3.0",
+		"jest": "^27.0.6",
 		"nodemon": "^2.0.7",
+		"ts-jest": "^27.0.4",
 		"ts-node": "^9.1.1",
 		"typescript": "^4.2.4"
 	},
-	"dependencies": {
-	}
+	"dependencies": {}
 }
