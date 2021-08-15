@@ -1,2 +1,14 @@
 # Stop people from downloading source file when they download package
 source/
+
+# Ignore and config file
+.gitignore
+.npmignore
+.babelrc
+tsbuild.json
+
+# Readme file
+README.md
+
+# Test file
+test.ts
