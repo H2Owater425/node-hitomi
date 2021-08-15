@@ -230,7 +230,7 @@ module hitomi {
 		if(tag['type'] !== 'language' && typeof(option) !== 'undefined' && typeof(option['orderBy'])) {
 			throw new Error(`Invalid order criteria for ${tag['type']} tag type`);
 		} else {
-			const orderBy: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
+			const orderCriteria: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
 	
 			let area: string = '';
 			let tagString: string = '';
@@ -244,7 +244,7 @@ module hitomi {
 	
 					break;
 				case 'language':
-					tagString = orderBy;
+					tagString = orderCriteria;
 					language = tag['name'];
 	
 					break;
@@ -414,10 +414,10 @@ module hitomi {
 			} else {
 				const startByte: number = range['startIndex'] * 4;
 				const endByte: number | string = typeof(range['endIndex']) !== 'undefined' ? startByte + (range['endIndex'] + 1) * 4 - 1 : '';
-				const orderBy: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
+				const orderCriteria: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
 				const reverseResult: boolean = typeof(option) !== 'undefined' && typeof(option['reverseResult']) !== 'undefined' ? option['reverseResult'] : false;
 	
-				fetchBuffer(`https://ltn.hitomi.la/${orderBy}-all.nozomi`, { Range: `bytes=${startByte}-${endByte}` })
+				fetchBuffer(`https://ltn.hitomi.la/${orderCriteria}-all.nozomi`, { Range: `bytes=${startByte}-${endByte}` })
 				.then(function (buffer: Buffer): void | PromiseLike<void> {
 					const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
 					const dataView: DataView = new DataView(arrayBuffer);
