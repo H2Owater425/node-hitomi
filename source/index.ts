@@ -348,8 +348,8 @@ module hitomi {
 							}
 		
 							galleryData['tagList'].push({
-								name: responseJson['tags'][i]['tag'],
-								type: type
+								type: type,
+								name: responseJson['tags'][i]['tag']
 							});
 						}
 					}
