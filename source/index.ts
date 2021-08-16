@@ -66,7 +66,7 @@ module hitomi {
 			case 'DUPLICATED_ELEMENT':
 				return `Element of '${argumentList[0]}' was duplicated`;
 			case 'LACK_OF_ELEMENTS':
-				return `Elements of ${argumentList[0]} was not enough`;
+				return `Elements of '${argumentList[0]}' was not enough`;
 			case 'REQEUST_REJECTED':
 				return `Request to '${argumentList[0]}' rejected request'`;
 		}
