@@ -51,7 +51,7 @@ module hitomi {
 		[key: string]: any;
 	}
 
-	type ErrorKey = /*'INVALID_TYPE' | 'INVALID_INDEX' | */'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENTS' | 'REQEUST_REJECTED';
+	type ErrorKey = /*'INVALID_TYPE' | 'INVALID_INDEX' | */'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENT' | 'REQEUST_REJECTED';
 
 	// utility
 
@@ -65,7 +65,7 @@ module hitomi {
 				return `Value of '${argumentList[0]}' was not valid`;
 			case 'DUPLICATED_ELEMENT':
 				return `Element of '${argumentList[0]}' was duplicated`;
-			case 'LACK_OF_ELEMENTS':
+			case 'LACK_OF_ELEMENT':
 				return `Elements of '${argumentList[0]}' was not enough`;
 			case 'REQEUST_REJECTED':
 				return `Request to '${argumentList[0]}' rejected request'`;
@@ -487,7 +487,7 @@ module hitomi {
 		const splittedTagStringList: string[] = tagString.split(' ');
 	
 		if(splittedTagStringList.length < 1) {
-			throw new HitomiError('LACK_OF_ELEMENTS', 'splittedTagStringList');
+			throw new HitomiError('LACK_OF_ELEMENT', 'splittedTagStringList');
 		} else {
 			let tagList: Tag[] = [];
 			let positiveTagStringList: string[] = [];
@@ -522,7 +522,7 @@ module hitomi {
 	export function getQueriedIdList(tagList: Tag[]): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
 			if(tagList.length < 1) {
-				throw new HitomiError('LACK_OF_ELEMENTS', 'tagList');
+				throw new HitomiError('LACK_OF_ELEMENT', 'tagList');
 			} else {
 				tagList.sort(function (a: Tag, b: Tag): number {
 					const [isANegative, isBNegative]: boolean[] = [typeof(a['isNegative']) !== 'undefined' ? a['isNegative'] : false, typeof(b['isNegative']) !== 'undefined' ? b['isNegative'] : false]
