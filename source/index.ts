@@ -47,11 +47,43 @@ module hitomi {
 	
 	export type StartingCharacter = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | '0-9';
 	
-	export interface LooseObject {
+	interface LooseObject {
 		[key: string]: any;
 	}
 
+	type ErrorKey = /*'INVALID_TYPE' | 'INVALID_INDEX' | */'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENTS' | 'REQEUST_REJECTED';
+
 	// utility
+	class HitomiError extends Error {
+		private code: ErrorKey;
+		private getErrorMessage(key: ErrorKey, ...argumentList: any[]): string {
+			switch(key) {
+				//case 'INVALID_TYPE':
+				//	return `Type of '${argumentList[0]}' was not ${argumentList[1]}`;
+				//case 'INVALID_INDEX':
+				//	return `Index of '${argumentList[0]}' was not in range of list`;
+				case 'INVALID_VALUE':
+					return `Value of '${argumentList[0]}' was not valid`;
+				case 'DUPLICATED_ELEMENT':
+					return `Element of '${argumentList[0]}' was duplicated`;
+				case 'LACK_OF_ELEMENTS':
+					return `Elements of ${argumentList[0]} was not enough`;
+				case 'REQEUST_REJECTED':
+					return `Request to '${argumentList[0]}' rejected request'`;
+			}
+		}
+
+		constructor(key: ErrorKey, ...argumentList: any[]) {
+			// @ts-expect-error :: Using this for customly crated function
+			super(this.getErrorMessage(key, argumentList));
+
+			this.code = key;
+		}
+
+		get name(): string {
+			return `HitomiError [${this.code}]`;
+		}
+	}
 	
 	class _Agent extends Agent {
 		public createConnection(options: AgentOptions, callback?: () => void): TLSSocket {
@@ -108,7 +140,7 @@ module hitomi {
 				});
 	
 				response.on('error', function (error: Error): void {
-					reject(error);
+					reject(new HitomiError('REQEUST_REJECTED', _url));
 	
 					return;
 				});
@@ -121,7 +153,11 @@ module hitomi {
 	
 				return;
 			})
-			.on('error', reject)
+			.on('error', function (error: Error): void {
+				reject(new HitomiError('REQEUST_REJECTED', _url));
+
+				return;
+			})
 			.end();
 	
 			return;
@@ -132,52 +168,52 @@ module hitomi {
 
 	export function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string {
 		const isThumbnail: boolean = typeof(option) !== 'undefined' && typeof(option['isThumbnail']) !== 'undefined' ? option['isThumbnail'] : false;
-	
+
 		switch(extension) {
 			case 'jpg':
 				if(!isThumbnail && image['extension'] !== 'jpg') {
-					throw new Error('Invalid extension');
+					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
 				}
 			case 'png':
 				if(image['extension'] !== 'png') {
-					throw new Error('Invalid extension');
+					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else if(isThumbnail) {
-					throw new Error('Invalid extension for thumbnail');
+					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
 				}
 			case 'avif':
 				if(!image['hasAvif']) {
-					throw new Error('Invalid extension');
+					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
 				}
 			case 'webp':
 				if(!image['hasWebp']) {
-					throw new Error('Invalid extension');
+					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else if(isThumbnail) {
-					throw new Error('Invalid extension for thumbnail');
+					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
 				}
 			case 'gif':
 				if(image['extension'] !== 'gif') {
-					throw new Error('Invalid extension');
+					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else if(isThumbnail) {
-					throw new Error('Invalid extension for thumbnail');
+					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
 				}
 		}
 	
 		if(!/^[0-9a-f]{64}$/.test(image['hash'])) {
-			throw new Error('Invalid hash value');
+			throw new HitomiError('INVALID_VALUE', 'image[\'hash\']');
 		} else if(!isInteger(image['index']) || image['index'] < 0) {
-			throw new Error('Invalid image index');
+			throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
 		} else if(isThumbnail && image['index'] !== 0) {
-			throw new Error('Invalid index for thumbnail');
+			throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
 		} else {
 			const imagePath: string = `${image['hash'].slice(-1)}/${image['hash'].slice(-3, -1)}/${image['hash']}`;
 			let subdomain: string = '';
@@ -228,7 +264,7 @@ module hitomi {
 	
 	export function getNozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria }): string {
 		if(tag['type'] !== 'language' && typeof(option) !== 'undefined' && typeof(option['orderBy'])) {
-			throw new Error(`Invalid order criteria for ${tag['type']} tag type`);
+			throw new HitomiError('INVALID_VALUE', 'option[\'orderBy\']');
 		} else {
 			const orderCriteria: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
 	
@@ -307,7 +343,7 @@ module hitomi {
 
 	export function getGallery(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery> {
 		if(!isInteger(id) || (isInteger(id) && id < 1)) {
-			throw new Error('Invalid id value');
+			throw new HitomiError('INVALID_VALUE', 'id');
 		} else {
 			const includeFiles: boolean = typeof(option) !== 'undefined' && typeof(option['includeFiles']) !== 'undefined' ? option['includeFiles'] : true;
 			const includeFullData: boolean = typeof(option) !== 'undefined' && typeof(option['includeFullData']) !== 'undefined' ? option['includeFullData'] : true;
@@ -404,11 +440,11 @@ module hitomi {
 	export function getIdList(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria, reverseResult?: boolean; }): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason: any) => void) {
 			if(!isInteger(range['startIndex']) || (isInteger(range['startIndex']) && range['startIndex'] < 0)) {
-				reject(new Error('Invalid startIndex value'));
+				reject(new HitomiError('INVALID_VALUE', 'range[\'startIndex\']'));
 				
 				return;
 			} else if(typeof(range['endIndex']) !== 'undefined' && (!isInteger(range['endIndex']) || (isInteger(range['endIndex']) && range['endIndex'] <= range['startIndex']))) {
-				reject(new Error('Invalid endIndex value'));
+				reject(new HitomiError('INVALID_VALUE', 'range[\'endIndex\']'));
 				
 				return;
 			} else {
@@ -447,30 +483,30 @@ module hitomi {
 	// tag
 
 	export function getParsedTagList(tagString: string): Tag[] {
-		const tagStringList: string[] = tagString.split(' ');
+		const splittedTagStringList: string[] = tagString.split(' ');
 	
-		if(tagStringList.length < 1) {
-			throw new Error('Lack of tag');
+		if(splittedTagStringList.length < 1) {
+			throw new HitomiError('LACK_OF_ELEMENTS', 'splittedTagStringList');
 		} else {
 			let tagList: Tag[] = [];
 			let positiveTagStringList: string[] = [];
 	
-			for(let i: number = 0; i < tagStringList.length; i++) {
-				const splitedTagWithoutMinus: string[] = tagStringList[i].replace(/^-/, '').split(':');
+			for(let i: number = 0; i < splittedTagStringList.length; i++) {
+				const splittedTagStringWithoutMinusList: string[] = splittedTagStringList[i].replace(/^-/, '').split(':');
 		
-				if(splitedTagWithoutMinus.length !== 2 || typeof(splitedTagWithoutMinus[0]) === 'undefined' || typeof(splitedTagWithoutMinus[1]) === 'undefined' || splitedTagWithoutMinus[0] === '' || splitedTagWithoutMinus[1] === '' || !/^(artist|group|type|language|series|tag|male|female)$/.test(splitedTagWithoutMinus[0]) || !/^[^-_\.][a-z0-9-_.]+$/.test(splitedTagWithoutMinus[1])) {
-					throw new Error('Invalid tag');
+				if(splittedTagStringWithoutMinusList.length !== 2 || typeof(splittedTagStringWithoutMinusList[0]) === 'undefined' || typeof(splittedTagStringWithoutMinusList[1]) === 'undefined' || splittedTagStringWithoutMinusList[0] === '' || splittedTagStringWithoutMinusList[1] === '' || !/^(artist|group|type|language|series|tag|male|female)$/.test(splittedTagStringWithoutMinusList[0]) || !/^[^-_\.][a-z0-9-_.]+$/.test(splittedTagStringWithoutMinusList[1])) {
+					throw new HitomiError('INVALID_VALUE', `splittedTagStringList[${i}]`);
 				} else {
-					const _tagString: string = `${splitedTagWithoutMinus[0]}:${splitedTagWithoutMinus[1]}`;
+					const _tagString: string = `${splittedTagStringWithoutMinusList[0]}:${splittedTagStringWithoutMinusList[1]}`;
 	
 					if(positiveTagStringList.includes(_tagString)) {
-						throw new Error('Duplicated tag');
+						throw new HitomiError('DUPLICATED_ELEMENT', 'tagList')
 					} else {
 						tagList.push({
 							// @ts-expect-error :: Since type element of Tag in node-hitomi is based on hitomi tag, parsing it will return corresponding type value
-							type: splitedTagWithoutMinus[0],
-							name: splitedTagWithoutMinus[1],
-							isNegative: tagStringList[i].startsWith('-')
+							type: splittedTagStringWithoutMinusList[0],
+							name: splittedTagStringWithoutMinusList[1],
+							isNegative: splittedTagStringList[i].startsWith('-')
 						});
 	
 						positiveTagStringList.push(_tagString);
@@ -485,7 +521,7 @@ module hitomi {
 	export function getQueriedIdList(tagList: Tag[]): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
 			if(tagList.length < 1) {
-				throw new Error('Lack of tag');
+				throw new HitomiError('LACK_OF_ELEMENTS', 'tagList');
 			} else {
 				tagList.sort(function (a: Tag, b: Tag): number {
 					const [isANegative, isBNegative]: boolean[] = [typeof(a['isNegative']) !== 'undefined' ? a['isNegative'] : false, typeof(b['isNegative']) !== 'undefined' ? b['isNegative'] : false]
@@ -568,7 +604,7 @@ module hitomi {
 						}
 	
 						return currentPromise;
-					})
+					});
 				})
 				.then(function (_idSet: Set<number>): void | PromiseLike<void> {
 					resolve(Array.from(idSet));
@@ -585,7 +621,7 @@ module hitomi {
 	export function getTagList(type: TagType, option?: { startWith?: StartingCharacter }): Promise<Tag[]> {
 		return new Promise<Tag[]>(function (resolve: (value: Tag[] | PromiseLike<Tag[]>) => void, reject: (reason?: any) => void): void {
 			if(type !== 'language' && type !== 'type' && (typeof(option) === 'undefined' || typeof(option['startWith']) === 'undefined') || (type === 'language' || type === 'type') && typeof(option) !== 'undefined' && typeof(option['startWith']) !== 'undefined') {
-				reject(new Error('Invalid startingCharacter'));
+				reject(new HitomiError('INVALID_VALUE', 'startingCharacter'));
 				
 				return;
 			} else {
