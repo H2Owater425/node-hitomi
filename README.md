@@ -44,7 +44,7 @@ import hitomi from 'node-hitomi';
 
 printing title and id of gallery number `x`:
 ```javascript
-hitomi.getGalleryData(x)
+hitomi.getGallery(x)
 .then(function (value) {
 	console.log(value['title']['display'], value['id']);
 });
@@ -60,7 +60,7 @@ hitomi.getTagList('female', 'b')
 
 printing number of language `korean` gallery without female tag `netorare`:
 ```javascript
-hitomi.queryTag([{ type: 'language', name: 'korean' },
+hitomi.getQueriedIdList([{ type: 'language', name: 'korean' },
 { type: 'female', name: 'netorare', isNegative: true }])
 .then(function (value) {
 	console.log(value.length);
