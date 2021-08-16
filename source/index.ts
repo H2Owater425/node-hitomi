@@ -54,28 +54,29 @@ module hitomi {
 	type ErrorKey = /*'INVALID_TYPE' | 'INVALID_INDEX' | */'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENTS' | 'REQEUST_REJECTED';
 
 	// utility
+
+	function getErrorMessage(key: ErrorKey, ...argumentList: any[]): string {
+		switch(key) {
+			//case 'INVALID_TYPE':
+			//	return `Type of '${argumentList[0]}' was not ${argumentList[1]}`;
+			//case 'INVALID_INDEX':
+			//	return `Index of '${argumentList[0]}' was not in range of list`;
+			case 'INVALID_VALUE':
+				return `Value of '${argumentList[0]}' was not valid`;
+			case 'DUPLICATED_ELEMENT':
+				return `Element of '${argumentList[0]}' was duplicated`;
+			case 'LACK_OF_ELEMENTS':
+				return `Elements of ${argumentList[0]} was not enough`;
+			case 'REQEUST_REJECTED':
+				return `Request to '${argumentList[0]}' rejected request'`;
+		}
+	}
+
 	class HitomiError extends Error {
 		private code: ErrorKey;
-		private getErrorMessage(key: ErrorKey, ...argumentList: any[]): string {
-			switch(key) {
-				//case 'INVALID_TYPE':
-				//	return `Type of '${argumentList[0]}' was not ${argumentList[1]}`;
-				//case 'INVALID_INDEX':
-				//	return `Index of '${argumentList[0]}' was not in range of list`;
-				case 'INVALID_VALUE':
-					return `Value of '${argumentList[0]}' was not valid`;
-				case 'DUPLICATED_ELEMENT':
-					return `Element of '${argumentList[0]}' was duplicated`;
-				case 'LACK_OF_ELEMENTS':
-					return `Elements of ${argumentList[0]} was not enough`;
-				case 'REQEUST_REJECTED':
-					return `Request to '${argumentList[0]}' rejected request'`;
-			}
-		}
 
 		constructor(key: ErrorKey, ...argumentList: any[]) {
-			// @ts-expect-error :: Using this for customly crated function
-			super(this.getErrorMessage(key, argumentList));
+			super(getErrorMessage(key, argumentList));
 
 			this.code = key;
 		}
