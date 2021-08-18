@@ -68,7 +68,7 @@ module hitomi {
 			case 'LACK_OF_ELEMENT':
 				return `Elements of '${argumentList[0]}' was not enough`;
 			case 'REQEUST_REJECTED':
-				return `Request to '${argumentList[0]}' rejected request'`;
+				return `Request to '${argumentList[0]}' was rejected`;
 		}
 	}
 
