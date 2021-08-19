@@ -340,6 +340,12 @@ module hitomi {
 		}
 	}
 
+	// index
+
+	export function getSecondThumbnailIndex(gallery: Gallery): number {
+		return Math.ceil((gallery['fileList'].length - 1) / 2);
+	}
+
 	// gallery
 
 	export function getGallery(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery> {
