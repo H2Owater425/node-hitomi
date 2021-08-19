@@ -42,7 +42,7 @@ declare module hitomi {
 	type StartingCharacter = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | '123';
 
 	/**
-	 * Returns image url from an image
+	 * Returns image url from image
 	 * @param  {Image} image
 	 * @param  {Image['extension']|'avif'|'webp'} extension
 	 * @param  {object} [option]
@@ -84,7 +84,14 @@ declare module hitomi {
 	export function getTagUrl(type: TagType, option: { startWith: StartingCharacter }): string
 
 	/**
-	 * Returns gallery from hitomi from id
+	 * Returns second thumbnail index from gallery
+	 * @param  {Gallery} gallery
+	 * @returns {number}
+	 */
+	export function getSecondThumbnailIndex(gallery: Gallery): number;
+
+	/**
+	 * Returns gallery from id
 	 * @param  {number} id
 	 * @param  {object} [option]
 	 * @param  {boolean} [option.includeFullData=true] If set to false, the function will not return gallery data including artists, groups, series, characters
@@ -94,7 +101,7 @@ declare module hitomi {
 	export function getGallery(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery>;
 
 	/**
-	 * Returns id list from hitomi from range
+	 * Returns id list from range
 	 * @param  {object} range
 	 * @param  {number} range.startIndex
 	 * @param  {number} [range.endIndex] If not set, the function will return a list contains every id
