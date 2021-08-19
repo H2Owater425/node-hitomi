@@ -141,7 +141,7 @@ module hitomi {
 				});
 	
 				response.on('error', function (error: Error): void {
-					reject(new HitomiError('REQEUST_REJECTED', _url));
+					reject(new HitomiError('REQEUST_REJECTED', url));
 	
 					return;
 				});
@@ -155,7 +155,7 @@ module hitomi {
 				return;
 			})
 			.on('error', function (error: Error): void {
-				reject(new HitomiError('REQEUST_REJECTED', _url));
+				reject(new HitomiError('REQEUST_REJECTED', url));
 
 				return;
 			})
