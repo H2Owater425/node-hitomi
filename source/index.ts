@@ -78,11 +78,11 @@ module hitomi {
 		constructor(key: ErrorKey, ...argumentList: any[]) {
 			super(getErrorMessage(key, argumentList));
 
-			this.code = key;
+			this['code'] = key;
 		}
 
 		get name(): string {
-			return `HitomiError [${this.code}]`;
+			return `HitomiError [${this['code']}]`;
 		}
 	}
 	
