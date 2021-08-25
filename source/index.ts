@@ -100,7 +100,7 @@ module hitomi {
 			return false;
 		}
 	}
-	
+
 	function getArrayBuffer(buffer: Buffer): ArrayBuffer {
 		let arrayBuffer: ArrayBuffer = new ArrayBuffer(buffer.byteLength);
 		let unit8Array: Uint8Array = new Uint8Array(arrayBuffer);
@@ -110,6 +110,20 @@ module hitomi {
 		}
 	
 		return arrayBuffer;
+	}
+	
+	function getInt32NumberSet(buffer: Buffer, option?: { splitBy?: number }): Set<number> {
+		const splitCriteria: number = typeof(option) !== 'undefined' && typeof(option['splitBy']) !== 'undefined' ? option['splitBy'] : 1;
+		const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
+		const dataView: DataView = new DataView(arrayBuffer);
+		const totalLength: number = dataView.byteLength / splitCriteria;
+		let numberSet: Set<number> = new Set<number>();
+
+		for(let i: number = 0; i < totalLength; i++) {
+			numberSet.add(dataView.getInt32(i * splitCriteria, false));
+		}
+
+		return numberSet;
 	}
 	
 	const agent: _Agent = new _Agent({ rejectUnauthorized: false, keepAlive: true });
@@ -454,23 +468,9 @@ module hitomi {
 	
 				fetchBuffer(`https://ltn.hitomi.la/${orderCriteria}-all.nozomi`, { Range: `bytes=${startByte}-${endByte}` })
 				.then(function (buffer: Buffer): void | PromiseLike<void> {
-					const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
-					const dataView: DataView = new DataView(arrayBuffer);
-					const totalLength: number = dataView.byteLength / 4;
-				
-					let galleryIdList: number[] = [];
-					
-					if(reverseResult) {
-						for(let i: number = 0; i < totalLength; i++) {
-							galleryIdList.push(dataView.getInt32(i * 4, false));
-						}
-					}	else {
-						for(let i: number = totalLength - 1; i !== -1; i--) {
-							galleryIdList.push(dataView.getInt32(i * 4, false));
-						}
-					}
+					let galleryIdList: number[] = Array.from(getInt32NumberSet(buffer, { splitBy: 4 }));
 	
-					resolve(galleryIdList);
+					resolve(reverseResult ? galleryIdList : galleryIdList.reverse());
 	
 					return;
 				})
@@ -540,17 +540,7 @@ module hitomi {
 					return new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
 						fetchBuffer(getNozomiUrl(tag))
 						.then(function (buffer: Buffer): void | PromiseLike<void> {
-							const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
-							const dataView: DataView = new DataView(arrayBuffer);
-							const dividedDataviewLength: number = dataView.byteLength / 4;
-	
-							let _idSet: Set<number> = new Set<number>();
-	
-							for(let i = 0; i < dividedDataviewLength; i++) {
-								_idSet.add(dataView.getInt32(i * 4, false));
-							}
-	
-							resolve(_idSet);
+							resolve(getInt32NumberSet(buffer, { splitBy: 4 }));
 	
 							return;
 						})
