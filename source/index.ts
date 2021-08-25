@@ -178,9 +178,7 @@ module hitomi {
 					break;
 				}
 			case 'png':
-				if(image['extension'] !== 'png') {
-					throw new HitomiError('INVALID_VALUE', 'extension');
-				} else if(isThumbnail) {
+				if(isThumbnail || image['extension'] !== 'png') {
 					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
@@ -192,17 +190,13 @@ module hitomi {
 					break;
 				}
 			case 'webp':
-				if(!image['hasWebp']) {
-					throw new HitomiError('INVALID_VALUE', 'extension');
-				} else if(isThumbnail) {
+				if(isThumbnail || !image['hasWebp']) {
 					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
 				}
 			case 'gif':
-				if(image['extension'] !== 'gif') {
-					throw new HitomiError('INVALID_VALUE', 'extension');
-				} else if(isThumbnail) {
+				if(isThumbnail || image['extension'] !== 'gif') {
 					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
@@ -211,9 +205,7 @@ module hitomi {
 	
 		if(!/^[0-9a-f]{64}$/.test(image['hash'])) {
 			throw new HitomiError('INVALID_VALUE', 'image[\'hash\']');
-		} else if(!isInteger(image['index']) || image['index'] < 0) {
-			throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
-		} else if(isThumbnail && image['index'] !== 0) {
+		} else if(!isInteger(image['index']) || image['index'] < 0 || isThumbnail && image['index'] !== 0) {
 			throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
 		} else {
 			const imagePath: string = `${image['hash'].slice(-1)}/${image['hash'].slice(-3, -1)}/${image['hash']}`;
