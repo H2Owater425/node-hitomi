@@ -5,7 +5,7 @@ source/
 .gitignore
 .npmignore
 .babelrc
-tsbuild.json
+tsconfig.build.json
 
 # Readme file
 README.md

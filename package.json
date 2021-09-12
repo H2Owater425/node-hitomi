@@ -5,7 +5,7 @@
 	"main": "./library/index.js",
 	"types": "./library/index.d.ts",
 	"scripts": {
-		"build": "tsc --project ./tsbuild.json",
+		"build": "tsc --project ./tsconfig.build.json",
 		"test": "jest --preset ts-jest ./test.ts",
 		"dev": "nodemon --exec ts-node --files ./test.ts"
 	},
