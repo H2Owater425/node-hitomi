@@ -232,13 +232,13 @@ module hitomi {
 
 				let temporaryNumber: number = 0;
 
-				if(hexadecimalId < 64/* = 0x40 */) {
+				if(hexadecimalId < 68/* = 0x44 */) {
 					temporaryNumber = 2
-				} else if(hexadecimalId < 128/* = 0x80 */) {
+				} else if(hexadecimalId < 136/* = 0x88 */) {
 					temporaryNumber = 1
 				}
 
-				subdomain = `${String.fromCharCode(temporaryNumber + 97)}`;
+				subdomain = String.fromCharCode(temporaryNumber + 97);
 
 				if(extension === 'jpg' || extension === 'png') {
 					subdomain += 'b';
