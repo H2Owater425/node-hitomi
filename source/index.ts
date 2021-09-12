@@ -101,22 +101,19 @@ module hitomi {
 		}
 	}
 
-	function getArrayBuffer(buffer: Buffer): ArrayBuffer {
-		let arrayBuffer: ArrayBuffer = new ArrayBuffer(buffer.byteLength);
+	function get32BitIntegerNumberSet(buffer: Buffer, option?: { splitBy?: number }): Set<number> {
+		const splitCriteria: number = option?.['splitBy'] || 4;
+
+		let arrayBuffer: ArrayBuffer = new ArrayBuffer(buffer['byteLength']);
 		let unit8Array: Uint8Array = new Uint8Array(arrayBuffer);
 
-		for (let i: number = 0; i < buffer.byteLength; ++i) {
+		for (let i: number = 0; i < buffer['byteLength']; ++i) {
 			unit8Array[i] = buffer[i];
 		}
 
-		return arrayBuffer;
-	}
-
-	function getInt32NumberSet(buffer: Buffer, option?: { splitBy?: number }): Set<number> {
-		const splitCriteria: number = typeof(option) !== 'undefined' && typeof(option['splitBy']) !== 'undefined' ? option['splitBy'] : 1;
-		const arrayBuffer: ArrayBuffer = getArrayBuffer(buffer);
 		const dataView: DataView = new DataView(arrayBuffer);
-		const totalLength: number = dataView.byteLength / splitCriteria;
+		const totalLength: number = dataView['byteLength'] / splitCriteria;
+
 		let numberSet: Set<number> = new Set<number>();
 
 		for(let i: number = 0; i < totalLength; i++) {
@@ -149,26 +146,23 @@ module hitomi {
 
 				response.on('data', function (chunk: any): void {
 					bufferList.push(chunk);
-					bufferLength += chunk.byteLength;
+					bufferLength += chunk['byteLength'];
 
 					return;
-				});
-
-				response.on('error', function (error: Error): void {
+				})
+				.on('error', function (error: Error): void {
 					reject(new HitomiError('REQEUST_REJECTED', url));
 
 					return;
-				});
-
-				response.on('end', function (): void {
+				})
+				.on('end', function (): void {
 					resolve(Buffer.concat(bufferList, bufferLength));
 
 					return;
 				});
 
 				return;
-			})
-			.on('error', function (error: Error): void {
+			}).on('error', function (error: Error): void {
 				reject(new HitomiError('REQEUST_REJECTED', url));
 
 				return;
@@ -182,7 +176,7 @@ module hitomi {
 	// url resolver
 
 	export function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string {
-		const isThumbnail: boolean = typeof(option) !== 'undefined' && typeof(option['isThumbnail']) !== 'undefined' ? option['isThumbnail'] : false;
+		const isThumbnail: boolean = option?.['isThumbnail'] || false;
 
 		switch(extension) {
 			case 'jpg':
@@ -219,17 +213,17 @@ module hitomi {
 
 		if(!/^[0-9a-f]{64}$/.test(image['hash'])) {
 			throw new HitomiError('INVALID_VALUE', 'image[\'hash\']');
-		} else if(!isInteger(image['index']) || image['index'] < 0 || isThumbnail && image['index'] !== 0) {
+		} else if(!isInteger(image['index']) || image['index'] < 0) {
 			throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
 		} else {
 			const imagePath: string = `${image['hash'].slice(-1)}/${image['hash'].slice(-3, -1)}/${image['hash']}`;
+			
 			let subdomain: string = '';
 			let folderName: string = '';
 
 			if(!isThumbnail) {
 				//let frontendCount: number = 3; Not used anymore
 				let hexadecimalId: number = Number.parseInt(image['hash'].slice(-3, -1), 16);
-
 				let temporaryNumber: number = 0;
 
 				if(hexadecimalId < 68/* = 0x44 */) {
@@ -249,12 +243,7 @@ module hitomi {
 				}
 			} else {
 				subdomain = 'tn';
-
-				if(extension === 'jpg' || extension === 'png') {
-					folderName = 'bigtn';
-				} else {
-					folderName = 'avifbigtn';
-				}
+				folderName = `${extension === 'avif' ? 'avif' : ''}bigtn`;
 			}
 
 			return `https://${subdomain}.hitomi.la/${folderName}/${imagePath}.${extension}`;
@@ -262,18 +251,19 @@ module hitomi {
 	}
 
 	export function getVideoUrl(gallery: Gallery): string {
-		return `https://streaming.hitomi.la/videos/${gallery['title']['display'].toLowerCase().replace(/\s/g, '-')}.mp4`;
+		return `https://streaming.hitomi.la/videos/${gallery['title']['display'].toLowerCase()
+		.replace(/\s/g, '-')}.mp4`;
 	}
 
 	export function getGalleryUrl(gallery: Gallery): string {
-		return `https://hitomi.la/${gallery['type']}/${encodeURIComponent(gallery['title']['japanese'] !== null ? gallery['title']['japanese'] : gallery['title']['display']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-')}${gallery['languageName']['local'] !== null ? `-${encodeURIComponent(gallery['languageName']['local'])}` : ''}-${gallery['id']}.html`.toLocaleLowerCase();
+		return `https://hitomi.la/${gallery['type']}/${encodeURIComponent(gallery['title']['japanese'] || gallery['title']['display']).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-')}${gallery['languageName']['local'] !== null ? `-${encodeURIComponent(gallery['languageName']['local'])}` : ''}-${gallery['id']}.html`.toLocaleLowerCase();
 	}
 
 	export function getNozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria }): string {
-		if(tag['type'] !== 'language' && typeof(option) !== 'undefined' && typeof(option['orderBy'])) {
+		if(tag['type'] !== 'language' && typeof(option?.['orderBy']) !== 'undefined') {
 			throw new HitomiError('INVALID_VALUE', 'option[\'orderBy\']');
 		} else {
-			const orderCriteria: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
+			const orderCriteria: OrderCriteria = option?.['orderBy'] || 'index';
 
 			let area: string = '';
 			let tagString: string = '';
@@ -304,52 +294,59 @@ module hitomi {
 
 	export function getTagUrl(type: TagType, option: { startWith: StartingCharacter }): string {
 		const startingCharacter: StartingCharacter = option['startWith'];
-		let url: string = '';
+
+		let url: string = 'hitomi.la/';
 
 		switch(type) {
 			case 'tag':
 			case 'male':
 			case 'female':
-				url = 'https://hitomi.la/alltags-';
+				url += 'alltags-';
 
 				break;
 			case 'artist':
-				url = 'https://hitomi.la/allartists-';
+				url += 'allartists-';
 
 				break;
 			case 'series':
-				url = 'https://hitomi.la/allseries-';
+				url += 'allseries-';
 
 				break;
 			case 'character':
-				url = 'https://hitomi.la/allcharacters-';
+				url += 'allcharacters-';
 
 				break;
 			case 'group':
-				url = 'https://hitomi.la/allgroups-';
+				url += 'allgroups-';
 
 				break;
 			case 'language':
-				url = 'https://ltn.hitomi.la/language_support.js';
+				url = `ltn.${url}language_support.js`;
 
 				break;
 		}
 
-		if(type === 'language') {
-			return url;
-		} else if(type === 'male') {
-			return `${url}m.html`;
-		} else if(type === 'female') {
-			return `${url}f.html`;
+		url = `https://${url}`;
+
+		if(type !== 'language') {
+			if(type === 'male') {
+				url += 'm';
+			} else if(type === 'female') {
+				url += 'f';
+			} else {
+				url += startingCharacter !== '0-9' ? startingCharacter : '123';
+			}
+
+			return `${url}.html`;
 		} else {
-			return `${url}${startingCharacter !== '0-9' ? startingCharacter : '123'}.html`;
+			return url;
 		}
 	}
 
 	// index
 
 	export function getSecondThumbnailIndex(gallery: Gallery): number {
-		return Math.ceil((gallery['fileList'].length - 1) / 2);
+		return Math.ceil((gallery['fileList']['length'] - 1) / 2);
 	}
 
 	// gallery
@@ -358,36 +355,20 @@ module hitomi {
 		if(!isInteger(id) || (isInteger(id) && id < 1)) {
 			throw new HitomiError('INVALID_VALUE', 'id');
 		} else {
-			const includeFiles: boolean = typeof(option) !== 'undefined' && typeof(option['includeFiles']) !== 'undefined' ? option['includeFiles'] : true;
-			const includeFullData: boolean = typeof(option) !== 'undefined' && typeof(option['includeFullData']) !== 'undefined' ? option['includeFullData'] : true;
+			const includeFiles: boolean = option?.['includeFiles'] || true;
+			const includeFullData: boolean = option?.['includeFullData'] || true;
 
 			return new Promise<Gallery>(function (resolve: (value: Gallery | PromiseLike<Gallery>) => void, reject: (reason?: any) => void): void {
-				fetchBuffer(`https://ltn.hitomi.la/galleries/${id}.js`)
-				.then(function (buffer: Buffer): void | PromiseLike<void> {
-					const responseJson: LooseObject = JSON.parse(buffer.toString('utf8').slice(18));
+				fetchBuffer(`https://ltn.hitomi.la/galleries/${id}.js`).then(function (buffer: Buffer): void | PromiseLike<void> {
+					const responseJson: LooseObject = JSON.parse(buffer.toString('utf8')
+					.slice(18));
 
-					let galleryData: Gallery = {
-						id: responseJson['id'],
-						title: {
-							display: responseJson['title'],
-							japanese: responseJson['japanese_title']
-						},
-						type: responseJson['type'],
-						languageName: {
-							english: responseJson['language'],
-							local: responseJson['language_localname']
-						},
-						artistList: [],
-						groupList: [],
-						seriesList: [],
-						characterList: [],
-						tagList: [],
-						fileList: [],
-						publishedDate: new Date(`${responseJson['date']}:00`.replace(' ', 'T'))
-					}
+					let gallery: Gallery = JSON.parse(`{ "id": ${Number(responseJson['id'])}, "title": { "display": "${responseJson['title'].replace(/\"/g, '\\"')}", "japanese": ${responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : null} }, "type": "${responseJson['type']}", "languageName": { "english": ${responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : null}, "local": ${responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : null} }, "artistList": [], "groupList": [], "seriesList": [], "characterList": [], "tagList": [], "fileList": [], "publishedDate": null }`);
+					
+					gallery['publishedDate'] = new Date(`${responseJson['date']}:00`.replace(' ', 'T'));
 
 					if(responseJson['tags'] !== null) {
-						for(let i: number = 0; i < responseJson['tags'].length; i++) {
+						for(let i: number = 0; i < responseJson['tags']['length']; i++) {
 							let type: Tag['type'] = 'tag';
 
 							if(Boolean(responseJson['tags'][i]['male'])) {
@@ -396,7 +377,7 @@ module hitomi {
 								type = 'female';
 							}
 
-							galleryData['tagList'].push({
+							gallery['tagList'].push({
 								type: type,
 								name: responseJson['tags'][i]['tag']
 							});
@@ -404,11 +385,12 @@ module hitomi {
 					}
 
 					if(includeFiles) {
-						for(let i: number = 0; i < responseJson['files'].length; i++) {
-							galleryData['fileList'].push({
+						for(let i: number = 0; i < responseJson['files']['length']; i++) {
+							gallery['fileList'].push({
 								index: i,
 								hash: responseJson['files'][i]['hash'],
-								extension: responseJson['files'][i]['name'].split('.').pop(),
+								extension: responseJson['files'][i]['name'].split('.')
+								.pop(),
 								hasAvif: Boolean(responseJson['files'][i]['hasavif']),
 								hasWebp: Boolean(responseJson['files'][i]['haswebp']),
 								width: responseJson['files'][i]['width'],
@@ -418,34 +400,38 @@ module hitomi {
 					}
 
 					if(includeFullData) {
-						fetchBuffer(getGalleryUrl(galleryData))
-						.then(function (_buffer: Buffer): void | PromiseLike<void> {
-							const galleryContentHtml: string = _buffer.toString('utf8').split('content">')[1];
+						fetchBuffer(getGalleryUrl(gallery)).then(function (_buffer: Buffer): void | PromiseLike<void> {
+							const galleryContentHtml: string = _buffer.toString('utf8')
+							.split('content">')[1];
 
 							if(typeof(galleryContentHtml) !== 'undefined') {
 								['artist', 'group', 'series', 'character'].forEach(function (tag: string, index: number, array: string[]): void {
 									galleryContentHtml.match(RegExp(`(?<=\/${tag}\/)[a-z0-9%]+(?=-all\\.html)`, 'g'))
 									?.forEach(function (matchedString: string, index: number, array: string[]): void {
 										// @ts-expect-error :: Since using combination of string as key, typescript detects error. But still, works fine!
-										galleryData[`${tag}List`].push(decodeURIComponent(matchedString));
+										gallery[`${tag}List`].push(decodeURIComponent(matchedString));
 
 										return;
 									});
+
+									return;
 								});
 							}
 
-							resolve(galleryData);
+							resolve(gallery);
 
 							return;
 						})
 						.catch(reject);
 					} else {
-						resolve(galleryData);
-
-						return;
+						resolve(gallery);
 					}
+
+					return;
 				})
 				.catch(reject);
+
+				return;
 			});
 		}
 	}
@@ -454,21 +440,16 @@ module hitomi {
 		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason: any) => void) {
 			if(!isInteger(range['startIndex']) || (isInteger(range['startIndex']) && range['startIndex'] < 0)) {
 				reject(new HitomiError('INVALID_VALUE', 'range[\'startIndex\']'));
-
-				return;
 			} else if(typeof(range['endIndex']) !== 'undefined' && (!isInteger(range['endIndex']) || (isInteger(range['endIndex']) && range['endIndex'] <= range['startIndex']))) {
 				reject(new HitomiError('INVALID_VALUE', 'range[\'endIndex\']'));
-
-				return;
 			} else {
 				const startByte: number = range['startIndex'] * 4;
-				const endByte: number | string = typeof(range['endIndex']) !== 'undefined' ? startByte + (range['endIndex'] + 1) * 4 - 1 : '';
-				const orderCriteria: OrderCriteria = typeof(option) !== 'undefined' && typeof(option['orderBy']) !== 'undefined' ? option['orderBy'] : 'index';
-				const reverseResult: boolean = typeof(option) !== 'undefined' && typeof(option['reverseResult']) !== 'undefined' ? option['reverseResult'] : false;
+				const endByte: number | string = startByte + (range?.['endIndex'] || NaN + 1) * 4 - 1 || '';
+				const orderCriteria: OrderCriteria = option?.['orderBy'] || 'index';
+				const reverseResult: boolean = option?.['reverseResult'] || false;
 
-				fetchBuffer(`https://ltn.hitomi.la/${orderCriteria}-all.nozomi`, { Range: `bytes=${startByte}-${endByte}` })
-				.then(function (buffer: Buffer): void | PromiseLike<void> {
-					let galleryIdList: number[] = Array.from(getInt32NumberSet(buffer, { splitBy: 4 }));
+				fetchBuffer(`https://ltn.hitomi.la/${orderCriteria}-all.nozomi`, { Range: `bytes=${startByte}-${endByte}` }).then(function (buffer: Buffer): void | PromiseLike<void> {
+					let galleryIdList: number[] = Array.from(get32BitIntegerNumberSet(buffer));
 
 					if(reverseResult) {
 						resolve(galleryIdList);
@@ -480,6 +461,8 @@ module hitomi {
 				})
 				.catch(reject);
 			}
+
+			return;
 		});
 	}
 
@@ -488,16 +471,17 @@ module hitomi {
 	export function getParsedTagList(tagString: string): Tag[] {
 		const splittedTagStringList: string[] = tagString.split(' ');
 
-		if(splittedTagStringList.length < 1) {
+		if(splittedTagStringList['length'] < 1) {
 			throw new HitomiError('LACK_OF_ELEMENT', 'splittedTagStringList');
 		} else {
 			let tagList: Tag[] = [];
 			let positiveTagStringList: string[] = [];
 
-			for(let i: number = 0; i < splittedTagStringList.length; i++) {
-				const splittedTagStringWithoutMinusList: string[] = splittedTagStringList[i].replace(/^-/, '').split(':');
+			for(let i: number = 0; i < splittedTagStringList['length']; i++) {
+				const splittedTagStringWithoutMinusList: string[] = splittedTagStringList[i].replace(/^-/, '')
+				.split(':');
 
-				if(splittedTagStringWithoutMinusList.length !== 2 || typeof(splittedTagStringWithoutMinusList[0]) === 'undefined' || typeof(splittedTagStringWithoutMinusList[1]) === 'undefined' || splittedTagStringWithoutMinusList[0] === '' || splittedTagStringWithoutMinusList[1] === '' || !/^(artist|group|type|language|series|tag|male|female)$/.test(splittedTagStringWithoutMinusList[0]) || !/^[^-_\.][a-z0-9-_.]+$/.test(splittedTagStringWithoutMinusList[1])) {
+				if(splittedTagStringWithoutMinusList['length'] !== 2 || typeof(splittedTagStringWithoutMinusList[0]) === 'undefined' || typeof(splittedTagStringWithoutMinusList[1]) === 'undefined' || splittedTagStringWithoutMinusList[0] === '' || splittedTagStringWithoutMinusList[1] === '' || !/^(artist|group|type|language|series|tag|male|female)$/.test(splittedTagStringWithoutMinusList[0]) || !/^[^-_\.][a-z0-9-_.]+$/.test(splittedTagStringWithoutMinusList[1])) {
 					throw new HitomiError('INVALID_VALUE', `splittedTagStringList[${i}]`);
 				} else {
 					const _tagString: string = `${splittedTagStringWithoutMinusList[0]}:${splittedTagStringWithoutMinusList[1]}`;
@@ -523,11 +507,11 @@ module hitomi {
 
 	export function getQueriedIdList(tagList: Tag[]): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[] | PromiseLike<number[]>) => void, reject: (reason?: any) => void): void {
-			if(tagList.length < 1) {
+			if(tagList['length'] < 1) {
 				throw new HitomiError('LACK_OF_ELEMENT', 'tagList');
 			} else {
 				tagList.sort(function (a: Tag, b: Tag): number {
-					const [isANegative, isBNegative]: boolean[] = [typeof(a['isNegative']) !== 'undefined' ? a['isNegative'] : false, typeof(b['isNegative']) !== 'undefined' ? b['isNegative'] : false]
+					const [isANegative, isBNegative]: boolean[] = [a?.['isNegative'] || false, b?.['isNegative'] || false]
 
 					if(!isANegative && !isBNegative){
 						return 0;
@@ -539,12 +523,10 @@ module hitomi {
 				});
 
 				let idSet: Set<number> = new Set<number>();
-
 				let filterPromiseList: Promise<Set<number>>[] = tagList.map(function (tag: Tag, index: number, array: Tag[]): Promise<Set<number>> {
 					return new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
-						fetchBuffer(getNozomiUrl(tag))
-						.then(function (buffer: Buffer): void | PromiseLike<void> {
-							resolve(getInt32NumberSet(buffer, { splitBy: 4 }));
+						fetchBuffer(getNozomiUrl(tag)).then(function (buffer: Buffer): void | PromiseLike<void> {
+							resolve(get32BitIntegerNumberSet(buffer));
 
 							return;
 						})
@@ -558,7 +540,7 @@ module hitomi {
 					resolve(new Set<number>());
 				}));
 
-				if(typeof(tagList[0]['isNegative']) !== 'undefined' ? tagList[0]['isNegative'] : false) {
+				if(tagList[0]['isNegative'] || false) {
 					// Not affecting result, but to run properly it is needed to unshift one tag.
 					tagList.unshift({
 						type: 'female',
@@ -566,8 +548,7 @@ module hitomi {
 					});
 
 					filterPromiseList.unshift(new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
-						getIdList({ startIndex: 0 })
-						.then(function (idList: number[]): void {
+						getIdList({ startIndex: 0 }).then(function (idList: number[]): void | PromiseLike<void> {
 							resolve(new Set<number>(idList));
 
 							return;
@@ -579,15 +560,13 @@ module hitomi {
 				}
 
 				filterPromiseList.reduce(function (previousPromise: Promise<Set<number>>, currentPromise: Promise<Set<number>>, currentIndex: number, array: Promise<Set<number>>[]): Promise<Set<number>> {
-					return previousPromise
-					.then(function (_idSet: Set<number>): Promise<Set<number>> {
+					return previousPromise.then(function (_idSet: Set<number>): Promise<Set<number>> {
 						const fixedCurrentIndex: number = currentIndex - 1;
 
 						if(fixedCurrentIndex === 0) {
 							idSet = _idSet;
 						} else {
-							// @ts-expect-error :: Typescript's fault
-							const isPreviousTagNegative: boolean = typeof(tagList[fixedCurrentIndex]['isNegative']) !== 'undefined' ? tagList[fixedCurrentIndex]['isNegative'] : false;
+							const isPreviousTagNegative: boolean = tagList[fixedCurrentIndex]['isNegative'] || false;
 
 							idSet.forEach(function (id: number, id2: number, set: Set<number>): void {
 								if(isPreviousTagNegative === _idSet.has(id)/* !(isPreviousTagNegative ^ _idSet.has(id)) */) {
@@ -613,7 +592,7 @@ module hitomi {
 
 	export function getTagList(type: TagType, option?: { startWith?: StartingCharacter }): Promise<Tag[]> {
 		return new Promise<Tag[]>(function (resolve: (value: Tag[] | PromiseLike<Tag[]>) => void, reject: (reason?: any) => void): void {
-			if(type !== 'language' && type !== 'type' && (typeof(option) === 'undefined' || typeof(option['startWith']) === 'undefined') || (type === 'language' || type === 'type') && typeof(option) !== 'undefined' && typeof(option['startWith']) !== 'undefined') {
+			if(type !== 'language' && type !== 'type' && typeof(option?.['startWith']) === 'undefined' || (type === 'language' || type === 'type') && typeof(option?.['startWith']) !== 'undefined') {
 				reject(new HitomiError('INVALID_VALUE', 'startingCharacter'));
 
 				return;
@@ -645,8 +624,7 @@ module hitomi {
 					// @ts-expect-error :: Already checked availability of startingCharacter
 					const startingCharacter: StartingCharacter = option['startWith'];
 
-					fetchBuffer(getTagUrl(type, { startWith: startingCharacter }))
-					.then(function (buffer: Buffer): void | PromiseLike<void> {
+					fetchBuffer(getTagUrl(type, { startWith: startingCharacter })).then(function (buffer: Buffer): void | PromiseLike<void> {
 						let nameMatchRegularExpressionString: string = '';
 
 						if(type === 'language') {
@@ -655,11 +633,12 @@ module hitomi {
 							nameMatchRegularExpressionString = `(?<=\/tag\/${type === 'male' || type === 'female' ? type + '%3A' : ''})[a-z0-9%]+(?=-all\\.html)`;
 						}
 
-						const matchedNameList: string[] = buffer.toString('utf8').match(RegExp(nameMatchRegularExpressionString, 'g')) || [];
+						const matchedNameList: string[] = buffer.toString('utf8')
+						.match(RegExp(nameMatchRegularExpressionString, 'g')) || [];
 						const nameValidateRegularExpression: RegExp = RegExp(`^(?=[${startingCharacter}])[a-z0-9%]+$`);
 						let tagList: Tag[] = [];
 
-						for(let i: number = 0; i < matchedNameList.length; i++) {
+						for(let i: number = 0; i < matchedNameList['length']; i++) {
 							const name: string = decodeURIComponent(matchedNameList[i]);
 
 							if(matchedNameList[i].match(nameValidateRegularExpression) !== null) {
@@ -676,6 +655,8 @@ module hitomi {
 					})
 					.catch(reject);
 				}
+				
+				return;
 			}
 		});
 	}
