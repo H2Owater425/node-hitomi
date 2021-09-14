@@ -5,6 +5,7 @@ source/
 .gitignore
 .npmignore
 .babelrc
+tsconfig.json
 tsconfig.build.json
 
 # Readme file
