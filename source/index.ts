@@ -406,7 +406,7 @@ module hitomi {
 
 							if(typeof(galleryContentHtml) !== 'undefined') {
 								['artist', 'group', 'series', 'character'].forEach(function (tag: string, index: number, array: string[]): void {
-									galleryContentHtml.match(RegExp('(?<=\/' + tag + '\/)[a-z0-9%]+(?=-all\\.html)', 'g'))
+									galleryContentHtml.match(RegExp('(?<=\/' + tag + '\/)[A-z0-9%]+(?=-all\\.html)', 'g'))
 									?.forEach(function (matchedString: string, index: number, array: string[]): void {
 										// @ts-expect-error :: Since using combination of string as key, typescript detects error. But still, works fine!
 										gallery[tag + 'List'].push(decodeURIComponent(matchedString));
