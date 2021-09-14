@@ -12,7 +12,7 @@
 
 ## Installation
 
-> **NOTICE**: Please always use the latest version of the package. <br/> Since Hitomi changes it's method to get image url often, legacy version may not work.
+> **NOTICE**: Please always use the latest version of the package. <br/> Since Hitomi changes its method to get image url often, legacy version may not work.
 
 Using npm:
 ```bash
@@ -48,7 +48,7 @@ printing title and id of gallery number `x`:
 ```javascript
 hitomi.getGallery(x)
 .then(function (value) {
-	console.log(value['title']['display'], value['id']);
+    console.log(value['title']['display'], value['id']);
 });
 ```
 
@@ -56,7 +56,7 @@ printing supported tag `female` list starting with letter `b`:
 ```javascript
 hitomi.getTagList('female', 'b')
 .then(function (value) {
-	console.log(value);
+    console.log(value);
 });
 ```
 
@@ -65,6 +65,6 @@ printing number of language `korean` gallery without female tag `netorare`:
 hitomi.getQueriedIdList([{ type: 'language', name: 'korean' },
 { type: 'female', name: 'netorare', isNegative: true }])
 .then(function (value) {
-	console.log(value.length);
+    console.log(value.length);
 });
 ```
