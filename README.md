@@ -12,6 +12,8 @@
 
 ## Installation
 
+> **NOTICE**: Please always use the latest version of the package. <br/> Since Hitomi changes it's method to get image url often, legacy version may not work.
+
 Using npm:
 ```bash
 $ npm install node-hitomi --save
