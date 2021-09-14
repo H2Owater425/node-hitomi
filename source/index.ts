@@ -180,7 +180,7 @@ module hitomi {
 
 		switch(extension) {
 			case 'jpg':
-				if(!isThumbnail && image['extension'] !== 'jpg') {
+				if(image['extension'] !== 'jpg') {
 					throw new HitomiError('INVALID_VALUE', 'extension');
 				} else {
 					break;
