@@ -176,7 +176,7 @@ module hitomi {
 	// url resolver
 
 	export function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string {
-		const isThumbnail: boolean = option?.['isThumbnail'] || false;
+		const isThumbnail: boolean = option?.['isThumbnail'] ?? false;
 
 		switch(extension) {
 			case 'jpg':
@@ -355,8 +355,8 @@ module hitomi {
 		if(!isInteger(id) || (isInteger(id) && id < 1)) {
 			throw new HitomiError('INVALID_VALUE', 'id');
 		} else {
-			const includeFiles: boolean = option?.['includeFiles'] || true;
-			const includeFullData: boolean = option?.['includeFullData'] || true;
+			const includeFiles: boolean = option?.['includeFiles'] ?? true;
+			const includeFullData: boolean = option?.['includeFullData'] ?? true;
 
 			return new Promise<Gallery>(function (resolve: (value: Gallery | PromiseLike<Gallery>) => void, reject: (reason?: any) => void): void {
 				fetchBuffer('https://ltn.hitomi.la/galleries/' + id + '.js').then(function (buffer: Buffer): void | PromiseLike<void> {
@@ -444,9 +444,9 @@ module hitomi {
 				reject(new HitomiError('INVALID_VALUE', 'range[\'endIndex\']'));
 			} else {
 				const startByte: number = range['startIndex'] * 4;
-				const endByte: number | string = startByte + (range?.['endIndex'] || NaN + 1) * 4 - 1 || '';
+				const endByte: number | string = startByte + (range?.['endIndex'] || NaN) * 4 + 3 || '';
 				const orderCriteria: OrderCriteria = option?.['orderBy'] || 'index';
-				const reverseResult: boolean = option?.['reverseResult'] || false;
+				const reverseResult: boolean = option?.['reverseResult'] ?? false;
 
 				fetchBuffer('https://ltn.hitomi.la/' + orderCriteria + '-all.nozomi', { Range: 'bytes=' + startByte + '-' + endByte }).then(function (buffer: Buffer): void | PromiseLike<void> {
 					let galleryIdList: number[] = Array.from(get32BitIntegerNumberSet(buffer));
@@ -511,7 +511,7 @@ module hitomi {
 				throw new HitomiError('LACK_OF_ELEMENT', 'tagList');
 			} else {
 				tagList.sort(function (a: Tag, b: Tag): number {
-					const [isANegative, isBNegative]: boolean[] = [a?.['isNegative'] || false, b?.['isNegative'] || false]
+					const [isANegative, isBNegative]: boolean[] = [a?.['isNegative'] ?? false, b?.['isNegative'] ?? false]
 
 					if(!isANegative && !isBNegative){
 						return 0;
@@ -540,7 +540,7 @@ module hitomi {
 					resolve(new Set<number>());
 				}));
 
-				if(tagList[0]['isNegative'] || false) {
+				if(tagList[0]['isNegative'] ?? false) {
 					// Not affecting result, but to run properly it is needed to unshift one tag.
 					tagList.unshift({
 						type: 'female',
@@ -566,7 +566,7 @@ module hitomi {
 						if(fixedCurrentIndex === 0) {
 							idSet = _idSet;
 						} else {
-							const isPreviousTagNegative: boolean = tagList[fixedCurrentIndex]['isNegative'] || false;
+							const isPreviousTagNegative: boolean = tagList[fixedCurrentIndex]['isNegative'] ?? false;
 
 							idSet.forEach(function (id: number, id2: number, set: Set<number>): void {
 								if(isPreviousTagNegative === _idSet.has(id)/* !(isPreviousTagNegative ^ _idSet.has(id)) */) {
