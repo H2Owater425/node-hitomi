@@ -365,7 +365,7 @@ module hitomi {
 
 					let gallery: Gallery = JSON.parse('{ "id": ' + Number(responseJson['id']) + ', "title": { "display": "' + responseJson['title'].replace(/\"/g, '\\"') + '", "japanese": ' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + ' }, "type": "' + responseJson['type'] + '", "languageName": { "english": ' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ', "local": ' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + ' }, "artistList": [], "groupList": [], "seriesList": [], "characterList": [], "tagList": [], "fileList": [], "publishedDate": null }');
 					
-					gallery['publishedDate'] = new Date(responseJson['date'] + ':00'.replace(' ', 'T'));
+					gallery['publishedDate'] = new Date(responseJson['date']);
 
 					if(responseJson['tags'] !== null) {
 						for(let i: number = 0; i < responseJson['tags']['length']; i++) {
