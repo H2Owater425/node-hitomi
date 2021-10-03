@@ -49,21 +49,21 @@ declare module hitomi {
 	 * @param  {boolean} [option.isThumbnail=false] If set to true, the function will return thumbnail url
 	 * @returns {string}
 	 */
-	export function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string;
+	function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string;
 
 	/**
 	 * Returns video url from gallery
 	 * @param  {Gallery} gallery
 	 * @returns {string}
 	 */
-	export function getVideoUrl(gallery: Gallery): string;
+	function getVideoUrl(gallery: Gallery): string;
 
 	/**
 	 * Returns gallery url from gallery
 	 * @param  {Gallery} gallery
 	 * @returns {string}
 	 */
-	export function getGalleryUrl(gallery: Gallery): string;
+	function getGalleryUrl(gallery: Gallery): string;
 
 	/**
 	 * Returns nozomi url from tag
@@ -72,7 +72,7 @@ declare module hitomi {
 	 * @param  {OrderCriteria} [option.orderBy='index'] If set to 'popularity', the function will return nozomi url that responds id-data order by popularity
 	 * @returns {string}
 	 */
-	export function getnozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria; }): string;
+	function getnozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria; }): string;
 
 	/**
 	 * Returns tag list url with specific character
@@ -81,14 +81,14 @@ declare module hitomi {
 	 * @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return hitomi url that responds tag-data that starts with that character
 	 * @returns {string}
 	 */
-	export function getTagUrl(type: TagType, option: { startWith: StartingCharacter }): string
+	function getTagUrl(type: TagType, option: { startWith: StartingCharacter }): string
 
 	/**
 	 * Returns second thumbnail index from gallery
 	 * @param  {Gallery} gallery
 	 * @returns {number}
 	 */
-	export function getSecondThumbnailIndex(gallery: Gallery): number;
+	function getSecondThumbnailIndex(gallery: Gallery): number;
 
 	/**
 	 * Returns gallery from id
@@ -98,7 +98,7 @@ declare module hitomi {
 	 * @param  {boolean} [option.includeFiles=true] If set to false, the function will not return gallery data including files
 	 * @returns {Promise<Gallery>}
 	 */
-	export function getGallery(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery>;
+	function getGallery(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery>;
 
 	/**
 	 * Returns id list from range
@@ -110,21 +110,21 @@ declare module hitomi {
 	 * @param  {boolean} [option.reverseResult=false] If set to true, the function will return reversed id list
 	 * @returns {Promise<number[]>}
 	 */
-	export function getIdList(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria; reverseResult?: boolean; }): Promise<number[]>;
+	function getIdList(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria; reverseResult?: boolean; }): Promise<number[]>;
 
 	/**
 	 * Returns tag list from string
 	 * @param  {string} tagString
 	 * @returns {Tag[]}
 	 */
-	export function getParsedTagList(tagString: string): Tag[];
+	function getParsedTagList(tagString: string): Tag[];
 
 	/**
 	 * Returns gallery id list from tag list
 	 * @param  {Tag[]} tagList
 	 * @returns {Promise<number[]>}
 	 */
-	export function getQueriedIdList(tagList: Tag[]): Promise<number[]>;
+	function getQueriedIdList(tagList: Tag[]): Promise<number[]>;
 
 	/**
 	 * Returns tag list starting with specific character
@@ -133,7 +133,7 @@ declare module hitomi {
 	 * @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return tag list that responds tag-data that starts with that character
 	 * @returns {Promise<Tag[]>}
 	 */
-	export function getTagList(type: TagType, option?: { startWith?: StartingCharacter }): Promise<Tag[]>;
+	function getTagList(type: TagType, option?: { startWith?: StartingCharacter }): Promise<Tag[]>;
 }
 
 export default hitomi;
