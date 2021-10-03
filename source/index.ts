@@ -363,7 +363,7 @@ module hitomi {
 					const responseJson: LooseObject = JSON.parse(buffer.toString('utf8')
 					.slice(18));
 
-					let gallery: Gallery = JSON.parse('{ "id": ' + Number(responseJson['id']) + ', "title": { "display": "' + responseJson['title'].replace(/\"/g, '\\"') + '", "japanese": ' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + ' }, "type": "' + responseJson['type'] + '", "languageName": { "english": ' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ', "local": ' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + ' }, "artistList": [], "groupList": [], "seriesList": [], "characterList": [], "tagList": [], "fileList": [], "publishedDate": null }');
+					let gallery: Gallery = JSON.parse('{ "id": ' + responseJson['id'] + ', "title": { "display": "' + responseJson['title'].replace(/\"/g, '\\"') + '", "japanese": ' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + ' }, "type": "' + responseJson['type'] + '", "languageName": { "english": ' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ', "local": ' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + ' }, "artistList": [], "groupList": [], "seriesList": [], "characterList": [], "tagList": [], "fileList": [], "publishedDate": null }');
 					
 					gallery['publishedDate'] = new Date(responseJson['date']);
 
