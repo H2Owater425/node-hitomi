@@ -140,7 +140,7 @@ module hitomi {
 				let bufferList: Buffer[] = [];
 				let bufferLength: number = 0;
 
-				if(response['statusCode'] === 200) {
+				if(response['statusCode'] === 200 || response['statusCode'] === 206) {
 					response.on('data', function (chunk: any): void {
 						bufferList.push(chunk);
 						bufferLength += chunk['byteLength'];
