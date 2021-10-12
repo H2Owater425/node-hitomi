@@ -28,12 +28,12 @@ declare module hitomi {
 					english: string | null;
 					local: string | null;
 			};
-			artistList: string[];
-			groupList: string[];
-			seriesList: string[];
-			characterList: string[];
-			tagList: Tag[];
-			fileList: Image[];
+			artists: string[];
+			groups: string[];
+			series: string[];
+			characters: string[];
+			tags: Tag[];
+			files: Image[];
 			publishedDate: Date;
 	}
 
@@ -110,21 +110,21 @@ declare module hitomi {
 	 * @param  {boolean} [option.reverseResult=false] If set to true, the function will return reversed id list
 	 * @returns {Promise<number[]>}
 	 */
-	function getIdList(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria; reverseResult?: boolean; }): Promise<number[]>;
+	function getIds(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria; reverseResult?: boolean; }): Promise<number[]>;
 
 	/**
 	 * Returns tag list from string
 	 * @param  {string} tagString
 	 * @returns {Tag[]}
 	 */
-	function getParsedTagList(tagString: string): Tag[];
+	function getParsedTags(tagString: string): Tag[];
 
 	/**
 	 * Returns gallery id list from tag list
-	 * @param  {Tag[]} tagList
+	 * @param  {Tag[]} tags
 	 * @returns {Promise<number[]>}
 	 */
-	function getQueriedIdList(tagList: Tag[]): Promise<number[]>;
+	function getQueriedIds(tags: Tag[]): Promise<number[]>;
 
 	/**
 	 * Returns tag list starting with specific character
@@ -133,7 +133,7 @@ declare module hitomi {
 	 * @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return tag list that responds tag-data that starts with that character
 	 * @returns {Promise<Tag[]>}
 	 */
-	function getTagList(type: TagType, option?: { startWith?: StartingCharacter }): Promise<Tag[]>;
+	function getTags(type: TagType, option?: { startWith?: StartingCharacter }): Promise<Tag[]>;
 }
 
 export default hitomi;
