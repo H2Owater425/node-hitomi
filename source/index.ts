@@ -218,14 +218,16 @@ module hitomi {
 		} else if(!isInteger(image['index']) || image['index'] < 0) {
 			throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
 		} else {
-			const imagePath: string = image['hash'].slice(-1) + '/' + image['hash'].slice(-3, -1) + '/' + image['hash'];
+			const imagePath: string = image['hash'].slice(-1) + '/' + image['hash']
+			.slice(-3, -1) + '/' + image['hash'];
 			
 			let subdomain: string = '';
 			let folderName: string = '';
 
 			if(!isThumbnail) {
 				//let frontendCount: number = 3; Not used anymore
-				let hexadecimalId: number = Number.parseInt(image['hash'].slice(-3, -1), 16);
+				let hexadecimalId: number = Number.parseInt(image['hash']
+				.slice(-3, -1), 16);
 				let temporaryNumber: number = 0;
 
 				if(hexadecimalId < 68/* = 0x44 */) {
@@ -258,7 +260,10 @@ module hitomi {
 	}
 
 	export function getGalleryUrl(gallery: Gallery): string {
-		return ('https://hitomi.la/' + (gallery['type'] !== 'artistcg' ? gallery['type'] : 'cg') + '/' + encodeURIComponent(Buffer.from(gallery['title']['japanese'] || gallery['title']['display']).slice(0, 200).toString('utf-8')).replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-') + (gallery['languageName']['local'] !== null ? '-' + encodeURIComponent(gallery['languageName']['local']) : '') + '-' + gallery['id'] + '.html').toLocaleLowerCase();
+		return ('https://hitomi.la/' + (gallery['type'] !== 'artistcg' ? gallery['type'] : 'cg') + '/' + encodeURIComponent(Buffer.from(gallery['title']['japanese'] || gallery['title']['display'])
+		.slice(0, 200)
+		.toString('utf-8'))
+		.replace(/\(|\)|'|%(2(0|2|3|5|F)|3(C|E|F)|5(B|D)|7(B|D))/g, '-') + (gallery['languageName']['local'] !== null ? '-' + encodeURIComponent(gallery['languageName']['local']) : '') + '-' + gallery['id'] + '.html').toLocaleLowerCase();
 	}
 
 	export function getNozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria }): string {
@@ -534,7 +539,7 @@ module hitomi {
 						.catch(reject);
 
 						return;
-					}))
+					}));
 				}
 
 				filterPromises.push(new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
@@ -642,7 +647,7 @@ module hitomi {
 						for(let i: number = 0; i < matchedNames['length']; i++) {
 							const name: string = decodeURIComponent(matchedNames[i]);
 
-							if(matchedNames[i].match(nameValidateRegularExpression) !== null) {
+							if(nameValidateRegularExpression.test(matchedNames[i])) {
 								tags.push({
 									type: type,
 									name: name
