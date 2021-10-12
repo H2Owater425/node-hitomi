@@ -53,6 +53,8 @@ module hitomi {
 
 	type ErrorKey = 'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENT' | 'REQEUST_REJECTED';
 
+	const galleryContentParseTypeList = ['artist', 'group', 'series', 'character'] as const;
+
 	// utility
 
 	function getErrorMessage(key: ErrorKey, ...argumentList: any[]): string {
@@ -405,17 +407,14 @@ module hitomi {
 							.split('content">')[1];
 
 							if(typeof(galleryContentHtml) !== 'undefined') {
-								['artist', 'group', 'series', 'character'].forEach(function (tag: string, index: number, array: string[]): void {
-									galleryContentHtml.match(RegExp('(?<=\/' + tag + '\/)[A-z0-9%]+(?=-all\\.html)', 'g'))
-									?.forEach(function (matchedString: string, index: number, array: string[]): void {
+								for(let i: number = 0; i < galleryContentParseTypeList['length']; i++) {
+									const matchedStringList: string[] = galleryContentHtml.match(RegExp('(?<=\/' + galleryContentParseTypeList[i] + '\/)[A-z0-9%]+(?=-all\\.html)', 'g')) || [];
+
+									for(let j: number = 0; j < matchedStringList['length']; j++) {
 										// @ts-expect-error :: Since using combination of string as key, typescript detects error. But still, works fine!
-										gallery[tag + 'List'].push(decodeURIComponent(matchedString));
-
-										return;
-									});
-
-									return;
-								});
+										gallery[galleryContentParseTypeList[i] !== 'series' ? galleryContentParseTypeList[i] + 's' : 'series'].push(decodeURIComponent(matchedStringList[j]));
+									}
+								}
 							}
 
 							resolve(gallery);
@@ -523,9 +522,11 @@ module hitomi {
 				});
 
 				let idSet: Set<number> = new Set<number>();
-				let filterPromiseList: Promise<Set<number>>[] = tagList.map(function (tag: Tag, index: number, array: Tag[]): Promise<Set<number>> {
-					return new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
-						fetchBuffer(getNozomiUrl(tag)).then(function (buffer: Buffer): void | PromiseLike<void> {
+				let filterPromiseList: Promise<Set<number>>[] = [];
+
+				for(let i: number = 0; i < tagList['length']; i++) {
+					filterPromiseList.push(new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
+						fetchBuffer(getNozomiUrl(tagList[i])).then(function (buffer: Buffer): void | PromiseLike<void> {
 							resolve(get32BitIntegerNumberSet(buffer));
 
 							return;
@@ -533,8 +534,8 @@ module hitomi {
 						.catch(reject);
 
 						return;
-					});
-				});
+					}))
+				}
 
 				filterPromiseList.push(new Promise<Set<number>>(function (resolve: (value: Set<number> | PromiseLike<Set<number>>) => void, reject: (reason?: any) => void): void {
 					resolve(new Set<number>());
