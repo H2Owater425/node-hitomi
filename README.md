@@ -38,7 +38,7 @@ Without any dependencies!
 setup:
 ```javascript
 // CommonJS
-const hitomi = require('node-hitomi').default;
+const hitomi = require('node-hitomi')['default'];
 
 // ES Module
 import hitomi from 'node-hitomi';
@@ -48,7 +48,7 @@ printing title and id of gallery number `x`:
 ```javascript
 hitomi.getGallery(x)
 .then(function (value) {
-    console.log(value['title']['display'], value['id']);
+  console.log(value['title']['display'], value['id']);
 });
 ```
 
@@ -56,15 +56,21 @@ printing supported tag `female` list starting with letter `b`:
 ```javascript
 hitomi.getTagList('female', 'b')
 .then(function (value) {
-    console.log(value);
+  console.log(value);
 });
 ```
 
 printing number of language `korean` gallery without female tag `netorare`:
 ```javascript
-hitomi.getQueriedIdList([{ type: 'language', name: 'korean' },
-{ type: 'female', name: 'netorare', isNegative: true }])
+hitomi.getQueriedIdList([{
+  type: 'language',
+  name: 'korean'
+}, {
+  type: 'female',
+  name: 'netorare',
+  isNegative: true
+}])
 .then(function (value) {
-    console.log(value.length);
+  console.log(value['length']);
 });
 ```
