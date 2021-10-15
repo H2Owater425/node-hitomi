@@ -52,9 +52,9 @@ hitomi.getGallery(x)
 });
 ```
 
-printing supported tag `female` list starting with letter `b`:
+printing supported tags for `female` starting with letter `b`:
 ```javascript
-hitomi.getTagList('female', 'b')
+hitomi.getTags('female', 'b')
 .then(function (value) {
   console.log(value);
 });
@@ -62,7 +62,7 @@ hitomi.getTagList('female', 'b')
 
 printing number of language `korean` gallery without female tag `netorare`:
 ```javascript
-hitomi.getQueriedIdList([{
+hitomi.getQueriedIds([{
   type: 'language',
   name: 'korean'
 }, {
