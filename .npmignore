@@ -13,3 +13,6 @@ README.md
 
 # Test file
 test.ts
+
+# Minify and browserify file
+after.js
