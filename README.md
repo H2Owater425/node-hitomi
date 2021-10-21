@@ -12,7 +12,7 @@
 
 ## Installation
 
-> **NOTICE**: Please always use the latest version of the package. <br/> Since Hitomi changes its method to get image url often, legacy version may not work.
+> **NOTICE**: Please always use the latest version of the package.<br/>Since Hitomi changes its method to get image url often, legacy version may not work.
 
 Using npm:
 ```bash
@@ -74,3 +74,7 @@ hitomi.getQueriedIds([{
   console.log(value['length']);
 });
 ```
+
+## Contribution
+
+Contribution, issues and feature requests are welcome!<br/>Feel free to check [issues page](https://github.com/H2Owater425/node-hitomi/issues).
