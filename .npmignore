@@ -16,3 +16,6 @@ test.ts
 
 # Minify and browserify file
 after.js
+
+# Browser file - will uploaded as releases of package
+library/browser.js
