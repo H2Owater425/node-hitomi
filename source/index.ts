@@ -227,16 +227,9 @@ module hitomi {
 			if(!isThumbnail) {
 				//let frontendCount: number = 3; Not used anymore
 				let hexadecimalId: number = Number.parseInt(image['hash']
-				.slice(-3, -1), 16);
-				let temporaryNumber: number = 0;
+				.slice(-3, -1), 16)
 
-				if(hexadecimalId < 68/* = 0x44 */) {
-					temporaryNumber = 2
-				} else if(hexadecimalId < 136/* = 0x88 */) {
-					temporaryNumber = 1
-				}
-
-				subdomain = String.fromCharCode(temporaryNumber + 97);
+				subdomain = String.fromCharCode(hexadecimalId < 128 /* 0x80 */ ? 98 : 97);
 
 				if(extension === 'jpg' || extension === 'png') {
 					subdomain += 'b';
