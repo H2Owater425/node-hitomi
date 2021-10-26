@@ -7,9 +7,7 @@
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"declaration": true,
-		"declarationDir": "./library/"
+		"forceConsistentCasingInFileNames": true
 	},
 	"exclude": ["./node_modules/"],
 	"include": ["./source/**/*", "library/index.d.ts"]
