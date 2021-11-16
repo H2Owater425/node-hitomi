@@ -229,7 +229,7 @@ module hitomi {
 				let hexadecimalId: number = Number.parseInt(image['hash']
 				.slice(-3, -1), 16)
 
-				subdomain = String.fromCharCode(hexadecimalId < 122 /* 0x7a */ ? 98 : 97);
+				subdomain = String.fromCharCode(hexadecimalId < 124 /* 0x7c */ ? 98 : 97);
 
 				if(extension === 'jpg' || extension === 'png') {
 					subdomain += 'b';
