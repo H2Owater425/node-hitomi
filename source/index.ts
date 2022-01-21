@@ -141,6 +141,7 @@ module hitomi {
 				headers: {
 					'Accept': '*/*',
 					'Connection': 'keep-alive',
+                    'Referer': 'https://hitomi.la',
 					...header
 				},
 				agent: agent
