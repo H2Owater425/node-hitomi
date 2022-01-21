@@ -1,6 +1,6 @@
 {
 	"name": "node-hitomi",
-	"version": "5.0.4",
+	"version": "5.0.5",
 	"description": "Hitomi.la api for Node.js",
 	"main": "./library/index.js",
 	"types": "./library/index.d.ts",
