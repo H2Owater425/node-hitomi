@@ -9,10 +9,8 @@ declare module hitomi {
 			height: number;
 	}
 
-	type TagType = 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag';
-
 	interface Tag {
-			type: TagType;
+			type: 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag';
 			name: string;
 			isNegative?: boolean;
 	}
@@ -42,49 +40,49 @@ declare module hitomi {
 	type StartingCharacter = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | '123';
 
 	/**
-	 * Returns image url from image
+	 * Returns url of image
 	 * @param  {Image} image
-	 * @param  {Image['extension']|'avif'|'webp'} extension
-	 * @param  {object} [option]
-	 * @param  {boolean} [option.isThumbnail=false] If set to true, the function will return thumbnail url
+	 * @param  {Image['extension'] | 'avif' | 'webp'} extension
+	 * @param  {object} [options = {}]
+	 * @param  {boolean} [options.isThumbnail = false] If set to true, the function will return thumbnail url
 	 * @returns {string}
 	 */
-	function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', option?: { isThumbnail?: boolean; }): string;
+	function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', options: { isThumbnail?: boolean; } = {}): string;
 
 	/**
-	 * Returns video url from gallery
+	 * Returns url of video from gallery
 	 * @param  {Gallery} gallery
 	 * @returns {string}
 	 */
 	function getVideoUrl(gallery: Gallery): string;
 
 	/**
-	 * Returns gallery url from gallery
+	 * Returns url of gallery
 	 * @param  {Gallery} gallery
 	 * @returns {string}
 	 */
 	function getGalleryUrl(gallery: Gallery): string;
 
 	/**
-	 * Returns nozomi url from tag
+	 * Returns nozomi url of tag
 	 * @param  {Tag} tag
-	 * @param  {object} [option]
-	 * @param  {OrderCriteria} [option.orderBy='index'] If set to 'popularity', the function will return nozomi url that responds id-data order by popularity
+	 * @param  {object} [option = {}]
+	 * @param  {OrderCriteria} [option.orderBy]
 	 * @returns {string}
 	 */
 	function getnozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria; }): string;
 
 	/**
-	 * Returns tag list url with specific character
-	 * @param  {TagType} type
-	 * @param  {object} [option]
-	 * @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return hitomi url that responds tag-data that starts with that character
-	 * @returns {string}
-	 */
-	function getTagUrl(type: TagType, option: { startWith: StartingCharacter }): string
+	* Returns url of tags with specific character
+	* @param  {Tag['type']} type
+	* @param  {object} [option = {}]
+	* @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return hitomi url that responds tag that starts with that character
+	* @returns {string}
+	*/
+	function getTagUrl(type: Tag['type'], option: { startWith: StartingCharacter }): string
 
 	/**
-	 * Returns second thumbnail index from gallery
+	 * Returns index of second thumbnail from gallery
 	 * @param  {Gallery} gallery
 	 * @returns {number}
 	 */
@@ -93,47 +91,47 @@ declare module hitomi {
 	/**
 	 * Returns gallery from id
 	 * @param  {number} id
-	 * @param  {object} [option]
-	 * @param  {boolean} [option.includeFullData=true] If set to false, the function will not return gallery data including artists, groups, series, characters
-	 * @param  {boolean} [option.includeFiles=true] If set to false, the function will not return gallery data including files
+	 * @param  {object} [options = {}]
+	 * @param  {boolean} [options.includeFullData = true] If set to false, the function will not return gallery including artists, groups, series, characters
+	 * @param  {boolean} [options.includeFiles = true] If set to false, the function will not return gallery including files
 	 * @returns {Promise<Gallery>}
 	 */
-	function getGallery(id: number, option?: { includeFullData?: boolean; includeFiles?: boolean; }): Promise<Gallery>;
+	function getGallery(id: number, options: { includeFullData?: boolean; includeFiles?: boolean; } = {}): Promise<Gallery>;
 
 	/**
-	 * Returns id list from range
+	 * Returns ids from range
 	 * @param  {object} range
 	 * @param  {number} range.startIndex
-	 * @param  {number} [range.endIndex] If not set, the function will return a list contains every id
-	 * @param  {object} [option]
-	 * @param  {OrderCriteria} [option.orderBy='index'] If set to 'popularity', the function will return id list ordered by popularity
-	 * @param  {boolean} [option.reverseResult=false] If set to true, the function will return reversed id list
+	 * @param  {number} [range.endIndex] If not set, the function will return whole range from startIndex
+	 * @param  {object} [options = {}]
+	 * @param  {OrderCriteria} [options.orderBy]
+	 * @param  {boolean} [options.reverseResult = false] If set to true, the function will return reversed ids
 	 * @returns {Promise<number[]>}
 	 */
-	function getIds(range: { startIndex: number; endIndex?: number; }, option?: { orderBy?: OrderCriteria; reverseResult?: boolean; }): Promise<number[]>;
+	function getIds(range: { startIndex: number; endIndex?: number; }, options: { orderBy?: OrderCriteria; reverseResult?: boolean; } = {}): Promise<number[]>;
 
 	/**
-	 * Returns tag list from string
+	 * Returns tags from string
 	 * @param  {string} tagString
 	 * @returns {Tag[]}
 	 */
 	function getParsedTags(tagString: string): Tag[];
 
 	/**
-	 * Returns gallery id list from tag list
+	 * Returns gallery ids from tags
 	 * @param  {Tag[]} tags
 	 * @returns {Promise<number[]>}
 	 */
 	function getQueriedIds(tags: Tag[]): Promise<number[]>;
 
 	/**
-	 * Returns tag list starting with specific character
-	 * @param  {TagType} type
-	 * @param  {object} [option]
-	 * @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return tag list that responds tag-data that starts with that character
+	 * Returns tag starting with specific character
+	 * @param  {Tag['type']} type
+	 * @param  {object} [options = {}]
+	 * @param  {StartingCharacter} [options.startWith] If set and type isn't language nor type, the function will return tags that responds tag that starts with that character
 	 * @returns {Promise<Tag[]>}
 	 */
-	function getTags(type: TagType, option?: { startWith?: StartingCharacter }): Promise<Tag[]>;
+	function getTags(type: Tag['type'], options: { startWith?: StartingCharacter } = {}): Promise<Tag[]>;
 }
 
 export default hitomi;
