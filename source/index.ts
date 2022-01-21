@@ -141,6 +141,7 @@ module hitomi {
 				headers: {
 					'Accept': '*/*',
 					'Connection': 'keep-alive',
+                    'Referer': 'https://hitomi.la',
 					...header
 				},
 				agent: agent
@@ -445,7 +446,7 @@ module hitomi {
 				reject(new HitomiError('INVALID_VALUE', 'range[\'endIndex\']'));
 			} else {
 				const startByte: number = range['startIndex'] * 4;
-				const endByte: number | string = startByte + (range?.['endIndex'] || NaN) * 4 + 3 || '';
+				const endByte: number | string = (range?.['endIndex'] || NaN) * 4 + 3 || '';
 				const orderCriteria: OrderCriteria = option?.['orderBy'] || 'index';
 				const reverseResult: boolean = option?.['reverseResult'] ?? false;
 
