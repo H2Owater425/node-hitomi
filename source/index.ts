@@ -488,8 +488,8 @@ module hitomi {
 	export function getIds(range: { startIndex: number; endIndex?: number; }, options: { orderBy?: OrderCriteria, reverseResult?: boolean; } = {}): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[]) => void, reject: (reason: any) => void) {
 			if(isInteger(range['startIndex']) && range['startIndex'] >= 0) {
-				if(!isInteger(range['endIndex']) || range['endIndex'] as number > range['startIndex']) {
-					fetchBuffer('https://ltn.hitomi.la/' + (options['orderBy'] || 'index') + '-all.nozomi', { Range: 'bytes=' + range['startIndex'] * 4 + '-' + ((range['endIndex'] || NaN) * 4 + 3 || '') })
+				if(!isInteger(range['endIndex']) || range['endIndex'] as number >= range['startIndex']) {
+					fetchBuffer('https://ltn.hitomi.la/' + (options['orderBy'] || 'index') + '-all.nozomi', { Range: 'bytes=' + range['startIndex'] * 4 + '-' + ((range['endIndex'] ?? NaN) * 4 + 3 || '') })
 					.then(function (buffer: Buffer): void {
 						let galleryIds: number[] = Array.from(get32BitIntegerNumberSet(buffer));
 	
