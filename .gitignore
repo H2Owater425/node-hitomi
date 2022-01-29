@@ -131,3 +131,5 @@ temp/
 !.yarn/versions
 !.yarn/cache
 yarn.lock
+
+test.*
