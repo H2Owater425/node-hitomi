@@ -49,8 +49,6 @@ module hitomi {
 		[key: string]: any;
 	}
 
-	type ErrorKey = 'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENT' | 'REQEUST_REJECTED';
-
 	// Reference property b of gg variable in https://ltn.hitomi.la/gg.js
 	const imagePathCode: string = '1641389178';
 
@@ -61,45 +59,45 @@ module hitomi {
 
 	// utility
 
-	function getErrorMessage(key: ErrorKey, ..._arguments: any[]): string {
-		switch(key) {
-			case 'INVALID_VALUE': {
-				return 'Value of \'' + _arguments[0] + '\' was not valid';
-			}
-
-			case 'DUPLICATED_ELEMENT': {
-				return 'Element of \'' + _arguments[0] + '\' was duplicated';
-			}
-
-			case 'LACK_OF_ELEMENT': {
-				return 'Elements of \'' + _arguments[0] + '\' was not enough';
-			}
-
-			case 'REQEUST_REJECTED': {
-				return 'Request to \'' + _arguments[0] + '\' was rejected';
-			}
-		}
-	}
-
 	class HitomiError extends Error {
-		private code: ErrorKey;
+		private code: 'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENT' | 'REQEUST_REJECTED';
 
-		constructor(key: ErrorKey, ..._arguments: any[]) {
-			super(getErrorMessage(key, _arguments));
+		constructor(key: HitomiError['code'], ..._arguments: string[]) {
+			super('Unknown');
 
 			this['code'] = key;
+
+			const quote: string = _arguments[0].includes('\'') ? '`' : '\'';
+
+			switch(key) {
+				case 'INVALID_VALUE': {
+					this['message'] = 'Value of ' + quote + _arguments[0] + quote + ' was not valid';
+
+					break;
+				}
+
+				case 'DUPLICATED_ELEMENT': {
+					this['message'] = 'Element of ' + quote + _arguments[0] + quote + ' was duplicated';
+
+					break;
+				}
+
+				case 'LACK_OF_ELEMENT': {
+					this['message'] = 'Elements of ' + quote + _arguments[0] + quote + ' was not enough';
+
+					break;
+				}
+
+				case 'REQEUST_REJECTED': {
+					this['message'] = 'Request to ' + quote + _arguments[0] + quote + ' was rejected';
+
+					break;
+				}
+			}
 		}
 
 		get name(): string {
 			return 'HitomiError [' + this['code'] + ']';
-		}
-	}
-
-	class _Agent extends Agent {
-		public createConnection(options: AgentOptions, callback?: () => void): TLSSocket {
-			options['servername'] = undefined;
-			
-			return connect(options, callback);
 		}
 	}
 
@@ -129,9 +127,15 @@ module hitomi {
 		return numbers;
 	}
 
-	const agent: _Agent = new _Agent({ rejectUnauthorized: false, keepAlive: true });
+	const agent: Agent = (new class extends Agent {
+		public createConnection(options: AgentOptions, callback?: () => void): TLSSocket {
+			options['servername'] = undefined;
+			
+			return connect(options, callback);
+		}
+	});
 
-	function fetchBuffer(url: string, header?: LooseObject): Promise<Buffer> {
+	function fetchBuffer(url: string, header: LooseObject = {}): Promise<Buffer> {
 		return new Promise<Buffer>(function (resolve: (value: Buffer) => void, reject: (reason?: any) => void): void {
 			const _url: URL = new URL(url);
 
