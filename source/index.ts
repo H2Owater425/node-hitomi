@@ -62,34 +62,36 @@ module hitomi {
 	class HitomiError extends Error {
 		private code: 'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENT' | 'REQEUST_REJECTED';
 
-		constructor(key: HitomiError['code'], ..._arguments: string[]) {
+		constructor(key: HitomiError['code'], argument: string) {
 			super('Unknown');
 
 			this['code'] = key;
 
-			const quote: string = _arguments[0].includes('\'') ? '`' : '\'';
+			const quote: string = argument.includes('\'') ? '`' : '\'';
+			
+			argument = quote + argument + quote;
 
 			switch(key) {
 				case 'INVALID_VALUE': {
-					this['message'] = 'Value of ' + quote + _arguments[0] + quote + ' was not valid';
+					this['message'] = 'Value of ' + argument + ' was not valid';
 
 					break;
 				}
 
 				case 'DUPLICATED_ELEMENT': {
-					this['message'] = 'Element of ' + quote + _arguments[0] + quote + ' was duplicated';
+					this['message'] = 'Element of ' + argument + ' was duplicated';
 
 					break;
 				}
 
 				case 'LACK_OF_ELEMENT': {
-					this['message'] = 'Elements of ' + quote + _arguments[0] + quote + ' was not enough';
+					this['message'] = 'Elements of ' + argument + ' was not enough';
 
 					break;
 				}
 
 				case 'REQEUST_REJECTED': {
-					this['message'] = 'Request to ' + quote + _arguments[0] + quote + ' was rejected';
+					this['message'] = 'Request to ' + argument + ' was rejected';
 
 					break;
 				}
