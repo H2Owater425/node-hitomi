@@ -129,9 +129,7 @@ module hitomi {
 
 	const agent: Agent = (new class extends Agent {
 		public createConnection(options: AgentOptions, callback?: () => void): TLSSocket {
-			options['servername'] = undefined;
-			
-			return connect(options, callback);
+			return connect(Object.assign(options, { 'servername': undefined }), callback);
 		}
 	});
 
@@ -144,7 +142,7 @@ module hitomi {
 				path: _url['pathname'],
 				method: 'GET',
 				port: 443,
-				headers: Object.assign({}, header, {
+				headers: Object.assign(header, {
 					'Accept': '*/*',
 					'Connection': 'keep-alive',
 					'Referer': 'https://hitomi.la'
