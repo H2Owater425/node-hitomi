@@ -62,14 +62,14 @@ hitomi.getTags('female', 'b')
 
 printing number of language `korean` gallery without female tag `netorare`:
 ```javascript
-hitomi.getQueriedIds([{
+hitomi.getIds({ tags: [{
   type: 'language',
   name: 'korean'
 }, {
   type: 'female',
   name: 'netorare',
   isNegative: true
-}])
+}] })
 .then(function (value) {
   console.log(value['length']);
 });
