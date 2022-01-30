@@ -68,7 +68,7 @@ module hitomi {
 			this['code'] = key;
 
 			const quote: string = argument.includes('\'') ? '`' : '\'';
-			
+
 			argument = quote + argument + quote;
 
 			switch(key) {
@@ -489,28 +489,87 @@ module hitomi {
 		}
 	}
 
-	export function getIds(range: { startIndex: number; endIndex?: number; }, options: { orderBy?: OrderCriteria, reverseResult?: boolean; } = {}): Promise<number[]> {
+	export function getIds(options: { tags?: Tag[], range?: { startIndex?: number; endIndex?: number; }, orderBy?: OrderCriteria, reverseResult?: boolean; } = {}): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[]) => void, reject: (reason: any) => void) {
-			if(isInteger(range['startIndex']) && range['startIndex'] >= 0) {
-				if(!isInteger(range['endIndex']) || range['endIndex'] as number >= range['startIndex']) {
-					fetchBuffer('https://ltn.hitomi.la/' + (options['orderBy'] || 'index') + '-all.nozomi', { Range: 'bytes=' + range['startIndex'] * 4 + '-' + ((range['endIndex'] ?? NaN) * 4 + 3 || '') })
-					.then(function (buffer: Buffer): void {
-						let galleryIds: number[] = Array.from(get32BitIntegerNumberSet(buffer));
-	
-						if(options['reverseResult'] || false) {
-							resolve(galleryIds);
+			const [isStartIndexInteger, isEndIndexInteger]: boolean[] = [isInteger(options['range']?.['startIndex']), isInteger(options['range']?.['endIndex'])];
+
+			if(!isStartIndexInteger || options['range']?.['startIndex'] as number >= 0) {
+				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] as number)) {
+					if(Array.isArray(options['tags']) && options['tags']['length'] !== 0) {
+						if(typeof(options['orderBy']) === 'undefined') {
+							options['tags'].reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
+								return promise.then(function (ids: Set<number>): Promise<Set<number>> {
+									return new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
+										fetchBuffer(getNozomiUrl(tag))
+										.then(function (buffer: Buffer): void {
+											const isNegativeTag: boolean = tag['isNegative'] || false;
+											const _ids: Set<number> = get32BitIntegerNumberSet(buffer);
+			
+											ids.forEach(function (id: number): void {
+												if(isNegativeTag === _ids.has(id)/* !(isNegativeTag ^ _ids.has(id)) */) {
+													ids.delete(id);
+												}
+											});
+			
+											resolve(ids);
+				
+											return;
+										})
+										.catch(reject);
+			
+										return;
+									});
+								});
+							}, options['tags'][0]['isNegative'] || false ? new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
+								getIds()
+								.then(function (ids: number[]): void {
+									resolve(new Set<number>(ids));
+			
+									return;
+								})
+								.catch(reject);
+			
+								return;
+							}) : new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
+								fetchBuffer(getNozomiUrl((options['tags'] as Tag[]).shift() as Tag))
+								.then(function (buffer: Buffer): void {
+									resolve(get32BitIntegerNumberSet(buffer));
+			
+									return;
+								})
+								.catch(reject);
+			
+								return;
+							}))
+							.then(function (ids: Set<number>): void {
+								resolve(Array.from(ids).slice(options['range']?.['startIndex'], options['range']?.['endIndex']));
+			
+								return;
+							})
+							.catch(reject);
 						} else {
-							resolve(galleryIds.reverse());
+							reject(new HitomiError('INVALID_VALUE', 'options[\'orderBy\']'));
 						}
-	
-						return;
-					})
-					.catch(reject);
+					} else {
+						fetchBuffer('https://ltn.hitomi.la/' + (options['orderBy'] || 'index') + '-all.nozomi', { Range: 'bytes=' + (isStartIndexInteger ? options['range']?.['startIndex'] as number * 4 : '0') + '-' + (isEndIndexInteger ? options['range']?.['endIndex'] as number * 4 + 3 : '') })
+						.then(function (buffer: Buffer): void {
+							let galleryIds: number[] = Array.from(get32BitIntegerNumberSet(buffer));
+			
+							if(options['reverseResult'] || false) {
+								resolve(galleryIds);
+							} else {
+								resolve(galleryIds.reverse());
+							}
+			
+							return;
+						})
+						.catch(reject);
+					}
 				} else {
-					reject(new HitomiError('INVALID_VALUE', 'range[\'endIndex\']'));
+					reject(new HitomiError('INVALID_VALUE', 'options[\'range\'][\'endIndex\']'));
 				}
 			} else {
-				reject(new HitomiError('INVALID_VALUE', 'range[\'startIndex\']'));
+				reject(new HitomiError('INVALID_VALUE', 'options[\'range\'][\'startIndex\']'));
 			}
 
 			return;
@@ -552,79 +611,6 @@ module hitomi {
 		} else {
 			throw new HitomiError('LACK_OF_ELEMENT', 'splitTagStrings');
 		}
-	}
-
-	export function getQueriedIds(tags: Tag[]): Promise<number[]> {
-		return new Promise<number[]>(function (resolve: (value: number[]) => void, reject: (reason?: any) => void): void {
-			if(tags['length'] > 1) {
-				tags.sort(function (a: Tag, b: Tag): number {
-					if(!(a['isNegative'] || false)) {
-						if(!(b['isNegative'] || false)) {
-							return 0;
-						} else {
-							return -1;
-						}
-					} else {
-						return 1;
-					}
-				});
-
-				tags.reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
-					return promise.then(function (ids: Set<number>): Promise<Set<number>> {
-						return new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-							fetchBuffer(getNozomiUrl(tag))
-							.then(function (buffer: Buffer): void {
-								const isNegativeTag: boolean = tag['isNegative'] || false;
-								const _ids: Set<number> = get32BitIntegerNumberSet(buffer);
-
-								ids.forEach(function (id: number): void {
-									if(isNegativeTag === _ids.has(id)/* !(isNegativeTag ^ _ids.has(id)) */) {
-										ids.delete(id);
-									}
-								});
-
-								resolve(ids);
-	
-								return;
-							})
-							.catch(reject);
-
-							return;
-						});
-					});
-				}, tags[0]['isNegative'] || false ? new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-					getIds({ startIndex: 0 })
-					.then(function (ids: number[]): void {
-						resolve(new Set<number>(ids));
-
-						return;
-					})
-					.catch(reject);
-
-					return;
-				}) : new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-					fetchBuffer(getNozomiUrl(tags.shift() as Tag))
-					.then(function (buffer: Buffer): void {
-						resolve(get32BitIntegerNumberSet(buffer));
-
-						return;
-					})
-					.catch(reject);
-
-					return;
-				}))
-				.then(function (ids: Set<number>): void {
-					resolve(Array.from(ids));
-
-					return;
-				})
-				.catch(reject);
-
-				return;
-			} else {
-				throw new HitomiError('LACK_OF_ELEMENT', 'tags');
-			}
-		});
 	}
 
 	export function getTags(type: Tag['type'], options: { startWith?: StartingCharacter } = {}): Promise<Tag[]> {

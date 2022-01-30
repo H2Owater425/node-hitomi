@@ -99,30 +99,17 @@ declare module hitomi {
 	function getGallery(id: number, options: { includeFullData?: boolean; includeFiles?: boolean; } = {}): Promise<Gallery>;
 
 	/**
-	 * Returns ids from range
-	 * @param  {object} range
-	 * @param  {number} range.startIndex
-	 * @param  {number} [range.endIndex] If not set, the function will return whole range from startIndex
+	 * Returns ids
 	 * @param  {object} [options = {}]
+	 * @param  {Tag[]} [options.tags]
+	 * @param  {object} [options.range]
+	 * @param  {number} [options.range.startIndex]
+	 * @param  {number} [options.range.endIndex] If not set, the function will return whole range from startIndex
 	 * @param  {OrderCriteria} [options.orderBy]
 	 * @param  {boolean} [options.reverseResult = false] If set to true, the function will return reversed ids
 	 * @returns {Promise<number[]>}
 	 */
-	function getIds(range: { startIndex: number; endIndex?: number; }, options: { orderBy?: OrderCriteria; reverseResult?: boolean; } = {}): Promise<number[]>;
-
-	/**
-	 * Returns tags from string
-	 * @param  {string} tagString
-	 * @returns {Tag[]}
-	 */
-	function getParsedTags(tagString: string): Tag[];
-
-	/**
-	 * Returns gallery ids from tags
-	 * @param  {Tag[]} tags
-	 * @returns {Promise<number[]>}
-	 */
-	function getQueriedIds(tags: Tag[]): Promise<number[]>;
+	function getIds(options: { tags?: Tag[], range?: { startIndex?: number; endIndex?: number; }, orderBy?: OrderCriteria, reverseResult?: boolean; } = {}): Promise<number[]>;
 
 	/**
 	 * Returns tag starting with specific character
