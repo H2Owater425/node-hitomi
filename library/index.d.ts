@@ -79,7 +79,7 @@ declare module hitomi {
 	* @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return hitomi url that responds tag that starts with that character
 	* @returns {string}
 	*/
-	function getTagUrl(type: Tag['type'], option: { startWith: StartingCharacter }): string
+	function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter } = {}): string;
 
 	/**
 	 * Returns index of second thumbnail from gallery
