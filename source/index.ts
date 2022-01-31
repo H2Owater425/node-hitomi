@@ -496,7 +496,7 @@ module hitomi {
 			if(!isStartIndexInteger || options['range']?.['startIndex'] as number >= 0) {
 				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] as number)) {
 					if(Array.isArray(options['tags']) && options['tags']['length'] !== 0) {
-						if(typeof(options['orderBy']) === 'undefined') {
+						if(typeof(options['orderBy']) === 'undefined' || options['orderBy'] === 'index') {
 							options['tags'].reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
 								return promise.then(function (ids: Set<number>): Promise<Set<number>> {
 									return new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
@@ -542,7 +542,13 @@ module hitomi {
 								return;
 							}))
 							.then(function (ids: Set<number>): void {
-								resolve(Array.from(ids).slice(options['range']?.['startIndex'], options['range']?.['endIndex']));
+								let galleryIds: number[] = Array.from(ids).slice(options['range']?.['startIndex'], options['range']?.['endIndex']);
+
+								if(options['reverseResult'] || false) {
+									resolve(galleryIds);
+								} else {
+									resolve(galleryIds.reverse());
+								}
 			
 								return;
 							})
