@@ -16,7 +16,7 @@
 
 Using npm:
 ```bash
-$ npm install node-hitomi --save
+$ npm install node-hitomi
 ```
 
 Using yarn:
@@ -38,7 +38,7 @@ Without any dependencies!
 setup:
 ```javascript
 // CommonJS
-const hitomi = require('node-hitomi')['default'];
+const hitomi = require('node-hitomi').default;
 
 // ES Module
 import hitomi from 'node-hitomi';
