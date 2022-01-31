@@ -92,11 +92,10 @@ declare module hitomi {
 	 * Returns gallery from id
 	 * @param  {number} id
 	 * @param  {object} [options = {}]
-	 * @param  {boolean} [options.includeFullData = true] If set to false, the function will not return gallery including artists, groups, series, characters
 	 * @param  {boolean} [options.includeFiles = true] If set to false, the function will not return gallery including files
 	 * @returns {Promise<Gallery>}
 	 */
-	function getGallery(id: number, options: { includeFullData?: boolean; includeFiles?: boolean; } = {}): Promise<Gallery>;
+	function getGallery(id: number, options: { includeFiles?: boolean; } = {}): Promise<Gallery>;
 
 	/**
 	 * Returns ids

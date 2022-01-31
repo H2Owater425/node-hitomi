@@ -55,7 +55,7 @@ module hitomi {
 	// Reference property m of gg variable in https://ltn.hitomi.la/gg.js
 	const imageSubdomainRegularExpression: RegExp = /^(0|1(0(0[0-13-6]?|1[1-368-9]|2[47-8]?|3[024-57]|4[0-137]|5[1-46-9]|6[0-246]|7[1-2579]?|8[0-25-79]?|9[38-9])?|1(0[0-16-8]|1[02-48]|2[0-3]|3[024-9]?|4[0-13-9]|5[1-4]?|6[1-357-8]|7[025]|8[2-357-8]|9[0-13-46-7])?|2(0[13-46-79]|1[025]?|2[246-79]|3[0-1359]|4[69]?|5[35-68-9]|6[25-68-9]?|7[19]?|8[279]|9[05-8]?)?|3(0[24-59]?|1[02-35-69]|2[0-246-8]?|3[258-9]?|4[1-357-9]?|5[0-24-57-8]|6[1-24-58]|7[079]|8[02-37-9]?|9[24-69]?)?|4(0[06-79]|1[1-24-58-9]?|2[0-14-6]?|3[0247-8]?|4[0-147-9]?|5[25-68-9]?|6[24-57-8]?|7[6-8]?|8[0-48-9]|9[16])?|5(0[2-35-9]|1[02-35]?|2[1-2468-9]|3[13-7]|4[0-13-4]?|5[5-68-9]?|6[03-5]?|7[02-358]?|8[036-7]?|9[14-68-9]?)|6(0[0269]|1[1-58]?|2[0-1479]|3[03-46-79]|4[0-13-6]|5[13-46-9]|6[268-9]|7[0-13-479]?|8[0-2469]|9[0-13-68]?)|7(0[0-59]|1[04-57]|2[0-25-8]|3[0-35-68-9]|4[36]?|5[0-137-8]|6[1468-9]|7[3-58-9]?|8[0-248-9]?|9[02-46-79]?)?|8(0[157]?|1[0-17-9]?|2[0-159]?|3[0-379]|4[028]|5[0-13-48]|6[0-13-4]?|7[13-48]|8[146-79]|9[357-8])|9(0[05-9]?|1[0-13-57]?|2[1-2579]|3[0-13-5]|4[4-8]?|5[03-7]|6[47]|7[0-257-8]?|8[146-9]|9[13-57-8])?)?|2(0(0[25-6]|1[0-14-57-8]?|2[258-9]|3[47-8]|4[0248-9]|5[0-135-8]|6[0-257-9]?|7[1-359]?|8[0358-9]?|9[24])|1(0[39]|1[0-135-69]?|2[13-47]?|3[046]|4[02-68-9]|5[2-46-8]|6[1-279]|7[0-358]?|8[04-6]?|9[027-8]?)|2(0[06-9]|1[13-4]?|2[1-3]|3[0-136-7]?|4[0-13-49]|5[136]?|6[0-14-6]|7[0-148]?|8[3-46-7]?|9[0-17-9])?|3(0[3-46-7]?|1[26]|2[04-6]|3[1-2]?|4[0-57-8]?|5[0-2479]|6[04-68-9]?|7[46-7]?|8[3-9]|9[1-25-68-9])?|4(0[13-69]|1[1-25]?|2[0-36-9]|3[3-9]|4[0-17-8]?|5[135-8]|6[03-47-9]|7[0-137-8]?|8[1-357-8]|9[2-479]?)?|5(0[03-48]?|1[13-46-8]|27?|3[35-6]?|4[07-9]?|5[46-7]|6[09]?|7[2-368-9]?|8[2-6]|9[0-14-7]?)?|6(0[02479]?|1[0-1359]?|2[0-369]|3[268-9]|4[0-28-9]|5[36-9]|6[137]|7[07-9]|8[0-14-58-9]|9[24-8]?)|7(0[02-357]|1[02-35-79]|2[35-9]?|3[0-18-9]|4[024-57]?|5[4-69]?|6[13-8]?|7[02-359]|8[02-49]|9[02-579]?)|8(0[0-249]?|1[14-57-8]|21?|3[4-57]|4[0-179]|5[1-258]?|6[7-9]?|7[047-8]|8[1-248]?|9[3-468])?|9(0[02-8]?|1[13-579]?|2[0-13-58-9]|3[24-5]|4[1-79]|5[0-24-68]?|6[0-35-68]|7[5-9]|8[15-7]|9[1-28-9]))|3(0(0[0-17-9]|1[0-39]|2[0-14-57-9]?|3[04-59]|4[0-58]|5[0-46]|6[0-24-8]?|7[148-9]|8[038-9]?|9[357])|1(0[4-5]|1[147-8]?|2[479]|3[05-7]?|4[047]|5[038-9]?|6[1-368]|7[0-46-8]|8[02468-9]?|9[1368])|2(0[1-35-68]?|1[0-179]?|2[02-38]|3[0-13-6]|4[14]?|54|6[47]?|7[02-68]|8[0-13-46-7]?|9[02-36]?)|3(0[0-13]?|1[13-46-79]|2[0-1468]|3[0-16-9]?|4[35-6]|5[5-8]?|6[0-258]|7[4-8]?|8[158-9]?|9[0-13-79]?)?|4(0[28-9]?|1[0-24-69]?|2[0-1468]?|3[14-58-9]?|4[0-357-8]|5[08]?|6[2469]|7[2-57]|8[03-68-9]|9[0359])?|5(0[0-146-8]?|1[0-17-8]|2[26-8]?|3[37-8]|4[1-35-6]?|5[1-35-6]?|6[1-24-58-9]?|7[0357-9]|8[5-68-9]?|9[0-135-68-9]?)?|6(0[2-35]?|1[2579]|2[24-68]?|3[0-13-79]|4[0-168]?|5[4-5]?|6[1-368]|7[1-269]|8[1-358-9]?|9[14-579]?)|7(0[1357-9]|1[1-358]?|2[0-18]?|3[15-7]|4[1-247]?|5[5-69]?|6[02-49]?|7[0-1469]?|8[248-9]?|9[368-9]?)|8(0[02-36-8]?|1[146-8]|2[1-36-7]|3[0-1468-9]?|4[0-16-8]|5[0-179]?|6[0-35-69]?|7[13-469]|8[2479]|9[28-9]?)|9(0[0379]|1[13-47-8]?|2[138-9]|3[1-28]?|4[037-8]?|5[0-14-6]?|6[0-15-6]?|7[028-9]|8[03-579]|9[3579]?)?)|4(0(0[0-37]|1[0-15-7]?|2[1-26-79]|3[0247]|4[026-79]?|5[024-9]|6[03-8]|7[5-7]?|8[2-38]|9[15])|1[146-9]?|2[0-257]?|3[02-79]?|4[579]?|5[035-9]|6[58]|7[2-368-9]?|8[35-8]|9[35-6])|5(0[036-79]?|17|2[2-3]?|3[68-9]|4[1-24-57-9]?|5[0-35-79]|6[024-6]|7[268-9]?|8[0-168-9]|9[0-13-57-8]?)?|6(0[4-8]|15|2[138-9]?|3[68-9]|4[357-9]?|5[0-24-59]?|6[13-468]|7[1-37]|8[13-59]|9[0-3579]?)?|7(0[02-35-9]?|1[0-14-9]|2[5-8]|3[035-8]?|4[02-357-8]?|5[0-24-8]|6[2-468-9]?|7[1-46]|8[06-79]?|9[6-8])|8(0[0-14-5]|1[0-249]|2[046]|3[04-579]|4[259]?|5[06]|6[37]|7[26-8]?|8[02-36-8]|9[2-368-9]?)?|9(0[1-57]|1[1-57-8]?|2[027-8]|3[046-8]|4[04-6]?|5[1-259]?|6[02579]?|7[02-47]?|8[19]?|9[14-69]?))$/;
 	
-	const galleryContentParseTypes = ['artist', 'group', 'series', 'character'] as const;
+	const galleryCommonTypes: readonly string[] = ['artist', 'group', 'parody', 'character'];
 
 	// utility
 
@@ -415,16 +415,24 @@ module hitomi {
 
 	// gallery
 
-	export function getGallery(id: number, options: { includeFullData?: boolean; includeFiles?: boolean; } = {}): Promise<Gallery> {
+	export function getGallery(id: number, options: { includeFiles?: boolean; } = {}): Promise<Gallery> {
 		if(isInteger(id) && id > 0) {
 			return new Promise<Gallery>(function (resolve: (value: Gallery) => void, reject: (reason?: any) => void): void {
 				fetchBuffer('https://ltn.hitomi.la/galleries/' + id + '.js')
 				.then(function (buffer: Buffer): void {
 					const responseJson: LooseObject = JSON.parse(buffer.toString('utf8').slice(18));
 
-					let gallery: Gallery = JSON.parse('{ "id": ' + responseJson['id'] + ', "title": { "display": "' + responseJson['title'].replace(/\"/g, '\\"') + '", "japanese": ' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + ' }, "type": "' + responseJson['type'] + '", "languageName": { "english": ' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ', "local": ' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + ' }, "artists": [], "groups": [], "series": [], "characters": [], "tags": [], "files": [], "publishedDate": null }');
-					
-					gallery['publishedDate'] = new Date(responseJson['date']);
+					let gallery: Gallery = JSON.parse('{ "id": ' + id + ', "title": { "display": "' + responseJson['title'].replace(/\"/g, '\\"') + '", "japanese": ' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + ' }, "type": "' + responseJson['type'] + '", "languageName": { "english": ' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ', "local": ' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + ' }, "artists": [], "groups": [], "series": [], "characters": [], "tags": [], "files": [], "publishedDate": null }');
+
+					for(let i: number = 0; i < galleryCommonTypes['length']; i++) {
+						const pluralType: string = galleryCommonTypes[i] + 's';
+
+						if(responseJson[pluralType] !== null) {
+							for(let j: number = 0; j < responseJson[pluralType]['length']; j++) {
+								gallery[(pluralType !== 'parodys' ? pluralType : 'series') as 'artists' | 'groups' | 'series' | 'characters'].push(responseJson[pluralType][j][galleryCommonTypes[i]]);
+							}
+						}
+					}
 
 					if(responseJson['tags'] !== null) {
 						for(let i: number = 0; i < responseJson['tags']['length']; i++) {
@@ -456,31 +464,10 @@ module hitomi {
 							});
 						}
 					}
+					
+					gallery['publishedDate'] = new Date(responseJson['date']);
 
-					if(options['includeFullData'] ?? true) {
-						fetchBuffer(getGalleryUrl(gallery))
-						.then(function (_buffer: Buffer): void {
-							const galleryContentHtml: string = _buffer.toString('utf8').split('content">')[1];
-
-							if(typeof(galleryContentHtml) !== 'undefined') {
-								for(let i: number = 0; i < galleryContentParseTypes['length']; i++) {
-									const matchedStrings: string[] = galleryContentHtml.match(RegExp('(?<=\/' + galleryContentParseTypes[i] + '\/)[A-z0-9%]+(?=-all\\.html)', 'g')) || [];
-
-									for(let j: number = 0; j < matchedStrings['length']; j++) {
-										// @ts-expect-error :: Since using combination of string as key, typescript detects error
-										gallery[galleryContentParseTypes[i] !== 'series' ? galleryContentParseTypes[i] + 's' : 'series'].push(decodeURIComponent(matchedStrings[j]));
-									}
-								}
-							}
-
-							resolve(gallery);
-
-							return;
-						})
-						.catch(reject);
-					} else {
-						resolve(gallery);
-					}
+					resolve(gallery);
 
 					return;
 				})
