@@ -107,7 +107,7 @@ module hitomi {
 		return Number.parseInt(value) === Number(value) && Number.isFinite(value) && typeof(value) !== 'object';
 	}
 
-	function get32BitIntegerNumberSet(buffer: Buffer, options: { splitBy?: number } = {}): Set<number> {
+	function get32BitIntegerNumbers(buffer: Buffer, options: { splitBy?: number } = {}): Set<number> {
 		const splitCriteria: number = options['splitBy'] || 4;
 
 		let arrayBuffer: ArrayBuffer = new ArrayBuffer(buffer['byteLength']);
@@ -503,7 +503,7 @@ module hitomi {
 										fetchBuffer(getNozomiUrl(tag))
 										.then(function (buffer: Buffer): void {
 											const isNegativeTag: boolean = tag['isNegative'] || false;
-											const _ids: Set<number> = get32BitIntegerNumberSet(buffer);
+											const _ids: Set<number> = get32BitIntegerNumbers(buffer);
 			
 											ids.forEach(function (id: number): void {
 												if(isNegativeTag === _ids.has(id)/* !(isNegativeTag ^ _ids.has(id)) */) {
@@ -533,7 +533,7 @@ module hitomi {
 							}) : new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
 								fetchBuffer(getNozomiUrl((options['tags'] as Tag[]).shift() as Tag))
 								.then(function (buffer: Buffer): void {
-									resolve(get32BitIntegerNumberSet(buffer));
+									resolve(get32BitIntegerNumbers(buffer));
 			
 									return;
 								})
@@ -559,7 +559,7 @@ module hitomi {
 					} else {
 						fetchBuffer('https://ltn.hitomi.la/' + (options['orderBy'] || 'index') + '-all.nozomi', { Range: 'bytes=' + (isStartIndexInteger ? options['range']?.['startIndex'] as number * 4 : '0') + '-' + (isEndIndexInteger ? options['range']?.['endIndex'] as number * 4 + 3 : '') })
 						.then(function (buffer: Buffer): void {
-							let galleryIds: number[] = Array.from(get32BitIntegerNumberSet(buffer));
+							let galleryIds: number[] = Array.from(get32BitIntegerNumbers(buffer));
 			
 							if(options['reverseResult'] || false) {
 								resolve(galleryIds);
