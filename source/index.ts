@@ -396,7 +396,11 @@ module hitomi {
 	}
 
 	export function getVideoUrl(gallery: Gallery): string {
-		return 'https://streaming.hitomi.la/videos/' + gallery['title']['display'].toLowerCase().replace(/\s/g, '-') + '.mp4';
+		if(gallery['type'] === 'anime') {
+			return 'https://streaming.hitomi.la/videos/' + gallery['title']['display'].toLowerCase().replace(/\s/g, '-') + '.mp4';
+		} else {
+			throw new HitomiError('INVALID_VALUE', 'gallery[\'type\']');
+		}
 	}
 
 	export function getGalleryUrl(gallery: Gallery): string {
