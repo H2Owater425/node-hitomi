@@ -47,7 +47,7 @@ declare module hitomi {
 	 * @param  {boolean} [options.isThumbnail = false] If set to true, the function will return thumbnail url
 	 * @returns {string}
 	 */
-	function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', options: { isThumbnail?: boolean; } = {}): string;
+	function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', options: { isThumbnail?: boolean; }): string;
 
 	/**
 	 * Returns url of video from gallery
@@ -79,7 +79,7 @@ declare module hitomi {
 	* @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return hitomi url that responds tag that starts with that character
 	* @returns {string}
 	*/
-	function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter } = {}): string;
+	function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter }): string;
 
 	/**
 	 * Returns index of second thumbnail from gallery
@@ -93,9 +93,10 @@ declare module hitomi {
 	 * @param  {number} id
 	 * @param  {object} [options = {}]
 	 * @param  {boolean} [options.includeFiles = true] If set to false, the function will not return gallery including files
+	 * @param  {boolean} [options.includeRelatedIds = false] If set to true, the function will return gallery including related ids
 	 * @returns {Promise<Gallery>}
 	 */
-	function getGallery(id: number, options: { includeFiles?: boolean; } = {}): Promise<Gallery>;
+	function getGallery(id: number, options: { includeFiles?: boolean; includeRelatedIds?: boolean }): Promise<Gallery>;
 
 	/**
 	 * Returns ids
@@ -108,7 +109,7 @@ declare module hitomi {
 	 * @param  {boolean} [options.reverseResult = false] If set to true, the function will return reversed ids
 	 * @returns {Promise<number[]>}
 	 */
-	function getIds(options: { tags?: Tag[], range?: { startIndex?: number; endIndex?: number; }, orderBy?: OrderCriteria, reverseResult?: boolean; } = {}): Promise<number[]>;
+	function getIds(options: { tags?: Tag[], range?: { startIndex?: number; endIndex?: number; }, orderBy?: OrderCriteria, reverseResult?: boolean; }): Promise<number[]>;
 
 	/**
 	 * Returns tag starting with specific character
@@ -117,7 +118,7 @@ declare module hitomi {
 	 * @param  {StartingCharacter} [options.startWith] If set and type isn't language nor type, the function will return tags that responds tag that starts with that character
 	 * @returns {Promise<Tag[]>}
 	 */
-	function getTags(type: Tag['type'], options: { startWith?: StartingCharacter } = {}): Promise<Tag[]>;
+	function getTags(type: Tag['type'], options: { startWith?: StartingCharacter }): Promise<Tag[]>;
 }
 
 export default hitomi;

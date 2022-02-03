@@ -39,6 +39,8 @@ module hitomi {
 		tags: Tag[];
 		files: Image[];
 		publishedDate: Date;
+		translations: Pick<Gallery, 'id' | 'languageName'>[];
+		relatedIds: number[];
 	}
 
 	export type OrderCriteria = 'index' | 'popularity';
@@ -160,17 +162,17 @@ module hitomi {
 						response.on('data', function (chunk: any): void {
 							buffers.push(chunk);
 							bufferLength += chunk['byteLength'];
-		
+
 							return;
 						})
 						.on('error', function (): void {
 							reject(new HitomiError('REQEUST_REJECTED', url));
-		
+
 							return;
 						})
 						.on('end', function (): void {
 							resolve(Buffer.concat(buffers, bufferLength));
-		
+
 							return;
 						});
 
@@ -243,70 +245,70 @@ module hitomi {
 				case 'male':
 				case 'female': {
 					url += 'alltags-';
-	
+
 					break;
 				}
-	
+
 				case 'artist': {
 					url += 'allartists-';
-	
+
 					break;
 				}
-	
+
 				case 'series': {
 					url += 'allseries-';
-	
+
 					break;
 				}
-	
+
 				case 'character': {
 					url += 'allcharacters-';
-	
+
 					break;
 				}
-	
+
 				case 'group': {
 					url += 'allgroups-';
-	
+
 					break;
 				}
-	
+
 				case 'language': {
 					url = 'ltn.' + url + 'language_support.js';
-	
+
 					break;
 				}
-	
+
 				default: {
 					throw new HitomiError('INVALID_VALUE', 'extension');
 				}
 			}
-	
+
 			if(type !== 'language') {
 				switch(type) {
 					case 'male': {
 						url += 'm';
-	
+
 						break;
 					}
-	
+
 					case 'female': {
 						url += 'f';
-	
+
 						break;
 					}
-	
+
 					default: {
 						if(options['startWith'] === '0-9') {
 							url += '123';
 						} else {
 							url += options['startWith'];
 						}
-	
+
 						break;
 					}
 				}
-	
+
 				return url + '.html';
 			} else {
 				return url;
@@ -344,7 +346,7 @@ module hitomi {
 					break;
 				}
 			}
-				
+
 			case 'avif': {
 				if(!image['hasAvif']) {
 					throw new HitomiError('INVALID_VALUE', 'extension');
@@ -415,14 +417,14 @@ module hitomi {
 
 	// gallery
 
-	export function getGallery(id: number, options: { includeFiles?: boolean; } = {}): Promise<Gallery> {
+	export function getGallery(id: number, options: { includeFiles?: boolean; includeRelatedIds?: boolean; } = {}): Promise<Gallery> {
 		if(isInteger(id) && id > 0) {
 			return new Promise<Gallery>(function (resolve: (value: Gallery) => void, reject: (reason?: any) => void): void {
 				fetchBuffer('https://ltn.hitomi.la/galleries/' + id + '.js')
 				.then(function (buffer: Buffer): void {
 					const responseJson: LooseObject = JSON.parse(buffer.toString('utf8').slice(18));
 
-					let gallery: Gallery = JSON.parse('{ "id": ' + id + ', "title": { "display": "' + responseJson['title'].replace(/\"/g, '\\"') + '", "japanese": ' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + ' }, "type": "' + responseJson['type'] + '", "languageName": { "english": ' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ', "local": ' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + ' }, "artists": [], "groups": [], "series": [], "characters": [], "tags": [], "files": [], "publishedDate": null }');
+					let gallery: Gallery = JSON.parse('{ "id": ' + id + ', "title": { "display": "' + responseJson['title'].replace(/\"/g, '\\"') + '", "japanese": ' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + ' }, "type": "' + responseJson['type'] + '", "languageName": { "english": ' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ', "local": ' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + ' }, "artists": [], "groups": [], "series": [], "characters": [], "tags": [], "files": [], "publishedDate": null, "translations": [], "relatedIds": [] }');
 
 					for(let i: number = 0; i < galleryCommonTypes['length']; i++) {
 						const pluralType: string = galleryCommonTypes[i] + 's';
@@ -464,8 +466,22 @@ module hitomi {
 							});
 						}
 					}
-					
+
 					gallery['publishedDate'] = new Date(responseJson['date']);
+
+					if(options['includeRelatedIds'] ?? false) {
+						for(let i: number = 0; i < responseJson['languages']['length']; i++) {
+							gallery['translations'].push({
+								id: Number(responseJson['languages'][i]['galleryid']),
+								languageName: {
+									english: responseJson['languages'][i]['name'],
+									local: responseJson['languages'][i]['language_localname']
+								}
+							});
+						}
+
+						gallery['relatedIds'] = responseJson['related'];
+					}
 
 					resolve(gallery);
 
@@ -495,19 +511,19 @@ module hitomi {
 										.then(function (buffer: Buffer): void {
 											const isNegativeTag: boolean = tag['isNegative'] || false;
 											const _ids: Set<number> = get32BitIntegerNumbers(buffer);
-			
+
 											ids.forEach(function (id: number): void {
 												if(isNegativeTag === _ids.has(id)/* !(isNegativeTag ^ _ids.has(id)) */) {
 													ids.delete(id);
 												}
 											});
-			
+
 											resolve(ids);
-				
+
 											return;
 										})
 										.catch(reject);
-			
+
 										return;
 									});
 								});
@@ -515,21 +531,21 @@ module hitomi {
 								getIds()
 								.then(function (ids: number[]): void {
 									resolve(new Set<number>(ids));
-			
+
 									return;
 								})
 								.catch(reject);
-			
+
 								return;
 							}) : new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
 								fetchBuffer(getNozomiUrl((options['tags'] as Tag[]).shift() as Tag))
 								.then(function (buffer: Buffer): void {
 									resolve(get32BitIntegerNumbers(buffer));
-			
+
 									return;
 								})
 								.catch(reject);
-			
+
 								return;
 							}))
 							.then(function (ids: Set<number>): void {
@@ -540,7 +556,7 @@ module hitomi {
 								} else {
 									resolve(galleryIds.reverse());
 								}
-			
+
 								return;
 							})
 							.catch(reject);
@@ -551,13 +567,13 @@ module hitomi {
 						fetchBuffer('https://ltn.hitomi.la/' + (options['orderBy'] || 'index') + '-all.nozomi', { Range: 'bytes=' + (isStartIndexInteger ? options['range']?.['startIndex'] as number * 4 : '0') + '-' + (isEndIndexInteger ? options['range']?.['endIndex'] as number * 4 + 3 : '') })
 						.then(function (buffer: Buffer): void {
 							let galleryIds: number[] = Array.from(get32BitIntegerNumbers(buffer));
-			
+
 							if(options['reverseResult'] || false) {
 								resolve(galleryIds);
 							} else {
 								resolve(galleryIds.reverse());
 							}
-			
+
 							return;
 						})
 						.catch(reject);
@@ -652,7 +668,7 @@ module hitomi {
 			} else {
 				reject(new HitomiError('INVALID_VALUE', 'options[\'startWith\']'));
 			}
-				
+
 			return;
 		});
 	}
