@@ -1,12 +1,11 @@
 {
 	"name": "node-hitomi",
-	"version": "6.2.0",
+	"version": "6.2.1",
 	"description": "Hitomi.la api for Node.js",
 	"main": "./library/index.js",
 	"types": "./library/index.d.ts",
 	"scripts": {
 		"build": "tsc --project ./tsconfig.build.json && node ./after.js",
-		"test": "jest --preset ts-jest ./test.ts",
 		"dev": "nodemon --exec ts-node --files ./test.ts"
 	},
 	"repository": {
