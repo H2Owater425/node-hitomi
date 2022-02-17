@@ -45,9 +45,10 @@ declare module hitomi {
 	 * @param  {Image['extension'] | 'avif' | 'webp'} extension
 	 * @param  {object} [options = {}]
 	 * @param  {boolean} [options.isThumbnail = false] If set to true, the function will return thumbnail url
+	 * @param  {boolean} [options.isSmall = false] If set to true and extension is avif and options.isThumbnail is true, the function will return small thumbnail url
 	 * @returns {string}
 	 */
-	function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', options: { isThumbnail?: boolean; }): string;
+	function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', options: { isThumbnail?: boolean; isSmall?: boolean; }): string
 
 	/**
 	 * Returns url of video from gallery
