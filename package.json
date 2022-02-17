@@ -5,8 +5,8 @@
 	"main": "./library/index.js",
 	"types": "./library/index.d.ts",
 	"scripts": {
-		"build": "tsc --project ./tsconfig.build.json && node ./after.js",
-		"dev": "nodemon --exec ts-node --files ./test.ts"
+		"build": "npx tsc --project ./tsconfig.build.json && node ./after.js",
+		"dev": "nodemon --exec npx ts-node --files ./test.ts"
 	},
 	"repository": {
 		"type": "git",
