@@ -56,7 +56,7 @@ module hitomi {
     const imagePathCode: string = getImagePathCode();
 
 	// Reference property m of gg variable in https://ltn.hitomi.la/gg.js
-	const imageSubdomainRegularExpression: RegExp = getImageSubdomainRegularExpression();
+	const imageSubdomainRegularExpression: any = getImageSubdomainRegularExpression();
 
 	const galleryCommonTypes: readonly string[] = ['artist', 'group', 'parody', 'character'];
 
@@ -118,19 +118,20 @@ module hitomi {
         }).getBody('utf8').split('b: \'')[1].split('\'')[0];
     }
 
-    function getImageSubdomainRegularExpression(): RegExp {
+    function getImageSubdomainRegularExpression(): any {
         const response: string = syncrequest.default('GET', 'https://ltn.hitomi.la/gg.js', {
             headers: {
                 'referer': 'https://hitomi.la'
             }
         }).getBody('utf8');
-        let regex: string = ''
-        response.match(/case [0-9]+:/g)!.sort().forEach(e => {
-            const num: string = e.split('case ')[1].split(':')[0];
-            if(regex == '') regex += num;
-            else regex += '|' + num;
+        let regex: Array<string> = [];
+        response.match(/case [0-9]+:/g)!.forEach(e => {
+            const num: string = e.split('case ')[1].split(':')[0].replace(/ /g, '');
+            regex.push(num);
         })
-        return new RegExp(regex, 'g');
+        return {test: function (str: string) {
+            return regex.includes(str);
+        }};
     }
 
 	function get32BitIntegerNumbers(buffer: Buffer, options: { splitBy?: number } = {}): Set<number> {
@@ -371,15 +372,16 @@ module hitomi {
 			if(/^[0-9a-f]{64}$/.test(image['hash'])) {
 				if(isInteger(image['index']) && image['index'] >= 0) {
 					const imageHashCode: string = String(Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16));
-	
-					// Reference subdomain_from_url function from https://ltn.hitomi.la/common.js
-					let subdomain = imageSubdomainRegularExpression.test(imageHashCode) ? 'a' : 'b';
+
+                    // Reference subdomain_from_url function from https://ltn.hitomi.la/common.js
+					//console.log(imageSubdomainRegularExpression.exec(imageHashCode));
+					let subdomain = imageSubdomainRegularExpression.test(imageHashCode) ? 'b' : 'a';
 					let imagePath: string = '';
 					let folderName: string = '';
-	
+                    //console.log(imageHashCode, subdomain);
 					if(!isThumbnail) {
-						imagePath = imagePathCode + '/' + imageHashCode + '/' + image['hash'];
-	
+						imagePath = imagePathCode + imageHashCode + '/' + image['hash'];
+                        console.log(imagePathCode, imageHashCode, image['hash'])
 						if(extension === 'jpg' || extension === 'png') {
 							// Reference make_image_element function from https://ltn.hitomi.la/reader.js
 							subdomain += 'b';
@@ -394,7 +396,7 @@ module hitomi {
 						subdomain += 'tn';
 						folderName = extension + (isSmall && extension === 'avif' ? 'small' : '') + 'bigtn';
 					}
-	
+                    console.log('https://' + subdomain + '.hitomi.la/' + folderName + '/' + imagePath + '.' + extension)
 					return 'https://' + subdomain + '.hitomi.la/' + folderName + '/' + imagePath + '.' + extension;
 				} else {
 					throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
