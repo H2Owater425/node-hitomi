@@ -105,27 +105,15 @@ module hitomi {
 		}
 	}
 
-	function isInteger(value: any): boolean {
-		return Number.parseInt(value) === Number(value) && Number.isFinite(value) && typeof(value) !== 'object';
-	}
+	function get32BitIntegerNumbers(buffer: Buffer): Set<number> {
+		let dataView: DataView = new DataView(buffer);
 
-	function get32BitIntegerNumbers(buffer: Buffer, options: { splitBy?: number } = {}): Set<number> {
-		const splitCriteria: number = options['splitBy'] || 4;
-
-		let arrayBuffer: ArrayBuffer = new ArrayBuffer(buffer['byteLength']);
-		let unit8Array: Uint8Array = new Uint8Array(arrayBuffer);
-
-		for (let i: number = 0; i < buffer['byteLength']; ++i) {
-			unit8Array[i] = buffer[i];
-		}
-
-		const dataView: DataView = new DataView(arrayBuffer);
-		const totalLength: number = dataView['byteLength'] / splitCriteria;
+		const numberCount: number = dataView['byteLength'] / 4;
 
 		let numbers: Set<number> = new Set<number>();
 
-		for(let i: number = 0; i < totalLength; i++) {
-			numbers.add(dataView.getInt32(i * splitCriteria, false));
+		for(let i: number = 0; i < numberCount; i++) {
+			numbers.add(dataView.getInt32(i * 4));
 		}
 
 		return numbers;
@@ -236,83 +224,42 @@ module hitomi {
 		}
 	}
 
-	export function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter } = {}): string {
-		if(type !== 'language' || typeof(options['startWith']) === 'undefined') {
-			let url: string = 'https://hitomi.la/';
+	export function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter; } = {}): string {
+		const isTypeNotLanguage: boolean = type !== 'language';
 
-			switch(type) {
-				case 'tag':
-				case 'male':
-				case 'female': {
-					url += 'alltags-';
+		if(isTypeNotLanguage || typeof(options['startWith']) === 'undefined') {
+			let path: string = '';
 
-					break;
-				}
-
-				case 'artist': {
-					url += 'allartists-';
-
-					break;
-				}
-
-				case 'series': {
-					url += 'allseries-';
-
-					break;
-				}
-
-				case 'character': {
-					url += 'allcharacters-';
-
-					break;
-				}
-
-				case 'group': {
-					url += 'allgroups-';
-
-					break;
-				}
-
-				case 'language': {
-					url = 'ltn.' + url + 'language_support.js';
-
-					break;
-				}
-
-				default: {
-					throw new HitomiError('INVALID_VALUE', 'extension');
-				}
-			}
-
-			if(type !== 'language') {
+			if(isTypeNotLanguage) {
 				switch(type) {
-					case 'male': {
-						url += 'm';
+					case 'tag':
+					case 'male':
+					case 'female': {
+						path += 'tags';
 
 						break;
 					}
 
-					case 'female': {
-						url += 'f';
+					case 'artist':
+					case 'series':
+					case 'character':
+					case 'group': {
+						path += type + (type.charAt(type['length'] - 1) !== 's' ? 's' : '');
 
 						break;
 					}
 
 					default: {
-						if(options['startWith'] === '0-9') {
-							url += '123';
-						} else {
-							url += options['startWith'];
-						}
-
-						break;
+						throw new HitomiError('INVALID_VALUE', 'extension');
 					}
 				}
 
-				return url + '.html';
+				path = '-all' + path + (options['startWith'] !== '0-9' ? options['startWith'] : '123') + '.html';
 			} else {
-				return url;
+				path = 'language_support.js';
 			}
+
+			return 'https://' + (!isTypeNotLanguage ? 'ltn' : '') + 'hitomi.la/' + path;
 		} else {
 			throw new HitomiError('INVALID_VALUE', 'options[\'startWith\']');
 		}
@@ -345,7 +292,7 @@ module hitomi {
 			}
 	
 			if(/^[0-9a-f]{64}$/.test(image['hash'])) {
-				if(isInteger(image['index']) && image['index'] >= 0) {
+				if(Number.isInteger(image['index']) && image['index'] >= 0) {
 					const imageHashCode: string = String(Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16));
 	
 					// Reference subdomain_from_url function from https://ltn.hitomi.la/common.js
@@ -403,21 +350,21 @@ module hitomi {
 
 	// gallery
 
-	export function getGallery(id: number, options: { includeFiles?: boolean; includeRelatedIds?: boolean; } = {}): Promise<Gallery> {
-		if(isInteger(id) && id > 0) {
+	export function getGallery(id: number, options: { includeFiles?: boolean/* = true */; includeRelatedIds?: boolean/* = false */; } = {}): Promise<Gallery> {
+		if(Number.isInteger(id) && id > 0) {
 			return new Promise<Gallery>(function (resolve: (value: Gallery) => void, reject: (reason?: any) => void): void {
 				fetchBuffer('https://ltn.hitomi.la/galleries/' + id + '.js')
 				.then(function (buffer: Buffer): void {
 					const responseJson: LooseObject = JSON.parse(buffer.toString('utf8').slice(18));
 
-					let gallery: Gallery = JSON.parse('{ "id": ' + id + ', "title": { "display": "' + responseJson['title'].replace(/\"/g, '\\"') + '", "japanese": ' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + ' }, "type": "' + responseJson['type'] + '", "languageName": { "english": ' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ', "local": ' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + ' }, "artists": [], "groups": [], "series": [], "characters": [], "tags": [], "files": [], "publishedDate": null, "translations": [], "relatedIds": [] }');
+					let gallery: Gallery = JSON.parse('{"id":' + id + ',"title":{"display":"' + responseJson['title'].replace(/\"/g, '\\"') + '","japanese":' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + '},"type":"' + responseJson['type'] + '","languageName":{"english":' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ',"local":' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + '},"artists":[],"groups":[],"series":[],"characters":[],"tags":[],"files":[],"publishedDate":null,"translations":[],"relatedIds":[]}');
 
 					for(let i: number = 0; i < galleryCommonTypes['length']; i++) {
 						const pluralType: string = galleryCommonTypes[i] + 's';
 
 						if(responseJson[pluralType] !== null) {
 							for(let j: number = 0; j < responseJson[pluralType]['length']; j++) {
-								gallery[(pluralType !== 'parodys' ? pluralType : 'series') as 'artists' | 'groups' | 'series' | 'characters'].push(responseJson[pluralType][j][galleryCommonTypes[i]]);
+								gallery[(pluralType.charAt(0) !== 'p' ? pluralType : 'series') as 'artists' | 'groups' | 'series' | 'characters'].push(responseJson[pluralType][j][galleryCommonTypes[i]]);
 							}
 						}
 					}
@@ -439,7 +386,7 @@ module hitomi {
 						}
 					}
 
-					if(options['includeFiles'] ?? true) {
+					if((typeof(options['includeFiles']) === 'boolean') !== options['includeFiles']/* typeof(options['includeFiles']) === 'boolean') ^ options['includeFiles'] */) {
 						for(let i: number = 0; i < responseJson['files']['length']; i++) {
 							gallery['files'].push({
 								index: i,
@@ -455,7 +402,7 @@ module hitomi {
 
 					gallery['publishedDate'] = new Date(responseJson['date']);
 
-					if(options['includeRelatedIds'] ?? false) {
+					if(typeof(options['includeRelatedIds']) === 'boolean' && options['includeRelatedIds']) {
 						for(let i: number = 0; i < responseJson['languages']['length']; i++) {
 							gallery['translations'].push({
 								id: Number(responseJson['languages'][i]['galleryid']),
@@ -484,7 +431,7 @@ module hitomi {
 
 	export function getIds(options: { tags?: Tag[], range?: { startIndex?: number; endIndex?: number; }, orderBy?: OrderCriteria, reverseResult?: boolean; } = {}): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[]) => void, reject: (reason: any) => void) {
-			const [isStartIndexInteger, isEndIndexInteger]: boolean[] = [isInteger(options['range']?.['startIndex']), isInteger(options['range']?.['endIndex'])];
+			const [isStartIndexInteger, isEndIndexInteger]: boolean[] = [Number.isInteger(options['range']?.['startIndex']), Number.isInteger(options['range']?.['endIndex'])];
 
 			if(!isStartIndexInteger || options['range']?.['startIndex'] as number >= 0) {
 				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] as number)) {
@@ -585,19 +532,19 @@ module hitomi {
 			let positiveTagStrings: Set<string> = new Set<string>();
 
 			for(let i: number = 0; i < splitTagStrings['length']; i++) {
-				const splitTagStringsWithoutMinus: string[] = splitTagStrings[i].replace(/^-/, '').split(':');
+				const splitPositiveTagStrings: string[] = splitTagStrings[i].replace(/^-/, '').split(':');
 
-				if(splitTagStringsWithoutMinus['length'] === 2 && /^(artist|group|type|language|series|tag|male|female)$/.test(splitTagStringsWithoutMinus[0]) && /^[^-_\.][a-z0-9-_.]+$/.test(splitTagStringsWithoutMinus[1])) {
-					const _tagString: string = splitTagStringsWithoutMinus[0] + ':' + splitTagStringsWithoutMinus[1];
+				if(splitPositiveTagStrings['length'] === 2 && /^(artist|group|type|language|series|tag|male|female)$/.test(splitPositiveTagStrings[0]) && /^[^-_\.][a-z0-9-_.]+$/.test(splitPositiveTagStrings[1])) {
+					const positiveTagString: string = splitPositiveTagStrings[0] + ':' + splitPositiveTagStrings[1];
 
-					if(!positiveTagStrings.has(_tagString)) {
+					if(!positiveTagStrings.has(positiveTagString)) {
 						tags.push({
-							type: splitTagStringsWithoutMinus[0] as Tag['type'],
-							name: splitTagStringsWithoutMinus[1],
-							isNegative: splitTagStrings[i].startsWith('-')
+							type: splitPositiveTagStrings[0] as Tag['type'],
+							name: splitPositiveTagStrings[1],
+							isNegative: splitTagStrings[i].charAt(0) === '-'
 						});
 
-						positiveTagStrings.add(_tagString);
+						positiveTagStrings.add(positiveTagString);
 					} else {
 						throw new HitomiError('DUPLICATED_ELEMENT', 'splitTagStrings[' + i + ']');
 					}
@@ -612,10 +559,12 @@ module hitomi {
 		}
 	}
 
-	export function getTags(type: Tag['type'], options: { startWith?: StartingCharacter } = {}): Promise<Tag[]> {
+	export function getTags(type: Tag['type'], options: { startWith?: StartingCharacter; } = {}): Promise<Tag[]> {
 		return new Promise<Tag[]>(function (resolve: (value: Tag[]) => void, reject: (reason?: any) => void): void {
-			if(typeof(options['startWith']) === 'undefined' ? type === 'language' || type === 'type' : type !== 'language' && type !== 'type') {
-				if(type !== 'type') {
+			const isTypeType: boolean = type === 'type';
+
+			if((typeof(options['startWith']) === 'undefined') !== (type !== 'language' && !isTypeType)) {
+				if(!isTypeType) {
 					fetchBuffer(getTagUrl(type, { startWith: options['startWith'] }))
 					.then(function (buffer: Buffer): void {
 						const matchedNames: string[] = buffer.toString('utf8').match(RegExp(type === 'language' ? '(?<=")(?!all)[a-z]+(?=":)' : '(?<=\/tag\/' + (type === 'male' || type === 'female' ? type + '%3A' : '') + ')[a-z0-9%]+(?=-all\\.html)', 'g')) || [];
@@ -636,19 +585,19 @@ module hitomi {
 				} else {
 					resolve([{
 						type: 'type',
-						name: 'doujinshi'
-					}, {
-						type: 'type',
-						name: 'manga'
+						name: 'anime'
 					}, {
 						type: 'type',
 						name: 'artistcg'
 					}, {
 						type: 'type',
+						name: 'doujinshi'
+					}, {
+						type: 'type',
 						name: 'gamecg'
 					}, {
 						type: 'type',
-						name: 'anime'
+						name: 'manga'
 					}]);
 				}
 			} else {
