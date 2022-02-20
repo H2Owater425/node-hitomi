@@ -5,6 +5,12 @@ import { connect, TLSSocket } from 'tls';
 module hitomi {
 	// type definition
 
+	interface LooseObject {
+		[key: string]: any;
+	}
+
+	type RequiredProperty<T> = { [P in keyof T]-?: RequiredProperty<NonNullable<T[P]>> };
+
 	export interface Image {
 		index: number;
 		hash: string;
@@ -43,13 +49,9 @@ module hitomi {
 		relatedIds: number[];
 	}
 
-	export type OrderCriteria = 'index' | 'popularity';
+	export type PopularityPeriod = 'day' | 'week' | 'month' | 'year';
 
 	export type StartingCharacter = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | '0-9';
-
-	interface LooseObject {
-		[key: string]: any;
-	}
 
 	// Reference property b of gg variable in https://ltn.hitomi.la/gg.js
 	const imagePathCode: string = '1645088401';
@@ -188,37 +190,38 @@ module hitomi {
 
 	// url
 
-	export function getNozomiUrl(tag: Tag, options: { orderBy?: OrderCriteria } = {}): string {
-		if(tag['type'] !== 'language' || typeof(options['orderBy']) === 'undefined') {
-			let area: string = '';
-			let tagString: string = '';
+	export function getNozomiUrl(options: { tag?: Tag, orderByPopularityPeriod?: PopularityPeriod; } = {}): string {
+		const isOrderByPopularityPeriodString: boolean = typeof(options['orderByPopularityPeriod']) === 'string';
+		const isTagTypeLanguage: boolean = options['tag']?.['type'] === 'language';
+		
+		if(isOrderByPopularityPeriodString || isTagTypeLanguage) {
+			let path: string = '';
 			let language: string = 'all';
 
-			switch(tag['type']) {
-				case 'male':
-				case 'female': {
-					area = 'tag/';
-					tagString = tag['type'] + ':' + tag['name'].replace(/_/g, ' ');
+			if(typeof(options['tag']) === 'object' && !isTagTypeLanguage) {
+				switch(options['tag']['type']) {
+					case 'male':
+					case 'female': {
+						path = 'tag/' + options['tag']['type'] + ':' + options['tag']['name'].replace(/_/g, ' ');
 
-					break;
+						break;
+					}
+
+					default: {
+						path = options['tag']['type'] + '/' + options['tag']['name'].replace(/_/g, ' ');
+
+						break;
+					}
+				}
+			} else {
+				if(isTagTypeLanguage) {
+					language = (options['tag'] as Tag)['name'];
 				}
 
-				case 'language': {
-					tagString = options['orderBy'] || 'index';
-					language = tag['name'];
-
-					break;
-				}
-
-				default: {
-					area = tag['type'] + '/';
-					tagString = tag['name'].replace(/_/g, ' ');
-
-					break;
-				}
+				path = options['orderByPopularityPeriod'] || 'index';
 			}
 
-			return 'https://ltn.hitomi.la/n/' + area + tagString + '-' + language + '.nozomi';
+			return 'https://ltn.hitomi.la/' + (!isOrderByPopularityPeriodString ? 'n' : 'popular') + '/' + (path !== 'day' ? path : 'today') + '-' + language + '.nozomi';
 		} else {
 			throw new HitomiError('INVALID_VALUE', 'options[\'orderBy\']');
 		}
@@ -429,88 +432,72 @@ module hitomi {
 		}
 	}
 
-	export function getIds(options: { tags?: Tag[], range?: { startIndex?: number; endIndex?: number; }, orderBy?: OrderCriteria, reverseResult?: boolean; } = {}): Promise<number[]> {
+	export function getIds(options: { tags?: Tag[]/* = [] */; range?: { startIndex?: number/* = 0 */; endIndex?: number; }/* = {} */; orderByPopularityPeriod?: PopularityPeriod; reverseResult?: boolean/* = false */; } = {}): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[]) => void, reject: (reason: any) => void) {
+			const isTagsEmpty: boolean = options['tags']?.['length'] === 0;
 			const [isStartIndexInteger, isEndIndexInteger]: boolean[] = [Number.isInteger(options['range']?.['startIndex']), Number.isInteger(options['range']?.['endIndex'])];
 
 			if(!isStartIndexInteger || options['range']?.['startIndex'] as number >= 0) {
-				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] as number)) {
-					if(Array.isArray(options['tags']) && options['tags']['length'] !== 0) {
-						if(typeof(options['orderBy']) === 'undefined' || options['orderBy'] === 'index') {
-							options['tags'].reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
-								return promise.then(function (ids: Set<number>): Promise<Set<number>> {
-									return new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-										fetchBuffer(getNozomiUrl(tag))
-										.then(function (buffer: Buffer): void {
-											const isNegativeTag: boolean = tag['isNegative'] || false;
-											const _ids: Set<number> = get32BitIntegerNumbers(buffer);
+				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] as number || 0)) {
+					(options['tags'] || []).reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
+						return promise.then(function (ids: Set<number>): Promise<Set<number>> {
+							return new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
+								fetchBuffer(getNozomiUrl({ tag: tag }))
+								.then(function (buffer: Buffer): void {
+									const _ids: Set<number> = get32BitIntegerNumbers(buffer);
 
-											ids.forEach(function (id: number): void {
-												if(isNegativeTag === _ids.has(id)/* !(isNegativeTag ^ _ids.has(id)) */) {
-													ids.delete(id);
-												}
-											});
-
-											resolve(ids);
-
-											return;
-										})
-										.catch(reject);
+									ids.forEach(function (id: number): void {
+										if(tag['isNegative'] === _ids.has(id)/* ~(tag['isNegative'] ^ _ids.has(id)) */) {
+											ids.delete(id);
+										}
 
 										return;
 									});
-								});
-							}, options['tags'][0]['isNegative'] || false ? new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-								getIds()
-								.then(function (ids: number[]): void {
-									resolve(new Set<number>(ids));
+
+									resolve(ids);
 
 									return;
 								})
 								.catch(reject);
 
 								return;
-							}) : new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-								fetchBuffer(getNozomiUrl((options['tags'] as Tag[]).shift() as Tag))
-								.then(function (buffer: Buffer): void {
-									resolve(get32BitIntegerNumbers(buffer));
-
-									return;
-								})
-								.catch(reject);
-
-								return;
-							}))
-							.then(function (ids: Set<number>): void {
-								let galleryIds: number[] = Array.from(ids).slice(options['range']?.['startIndex'], options['range']?.['endIndex']);
-
-								if(options['reverseResult'] || false) {
-									resolve(galleryIds);
-								} else {
-									resolve(galleryIds.reverse());
-								}
-
-								return;
-							})
-							.catch(reject);
-						} else {
-							reject(new HitomiError('INVALID_VALUE', 'options[\'orderBy\']'));
-						}
-					} else {
-						fetchBuffer('https://ltn.hitomi.la/' + (options['orderBy'] || 'index') + '-all.nozomi', { Range: 'bytes=' + (isStartIndexInteger ? options['range']?.['startIndex'] as number * 4 : '0') + '-' + (isEndIndexInteger ? options['range']?.['endIndex'] as number * 4 + 3 : '') })
+							});
+						});
+					}, isTagsEmpty || typeof(options['orderByPopularityPeriod']) === 'string' || typeof((options['tags'] as Tag[])[0]['isNegative']) === 'boolean' && (options['tags'] as Tag[])[0]['isNegative'] ? new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
+						fetchBuffer(getNozomiUrl({ orderByPopularityPeriod: options['orderByPopularityPeriod'] }), isTagsEmpty ? { Range: 'bytes=' + ((options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['startIndex'] * 4) + '-' + (isEndIndexInteger ? (options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['endIndex'] as number * 4 + 3 : '') } : undefined)
 						.then(function (buffer: Buffer): void {
-							let galleryIds: number[] = Array.from(get32BitIntegerNumbers(buffer));
-
-							if(options['reverseResult'] || false) {
-								resolve(galleryIds);
-							} else {
-								resolve(galleryIds.reverse());
-							}
+							resolve(get32BitIntegerNumbers(buffer));
 
 							return;
 						})
 						.catch(reject);
-					}
+					}) : new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
+						fetchBuffer(getNozomiUrl({ tag: (options['tags'] as Tag[]).shift() }))
+						.then(function (buffer: Buffer): void {
+							resolve(get32BitIntegerNumbers(buffer));
+
+							return;
+						})
+						.catch(reject);
+
+						return;
+					}))
+					.then(function (ids: Set<number>): void {
+						let _ids: number[] = Array.from(ids);
+
+						if(options['reverseResult'] || false) {
+							_ids.reverse();
+						}
+
+						if(!isTagsEmpty && (isStartIndexInteger || isEndIndexInteger)) {
+							_ids = _ids.slice(options['range']?.['startIndex'], options['range']?.['endIndex']);
+						}
+
+						resolve(_ids);
+
+						return;
+					})
+					.catch(reject);
 				} else {
 					reject(new HitomiError('INVALID_VALUE', 'options[\'range\'][\'endIndex\']'));
 				}
