@@ -271,7 +271,7 @@ module hitomi {
 	}
 
 	export class ImageUrlResolver {
-		#pathCode?: string = '';
+		#pathCode?: string;
 		#subdomainRegularExpression?: RegExp;
 
 		#getRegexString(tree: LooseObject, root?: string): string {
