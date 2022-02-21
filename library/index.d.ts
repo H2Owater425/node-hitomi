@@ -1,54 +1,88 @@
 declare module hitomi {
 	interface Image {
-			index: number;
-			hash: string;
-			extension: 'jpg' | 'png' | 'gif';
-			hasAvif: boolean;
-			hasWebp: boolean;
-			width: number;
-			height: number;
+		index: number;
+		hash: string;
+		extension: 'jpg' | 'png' | 'gif';
+		hasAvif: boolean;
+		hasWebp: boolean;
+		width: number;
+		height: number;
 	}
 
 	interface Tag {
-			type: 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag';
-			name: string;
-			isNegative?: boolean;
+		type: 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag';
+		name: string;
+		isNegative?: boolean;
 	}
 
 	interface Gallery {
-			id: number;
-			title: {
-					display: string;
-					japanese: string | null;
-			};
-			type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'anime';
-			languageName: {
-					english: string | null;
-					local: string | null;
-			};
-			artists: string[];
-			groups: string[];
-			series: string[];
-			characters: string[];
-			tags: Tag[];
-			files: Image[];
-			publishedDate: Date;
+		id: number;
+		title: {
+			display: string;
+			japanese: string | null;
+		};
+		type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'anime';
+		languageName: {
+			english: string | null;
+			local: string | null;
+		};
+		artists: string[];
+		groups: string[];
+		series: string[];
+		characters: string[];
+		tags: Tag[];
+		files: Image[];
+		publishedDate: Date;
+		translations: Pick<Gallery, 'id' | 'languageName'>[];
+		relatedIds: number[];
 	}
 
-	type OrderCriteria = 'index' | 'popularity';
+	type PopularityPeriod = 'day' | 'week' | 'month' | 'year';
 
-	type StartingCharacter = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | '123';
+	type StartingCharacter = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | '0-9';
 
 	/**
-	 * Returns url of image
-	 * @param  {Image} image
-	 * @param  {Image['extension'] | 'avif' | 'webp'} extension
+	 * Resolves url of image
+	 * @class
+	 */
+	class ImageUrlResolver {
+		/**
+		 * Synchronize data with Hitomi
+		 * @public
+		 * @returns {Promise<ImageUrlResolver>}
+		 */
+		public synchronize(): Promise<ImageUrlResolver>;
+
+		/**
+		 * Returns url of image
+		 * @public
+		 * @param  {Image} image
+		 * @param  {'avif' | 'webp'} extension
+		 * @param  {object} [options = {}]
+		 * @param  {boolean} [options.isThumbnail = false] If set to true, the function will return thumbnail url
+		 * @param  {boolean} [options.isSmall = false] If set to true and extension is avif and options.isThumbnail is true, the function will return small thumbnail url
+		 * @returns {string}
+		 */
+		public getImageUrl(image: Image, extension: 'avif' | 'webp', options: { isThumbnail?: boolean; isSmall?: boolean; }): string;
+	}
+
+	/**
+	 * Returns url of nozomi
 	 * @param  {object} [options = {}]
-	 * @param  {boolean} [options.isThumbnail = false] If set to true, the function will return thumbnail url
-	 * @param  {boolean} [options.isSmall = false] If set to true and extension is avif and options.isThumbnail is true, the function will return small thumbnail url
+	 * @param  {Tag} [options.tag]
+	 * @param  {PopularityPeriod} [options.orderByPopularityPeriod] If not set, the function will return ids order by index
 	 * @returns {string}
 	 */
-	function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', options: { isThumbnail?: boolean; isSmall?: boolean; }): string
+	function getNozomiUrl(options: { tag?: Tag, orderByPopularityPeriod?: PopularityPeriod; }): string;
+
+	/**
+	* Returns url of tags
+	* @param  {Tag['type']} type
+	* @param  {object} [option = {}]
+	* @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return hitomi url that responds tag that starts with that character
+	* @returns {string}
+	*/
+	function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter }): string;
 
 	/**
 	 * Returns url of video from gallery
@@ -63,24 +97,6 @@ declare module hitomi {
 	 * @returns {string}
 	 */
 	function getGalleryUrl(gallery: Gallery): string;
-
-	/**
-	 * Returns nozomi url of tag
-	 * @param  {Tag} tag
-	 * @param  {object} [option = {}]
-	 * @param  {OrderCriteria} [option.orderBy]
-	 * @returns {string}
-	 */
-	function getnozomiUrl(tag: Tag, option?: { orderBy?: OrderCriteria; }): string;
-
-	/**
-	* Returns url of tags with specific character
-	* @param  {Tag['type']} type
-	* @param  {object} [option = {}]
-	* @param  {StartingCharacter} [option.startWith] If set and type isn't language nor type, the function will return hitomi url that responds tag that starts with that character
-	* @returns {string}
-	*/
-	function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter }): string;
 
 	/**
 	 * Returns index of second thumbnail from gallery
@@ -102,18 +118,24 @@ declare module hitomi {
 	/**
 	 * Returns ids
 	 * @param  {object} [options = {}]
-	 * @param  {Tag[]} [options.tags]
+	 * @param  {Tag[]} [options.tags = []]
 	 * @param  {object} [options.range]
-	 * @param  {number} [options.range.startIndex]
+	 * @param  {number} [options.range.startIndex = 0]
 	 * @param  {number} [options.range.endIndex] If not set, the function will return whole range from startIndex
-	 * @param  {OrderCriteria} [options.orderBy]
+	 * @param  {PopularityPeriod} [options.orderByPopularityPeriod] If not set, the function will return ids order by index
 	 * @param  {boolean} [options.reverseResult = false] If set to true, the function will return reversed ids
 	 * @returns {Promise<number[]>}
 	 */
-	function getIds(options: { tags?: Tag[], range?: { startIndex?: number; endIndex?: number; }, orderBy?: OrderCriteria, reverseResult?: boolean; }): Promise<number[]>;
+	function getIds(options: { tags?: Tag[], range?: { startIndex?: number; endIndex?: number; }, orderByPopularityPeriod?: PopularityPeriod, reverseResult?: boolean; }): Promise<number[]>;
 
 	/**
-	 * Returns tag starting with specific character
+	 * Returns tags from string
+	 * @param {string} tagString 
+	 */
+	function getParsedTags(tagString: string): Tag[]
+
+	/**
+	 * Returns tags from type
 	 * @param  {Tag['type']} type
 	 * @param  {object} [options = {}]
 	 * @param  {StartingCharacter} [options.startWith] If set and type isn't language nor type, the function will return tags that responds tag that starts with that character

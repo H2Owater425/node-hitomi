@@ -53,18 +53,12 @@ module hitomi {
 
 	export type StartingCharacter = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | '0-9';
 
-	// Reference property b of gg variable in https://ltn.hitomi.la/gg.js
-	const imagePathCode: string = '1645088401';
-
-	// Reference property m of gg variable in https://ltn.hitomi.la/gg.js
-	const imageSubdomainRegularExpression: RegExp = /^(1(0(0[0-249]?|1[0-13-46-7]?|2[29]?|3[04-57-8]?|4[14-8]|5[14-57]|6[0-13-479]|7[1-357-8]|8[13-8]?|9[1-25-6])?|1(0[0-13-57]?|10?|2[15]?|3[0-13-68]?|4[5-9]?|5[04-57-8]?|6[27-9]|7[03-6]?|8[024-7]|9[02-9]?)?|2(0[024-57-8]?|1[1-26-9]?|2[2-68-9]|3[0-2479]?|4[02-359]?|5[247-8]|6[0-36]|7[2-68]?|8[357]?|9[4-9]?)|3(0[3-47-9]?|1[1-48]|2[0-379]|3[06-7]|4[0-25-69]?|5[468]?|6[5-7]?|7[05-69]|8[029]|9[024-58])|4(0[0-138]|1[0-279]|2[0-2468]?|3[13579]|4[3-47-8]?|5[0246-79]?|6[2-35-68]?|7[1-26-79]?|8[0257]?|9[0-24-7]?)|5(0[0-25-68-9]|1[14-69]|2[0-16-8]|3[1-24]|4[1-2468]|5[0357]?|6[02-35-68-9]|7[1-246-79]|8[0-14-68]|9[25-79]?)?|6(0[03-469]|1[14-57]|2[2-59]|3[1-68]?|4[025-79]|5[3-579]?|6[0369]?|7[2-59]?|8[035-6]?|9[13-58-9]?)?|7(0[68]?|1[18]?|2[02-35-79]?|3[0-8]?|4[38]?|5[2-35-8]?|6[024-79]|7[0357]|8[2-57-9]|9[0-24-7])?|8(0[024-68-9]?|1[1-2479]?|2[0-14-57-9]?|3[2-8]|4[36-7]?|5[036-8]?|6[0247]|7[138]?|8[02-468]?|9[1-247-8])?|9(0[5-6]|1[0-35-9]?|2[02-69]|3[05-6]|4[0-13-69]|5[0-13-47]|6[1-24-7]|7[0-135-8]|8[1-28-9]?|9[0-25-9]?)?)|2(0(0[0-35]?|1[2-46-8]|2[026-79]?|3[0-1]|4[04-57-8]|5[1-36]?|6[0-46-7]?|7[69]?|8[1-35-68-9]?|9[1-479])?|1(0[246-9]|1[0-26-8]?|2[0-35-8]|3[024-57]?|4[0-14-579]?|5[1-2468]?|6[0-14-7]|7[1-27-9]|8[0279]|9[147]?)?|2(0[36-9]|1[0-2469]?|2[024-5]?|3[0-57]?|4[038]|5[03-68]?|6[24-58]|7[1-468]?|8[268]|9[4-79])|3(0[0-1468]|1[02-9]?|2[4-57-8]|3[13-46-7]?|41?|5[1-357]|6[037]?|7[057-9]|8[2-9]?|9[1-268-9]?)|4(0[1-357-9]?|1[268]?|2[025-9]?|3[1579]?|4[1-57-9]?|5[147-8]|6[2-36-7]|7[02-35-8]?|8[14-57-8]|9[35-69])|5(0[25-7]|1[579]|2[1-48]?|3[024-5]?|4[147]?|5[1-257]?|6[02-46-9]?|7[02-46-9]|8[3-46-79]|9[48]?)|6(0[13-68-9]?|1[04-68-9]?|2[0-135-69]|3[1-246]|4[1-28-9]|5[1-2468-9]?|6[35-9]?|7[0-368]?|8[0-46-7]?|9[36])|7(0[3-59]?|1[0248-9]?|2[146-8]?|3[24-68-9]?|4[1-24-7]?|5[24-79]|6[05-69]|7[0268-9]|8[13-57]?|9[05-68-9]?)|8(0[0-14-79]?|1[0-48-9]|2[046-79]?|3[1-259]?|4[05-68-9]|5[1368]?|6[4-69]?|7[035-7]|8[2-46-79]|9[03-579])?|9(0[02579]?|1[04-9]|2[1-25-8]|3[1-68-9]|4[3-579]?|5[04-59]?|6[1-247-9]?|7[0-24-57]?|8[13-47-8]|9[0-13-46-8]?))|3(0(0[3-69]?|1[0-158]?|2[2-35-9]|3[0-14-5]|4[17-9]|5[03]?|6[2-57-8]|7[1-24]|8[36-7]?|9[13-57])|1(0[157-8]|1[025-8]|2[1-24-58]?|3[02-36-7]?|4[0-16-79]|5[0-157-9]|6[02-379]?|7[024-59]?|8[0-246]|9[0-69])?|2(0[02-59]?|1[47-9]|2[3-48]?|3[268]|4[1-7]?|5[0-136-79]|6[04-7]|7[02-47-9]|8[0-359]|9[0-159]?)|3(0[05-8]?|1[0-137]|2[0-137-9]|3[358]|4[168-9]?|5[0-36-8]?|6[3-58-9]?|7[3-46-7]|8[6-9]?|9[1-358-9])?|4(0[0248-9]|1[02-46]?|2[03-8]|3[4-58-9]|4[02-359]|5[13-468-9]|6[3-46-79]?|7[0-135-68]|8[1-47-8]?|9[26-79]?)?|5(0[037-8]|1[035-8]?|2[05-8]|3[0-258-9]|4[0-6]?|5[0368]|6[357]?|7[0-58]|8[1-279]?|9[0-147-9]?)?|6(0[02-58-9]|1[15-68-9]|2[2-357]|3[1-25-7]?|4[257]|5[02-79]|6[29]|7[25-68-9]|8[02-8]?|9[13-46-9])?|7(0[02-359]|1[1-479]?|2[0369]?|3[0-13-59]?|4[49]?|5[1358]|6[035-69]?|7[2-368]?|8[136-79]?|9[1357-8])|8(0[024-69]?|1[0357]?|2[04-579]?|3[0-1368]?|4[0468]?|5[0-14-59]?|6[0-59]?|7[2-69]|8[1-257-9]?|9[2-3579]?)?|9(0[02-469]?|1[0-2468-9]?|2[2-46]|3[02-46]?|4[1-247]?|5[0-247]?|6[79]|7[25-6]?|8[02-47-9]|9[05-9]?))|4(0(0[02-36-79]|1[1-368]|2[2-36-9]?|3[2-36]|4[024-57-8]|5[0-2468-9]?|6[1359]|7[0-269]?|8[0-146-79]|9[1-24]?)?|1[46-9]|2[13-468]?|3[3-68-9]?|4[0-13-57-8]?|5[03-9]|6[02-8]|7[037]?|8[1-28]?|9[15-6]?)?|5(0[04-579]?|1[26-8]|2[1-369]?|3[024-7]?|4[358]?|5[02-49]|6[0-2579]|7[0-246-79]|8[6-9]|9[0-59]?)|6(0[24-8]?|1[26-79]?|2[248]?|3[0248-9]|4[0-169]?|5[0-257-8]?|6[1-3]?|7[0-14-57]|8[2-57-8]|9[0-258-9])?|7(0[1-35]|1[1-35-8]|2[0246-8]|3[1-24-57-9]?|4[0-24-579]|5[04-68]|6[14-59]|7[0-58]|8[246-9]|9[135-79])|8(0[2-69]?|1[0-14-68]?|2[46-8]|3[2-47]?|4[1-35-8]|5[04-579]|6[0-17-8]|7[0-68-9]?|8[257-9]?|9[0-13-479]?)|9(0[0-24-5]?|1[047]|2[035-69]|3[1-4]|4[0-146-8]|5[02-46-8]|6[36-79]|7[0248]?|8[1-246]?|9[14-7]))$/;
-
 	const galleryCommonTypes: readonly string[] = ['artist', 'group', 'parody', 'character'];
 
 	// utility
 
 	class HitomiError extends Error {
-		private code: 'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENT' | 'REQEUST_REJECTED';
+		private code: 'INVALID_VALUE' | 'DUPLICATED_ELEMENT' | 'LACK_OF_ELEMENT' | 'REQEUST_REJECTED' | 'INVALID_SEQUENCE' | 'UNKNOWN' = 'UNKNOWN';
 
 		constructor(key: HitomiError['code'], argument: string) {
 			super('Unknown');
@@ -96,6 +90,12 @@ module hitomi {
 
 				case 'REQEUST_REJECTED': {
 					this['message'] = 'Request to ' + argument + ' was rejected';
+
+					break;
+				}
+
+				case 'INVALID_SEQUENCE': {
+					this['message'] = 'Must execute ' + argument + ' before';
 
 					break;
 				}
@@ -268,68 +268,169 @@ module hitomi {
 		}
 	}
 
-	export function getImageUrl(image: Image, extension: Image['extension'] | 'avif' | 'webp', options: { isThumbnail?: boolean; isSmall?: boolean; } = {}): string {
-		const isThumbnail: boolean = options['isThumbnail'] || false;
-		const isSmall: boolean = options['isSmall'] || false;
+	export class ImageUrlResolver {
+		#pathCode?: string = '';
+		#subdomainRegularExpression?: RegExp;
 
-		if(!isSmall || isThumbnail && extension === 'avif') {
-			switch(extension) {
-				case 'jpg':
-				case 'png':
-				case 'gif': {
-					if(!isThumbnail && image['extension'] === extension) {
-						break;
-					}
-				}
-	
-				case 'webp':
-				case 'avif': {
-					if(image['has' + extension.charAt(0).toUpperCase() + extension.slice(1) as 'hasWebp' | 'hasAvif']) {
-						break;
-					}
-				}
-	
-				default: {
-					throw new HitomiError('INVALID_VALUE', 'extension');
-				}
-			}
-	
-			if(/^[0-9a-f]{64}$/.test(image['hash'])) {
-				if(Number.isInteger(image['index']) && image['index'] >= 0) {
-					const imageHashCode: string = String(Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16));
-	
-					// Reference subdomain_from_url function from https://ltn.hitomi.la/common.js
-					let subdomain = imageSubdomainRegularExpression.test(imageHashCode) ? 'a' : 'b';
-					let imagePath: string = '';
-					let folderName: string = '';
-	
-					if(!isThumbnail) {
-						imagePath = imagePathCode + '/' + imageHashCode + '/' + image['hash'];
-	
-						if(extension === 'jpg' || extension === 'png') {
-							// Reference make_image_element function from https://ltn.hitomi.la/reader.js
-							subdomain += 'b';
-							folderName = 'images';
-						} else {
-							// Reference make_source_element function from https://ltn.hitomi.la/reader.js
-							subdomain += 'a';
-							folderName = extension;
-						}
-					} else {
-						imagePath = image['hash'].slice(-1) + '/' + image['hash'].slice(-3, -1)  + '/' + image['hash'];
-						subdomain += 'tn';
-						folderName = extension + (isSmall && extension === 'avif' ? 'small' : '') + 'bigtn';
-					}
-	
-					return 'https://' + subdomain + '.hitomi.la/' + folderName + '/' + imagePath + '.' + extension;
-				} else {
-					throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
+		#getRegexString(tree: LooseObject, root?: string): string {
+			let regularExpressionString: string = '';
+
+			const roots: string[] = Object.keys(tree);
+
+			if(typeof(root) === 'undefined') {
+				for(let i: number = 0; i < roots['length']; i++) {
+					regularExpressionString += this.#getRegexString(tree[roots[i]], roots[i]);
 				}
 			} else {
-				throw new HitomiError('INVALID_VALUE', 'image[\'hash\']');
+				regularExpressionString += '|' + root + '(';
+				let isOptional: boolean = false;
+
+				for(let i: number = 0; i < roots['length']; i++) {
+					if(roots[i] === '') {
+						isOptional = true;
+					} else {
+						if(Object.keys(tree[roots[i]])['length'] !== 0) {
+							regularExpressionString += this.#getRegexString(tree[roots[i]], roots[i]);
+						}
+					}
+				}
+
+				regularExpressionString += ')';
+
+				if(isOptional) {
+					regularExpressionString += '?';
+				}
 			}
-		} else {
-			throw new HitomiError('INVALID_VALUE', 'extension');
+
+			return regularExpressionString;
+		}
+
+		public synchronize(): Promise<ImageUrlResolver> {
+			const _this: typeof this = this;
+
+			return new Promise<typeof this>(function (resolve: (value: typeof _this) => void, reject: (reason?: any) => void): void {
+				fetchBuffer('https://ltn.hitomi.la/gg.js')
+				.then(function (buffer: Buffer): void {
+					const response: string = buffer.toString();
+
+					_this.#pathCode = response.slice(-64).match(/(?<=b:\s\')[0-9]+(?=\/\')/)?.[0] || undefined;
+
+					if(typeof(_this.#pathCode) !== 'undefined') {
+						const subdomainCodes: string[] = response.match(/(?<=case\s)[0-9]+(?=:)/g) as string[] || [];
+						let subdomainCodeTree: LooseObject = {};
+
+						for(let i: number = 0; i < subdomainCodes['length']; i++) {
+							let targetTree: LooseObject = subdomainCodeTree;
+							const _subdomainCodes: string[] = subdomainCodes[i].split('');
+							
+							for(let j: number = 0; j < _subdomainCodes['length']; j++) {
+								if(typeof(targetTree[_subdomainCodes[j]]) !== 'object') {
+									targetTree[_subdomainCodes[j]] = {};
+								}
+
+								targetTree = targetTree[_subdomainCodes[j]];
+
+								if(j === _subdomainCodes['length'] - 1) {
+									targetTree[''] = {};
+								}
+							}
+						}
+
+						let splitSubdomainRegularExpressionStrings: string[] = _this.#getRegexString(subdomainCodeTree).replace(/\(\)\?|((?<=\()|^)\||\((?=\|[0-9]\(\)\?\))|(?<=\(\|[0-9]\(\)\?)\)|\|(?=[0-9]\(\))/g, '').split(/\((?=[0-9]{2,}\))|(?<=\([0-9]{2,})\)/);
+
+						for(let i: number = 0; i < splitSubdomainRegularExpressionStrings['length']; i++) {
+							if(i % 2 === 1) {
+								let _splitSubdomainRegularExpressionStrings: string[] = splitSubdomainRegularExpressionStrings[i].split('');
+
+								let distance: number = 0;
+
+								for(let j: number = 0; j < _splitSubdomainRegularExpressionStrings['length']; j++) {
+									if(j + distance < _splitSubdomainRegularExpressionStrings['length'] && Number(_splitSubdomainRegularExpressionStrings[j]) + distance === Number(_splitSubdomainRegularExpressionStrings[j + distance])) {
+										distance++;
+										j--;
+									} else if(distance !== 1) {
+										_splitSubdomainRegularExpressionStrings[j] += '-' + _splitSubdomainRegularExpressionStrings[j + distance - 1];
+
+										_splitSubdomainRegularExpressionStrings = _splitSubdomainRegularExpressionStrings.slice(0, j + 1).concat(_splitSubdomainRegularExpressionStrings.slice(j + distance));
+
+										distance = 0;
+									}
+								}
+
+								splitSubdomainRegularExpressionStrings[i] = '[' + _splitSubdomainRegularExpressionStrings.join('') + ']';
+							}
+						}
+
+						_this.#subdomainRegularExpression = new RegExp(splitSubdomainRegularExpressionStrings.join(''));
+
+						if(_this.#subdomainRegularExpression['source'] !== '(?:)') {
+							resolve(_this);
+						} else {
+							reject(new HitomiError('INVALID_VALUE', 'ImageUrlResolver[\'#subdomainRegularExpression\']'));
+						}
+					} else {
+						reject(new HitomiError('INVALID_VALUE', 'ImageUrlResolver[\'#pathCode\']'));
+					}
+
+					return;
+				});
+
+				return;
+			});
+		}
+
+		public get(image: Image, extension: 'avif' | 'webp', options: { isThumbnail?: boolean; isSmall?: boolean; } = {}): string {
+			if(typeof(this.#pathCode) === 'string' && typeof(this.#subdomainRegularExpression) === 'object') {
+				options['isThumbnail'] = typeof(options['isThumbnail']) === 'boolean' && options['isThumbnail'];
+				options['isSmall'] = typeof(options['isSmall']) === 'boolean' && options['isSmall'];
+
+				switch(extension) {
+					case 'webp':
+					case 'avif': {
+						if(image['has' + extension.charAt(0).toUpperCase() + extension.slice(1) as 'hasWebp' | 'hasAvif']) {
+							break;
+						}
+					}
+		
+					default: {
+						throw new HitomiError('INVALID_VALUE', 'extension');
+					}
+				}
+		
+				if(/^[0-9a-f]{64}$/.test(image['hash'])) {
+					if(Number.isInteger(image['index']) && image['index'] >= 0) {
+						const imageHashCode: string = String(Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16));
+		
+						let subdomain: string = 'a';
+						// Reference make_source_element function from https://ltn.hitomi.la/reader.js
+						let path: string = extension;
+		
+						if(!options['isThumbnail']) {
+							path += '/' + this.#pathCode + '/' + imageHashCode + '/' + image['hash'];
+						} else {
+							if(options['isSmall']) {
+								if(extension === 'avif') {
+									path += 'small';
+								} else {
+									throw new HitomiError('INVALID_VALUE', 'options[\'isSmall\']');
+								}
+							}
+
+							path +=  'bigtn/' + image['hash'].slice(-1) + '/' + image['hash'].slice(-3, -1)  + '/' + image['hash'];
+							subdomain = 'tn';
+						}
+		
+						// Reference subdomain_from_url function from https://ltn.hitomi.la/common.js
+						return 'https://' + (this.#subdomainRegularExpression.test(imageHashCode) ? 'a' : 'b') + subdomain + '.hitomi.la/' + path + '.' + extension;
+					} else {
+						throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
+					}
+				} else {
+					throw new HitomiError('INVALID_VALUE', 'image[\'hash\']');
+				}
+			} else {
+				throw new HitomiError('INVALID_SEQUENCE', 'synchronize()');
+			}
 		}
 	}
 
