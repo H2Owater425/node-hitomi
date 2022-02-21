@@ -264,7 +264,7 @@ module hitomi {
 				path = 'language_support.js';
 			}
 
-			return 'https://' + subdomain + 'hitomi.la/' + path;
+			return 'https://' + subdomain + '.hitomi.la/' + path;
 		} else {
 			throw new HitomiError('INVALID_VALUE', 'options[\'startWith\']');
 		}
