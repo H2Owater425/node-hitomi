@@ -230,8 +230,9 @@ module hitomi {
 	export function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter; } = {}): string {
 		const isTypeNotLanguage: boolean = type !== 'language';
 
-		if(isTypeNotLanguage || typeof(options['startWith']) === 'undefined') {
-			let path: string = '';
+		if((typeof(options['startWith']) !== 'undefined') === isTypeNotLanguage) {
+			let subdomain: string = 'ltn';
+			let path: string = 'all';
 
 			if(isTypeNotLanguage) {
 				switch(type) {
@@ -257,12 +258,13 @@ module hitomi {
 					}
 				}
 
-				path = '-all' + path + (options['startWith'] !== '0-9' ? options['startWith'] : '123') + '.html';
+				path += '-' + (options['startWith'] !== '0-9' ? options['startWith'] : '123') + '.html';
 			} else {
+				subdomain = '';
 				path = 'language_support.js';
 			}
 
-			return 'https://' + (!isTypeNotLanguage ? 'ltn' : '') + 'hitomi.la/' + path;
+			return 'https://' + subdomain + 'hitomi.la/' + path;
 		} else {
 			throw new HitomiError('INVALID_VALUE', 'options[\'startWith\']');
 		}
@@ -539,7 +541,7 @@ module hitomi {
 			const [isStartIndexInteger, isEndIndexInteger]: boolean[] = [Number.isInteger(options['range']?.['startIndex']), Number.isInteger(options['range']?.['endIndex'])];
 
 			if(!isStartIndexInteger || options['range']?.['startIndex'] as number >= 0) {
-				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] as number || 0)) {
+				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] || 0)) {
 					(options['tags'] || []).reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
 						return promise.then(function (ids: Set<number>): Promise<Set<number>> {
 							return new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
