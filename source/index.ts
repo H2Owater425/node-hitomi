@@ -381,7 +381,7 @@ module hitomi {
 			});
 		}
 
-		public get(image: Image, extension: 'avif' | 'webp', options: { isThumbnail?: boolean; isSmall?: boolean; } = {}): string {
+		public getImageUrl(image: Image, extension: 'avif' | 'webp', options: { isThumbnail?: boolean; isSmall?: boolean; } = {}): string {
 			if(typeof(this.#pathCode) === 'string' && typeof(this.#subdomainRegularExpression) === 'object') {
 				options['isThumbnail'] = typeof(options['isThumbnail']) === 'boolean' && options['isThumbnail'];
 				options['isSmall'] = typeof(options['isSmall']) === 'boolean' && options['isSmall'];
