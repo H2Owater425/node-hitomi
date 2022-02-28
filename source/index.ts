@@ -108,8 +108,14 @@ module hitomi {
 	}
 
 	function get32BitIntegerNumbers(buffer: Buffer): Set<number> {
-		let dataView: DataView = new DataView(buffer);
+		let arrayBuffer: ArrayBuffer = new ArrayBuffer(buffer['byteLength']);
+		let unit8Array: Uint8Array = new Uint8Array(arrayBuffer);
 
+		for (let i: number = 0; i < buffer['byteLength']; ++i) {
+			unit8Array[i] = buffer[i];
+		}
+
+		const dataView: DataView = new DataView(arrayBuffer);
 		const numberCount: number = dataView['byteLength'] / 4;
 
 		let numbers: Set<number> = new Set<number>();
@@ -191,47 +197,42 @@ module hitomi {
 	// url
 
 	export function getNozomiUrl(options: { tag?: Tag, orderByPopularityPeriod?: PopularityPeriod; } = {}): string {
-		const isOrderByPopularityPeriodString: boolean = typeof(options['orderByPopularityPeriod']) === 'string';
 		const isTagTypeLanguage: boolean = options['tag']?.['type'] === 'language';
 		
-		if(isOrderByPopularityPeriodString || isTagTypeLanguage) {
-			let path: string = '';
-			let language: string = 'all';
+		let path: string = '';
+		let language: string = 'all';
 
-			if(typeof(options['tag']) === 'object' && !isTagTypeLanguage) {
-				switch(options['tag']['type']) {
-					case 'male':
-					case 'female': {
-						path = 'tag/' + options['tag']['type'] + ':' + options['tag']['name'].replace(/_/g, ' ');
+		if(typeof(options['tag']) === 'object' && !isTagTypeLanguage) {
+			switch(options['tag']['type']) {
+				case 'male':
+				case 'female': {
+					path = 'tag/' + options['tag']['type'] + ':' + options['tag']['name'].replace(/_/g, ' ');
 
-						break;
-					}
-
-					default: {
-						path = options['tag']['type'] + '/' + options['tag']['name'].replace(/_/g, ' ');
-
-						break;
-					}
-				}
-			} else {
-				if(isTagTypeLanguage) {
-					language = (options['tag'] as Tag)['name'];
+					break;
 				}
 
-				path = options['orderByPopularityPeriod'] || 'index';
+				default: {
+					path = options['tag']['type'] + '/' + options['tag']['name'].replace(/_/g, ' ');
+
+					break;
+				}
+			}
+		} else {
+			if(isTagTypeLanguage) {
+				language = (options['tag'] as Tag)['name'];
 			}
 
-			return 'https://ltn.hitomi.la/' + (!isOrderByPopularityPeriodString ? 'n' : 'popular') + '/' + (path !== 'day' ? path : 'today') + '-' + language + '.nozomi';
-		} else {
-			throw new HitomiError('INVALID_VALUE', 'options[\'orderBy\']');
+			path = options['orderByPopularityPeriod'] || 'index';
 		}
+
+		return 'https://ltn.hitomi.la/' + (typeof(options['orderByPopularityPeriod']) !== 'string' ? 'n' : 'popular') + '/' + (path !== 'day' ? path : 'today') + '-' + language + '.nozomi';
 	}
 
 	export function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter; } = {}): string {
 		const isTypeNotLanguage: boolean = type !== 'language';
 
 		if((typeof(options['startWith']) !== 'undefined') === isTypeNotLanguage) {
-			let subdomain: string = 'ltn';
+			let subdomain: string = 'ltn.';
 			let path: string = 'all';
 
 			if(isTypeNotLanguage) {
@@ -264,7 +265,7 @@ module hitomi {
 				path = 'language_support.js';
 			}
 
-			return 'https://' + subdomain + '.hitomi.la/' + path;
+			return 'https://' + subdomain + 'hitomi.la/' + path;
 		} else {
 			throw new HitomiError('INVALID_VALUE', 'options[\'startWith\']');
 		}
@@ -382,7 +383,7 @@ module hitomi {
 		}
 
 		public getImageUrl(image: Image, extension: 'avif' | 'webp', options: { isThumbnail?: boolean; isSmall?: boolean; } = {}): string {
-			if(typeof(this.#pathCode) === 'string' && typeof(this.#subdomainRegularExpression) === 'object') {
+			if(typeof(this.#pathCode) === 'string' && this.#subdomainRegularExpression instanceof RegExp) {
 				options['isThumbnail'] = typeof(options['isThumbnail']) === 'boolean' && options['isThumbnail'];
 				options['isSmall'] = typeof(options['isSmall']) === 'boolean' && options['isSmall'];
 
@@ -537,20 +538,21 @@ module hitomi {
 
 	export function getIds(options: { tags?: Tag[]/* = [] */; range?: { startIndex?: number/* = 0 */; endIndex?: number; }/* = {} */; orderByPopularityPeriod?: PopularityPeriod; reverseResult?: boolean/* = false */; } = {}): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[]) => void, reject: (reason: any) => void) {
-			const isTagsEmpty: boolean = options['tags']?.['length'] === 0;
+			const isTagsInvalid: boolean = !Array.isArray(options['tags']) || options['tags']['length'] === 0;
 			const [isStartIndexInteger, isEndIndexInteger]: boolean[] = [Number.isInteger(options['range']?.['startIndex']), Number.isInteger(options['range']?.['endIndex'])];
 
 			if(!isStartIndexInteger || options['range']?.['startIndex'] as number >= 0) {
 				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] || 0)) {
-					(options['tags'] || []).reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
+					(isTagsInvalid ? [] : options['tags'] as Tag[]).reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
 						return promise.then(function (ids: Set<number>): Promise<Set<number>> {
 							return new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
 								fetchBuffer(getNozomiUrl({ tag: tag }))
 								.then(function (buffer: Buffer): void {
 									const _ids: Set<number> = get32BitIntegerNumbers(buffer);
+									const isTagNegative: boolean = typeof(tag['isNegative']) === 'boolean' && tag['isNegative'];
 
 									ids.forEach(function (id: number): void {
-										if(tag['isNegative'] === _ids.has(id)/* ~(tag['isNegative'] ^ _ids.has(id)) */) {
+										if(isTagNegative === _ids.has(id)/* ~(isTagNegative ^ _ids.has(id)) */) {
 											ids.delete(id);
 										}
 
@@ -566,8 +568,8 @@ module hitomi {
 								return;
 							});
 						});
-					}, isTagsEmpty || typeof(options['orderByPopularityPeriod']) === 'string' || typeof((options['tags'] as Tag[])[0]['isNegative']) === 'boolean' && (options['tags'] as Tag[])[0]['isNegative'] ? new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-						fetchBuffer(getNozomiUrl({ orderByPopularityPeriod: options['orderByPopularityPeriod'] }), isTagsEmpty ? { Range: 'bytes=' + ((options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['startIndex'] * 4) + '-' + (isEndIndexInteger ? (options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['endIndex'] as number * 4 + 3 : '') } : undefined)
+					}, isTagsInvalid || typeof(options['orderByPopularityPeriod']) === 'string' || typeof((options['tags'] as Tag[])[0]['isNegative']) === 'boolean' && (options['tags'] as Tag[])[0]['isNegative'] ? new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
+						fetchBuffer(getNozomiUrl({ orderByPopularityPeriod: options['orderByPopularityPeriod'] }), isTagsInvalid ? { Range: 'bytes=' + ((options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['startIndex'] * 4) + '-' + (isEndIndexInteger ? (options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['endIndex'] as number * 4 + 3 : '') } : undefined)
 						.then(function (buffer: Buffer): void {
 							resolve(get32BitIntegerNumbers(buffer));
 
@@ -592,7 +594,7 @@ module hitomi {
 							_ids.reverse();
 						}
 
-						if(!isTagsEmpty && (isStartIndexInteger || isEndIndexInteger)) {
+						if(!isTagsInvalid && (isStartIndexInteger || isEndIndexInteger)) {
 							_ids = _ids.slice(options['range']?.['startIndex'], options['range']?.['endIndex']);
 						}
 
@@ -624,7 +626,7 @@ module hitomi {
 			for(let i: number = 0; i < splitTagStrings['length']; i++) {
 				const splitPositiveTagStrings: string[] = splitTagStrings[i].replace(/^-/, '').split(':');
 
-				if(splitPositiveTagStrings['length'] === 2 && /^(artist|group|type|language|series|tag|male|female)$/.test(splitPositiveTagStrings[0]) && /^[^-_\.][a-z0-9-_.]+$/.test(splitPositiveTagStrings[1])) {
+				if(splitPositiveTagStrings['length'] === 2 && /^(artist|group|series|tag|(languag|typ|mal|femal)e)$/.test(splitPositiveTagStrings[0]) && /^[^-_\.][a-z0-9-_.]+$/.test(splitPositiveTagStrings[1])) {
 					const positiveTagString: string = splitPositiveTagStrings[0] + ':' + splitPositiveTagStrings[1];
 
 					if(!positiveTagStrings.has(positiveTagString)) {
