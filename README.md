@@ -54,7 +54,7 @@ hitomi.getGallery(x)
 
 printing supported tags for `female` starting with letter `b`:
 ```javascript
-hitomi.getTags('female', 'b')
+hitomi.getTags('female', { startWith:'b' })
 .then(function (value) {
   console.log(value);
 });
