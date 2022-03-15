@@ -364,7 +364,7 @@ module hitomi {
 							}
 						}
 
-						_this.#subdomainRegularExpression = new RegExp(splitSubdomainRegularExpressionStrings.join(''));
+						_this.#subdomainRegularExpression = new RegExp('^(' + splitSubdomainRegularExpressionStrings.join('') + ')$');
 
 						if(_this.#subdomainRegularExpression['source'] !== '(?:)') {
 							resolve(_this);
@@ -424,7 +424,7 @@ module hitomi {
 						}
 		
 						// Reference subdomain_from_url function from https://ltn.hitomi.la/common.js
-						return 'https://' + (this.#subdomainRegularExpression.test(imageHashCode) ? 'a' : 'b') + subdomain + '.hitomi.la/' + path + '.' + extension;
+						return 'https://' + (this.#subdomainRegularExpression.test(imageHashCode) ? 'b' : 'a') + subdomain + '.hitomi.la/' + path + '.' + extension;
 					} else {
 						throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
 					}
