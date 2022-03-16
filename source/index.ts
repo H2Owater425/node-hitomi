@@ -198,7 +198,7 @@ module hitomi {
 
 	export function getNozomiUrl(options: { tag?: Tag, orderByPopularityPeriod?: PopularityPeriod; } = {}): string {
 		const isTagTypeLanguage: boolean = options['tag']?.['type'] === 'language';
-		
+
 		let path: string = '';
 		let language: string = 'all';
 
@@ -274,6 +274,7 @@ module hitomi {
 	export class ImageUrlResolver {
 		#pathCode?: string;
 		#subdomainRegularExpression?: RegExp;
+		#isFirstSubdomainA = true;
 
 		#getRegexString(tree: LooseObject, root?: string): string {
 			let regularExpressionString: string = '';
@@ -314,65 +315,98 @@ module hitomi {
 			return new Promise<typeof this>(function (resolve: (value: typeof _this) => void, reject: (reason?: any) => void): void {
 				fetchBuffer('https://ltn.hitomi.la/gg.js')
 				.then(function (buffer: Buffer): void {
-					const response: string = buffer.toString();
+					const splitResponseStrings: string[] = buffer.toString().split('\n');
 
-					_this.#pathCode = response.slice(-64).match(/(?<=b:\s\')[0-9]+(?=\/\')/)?.[0] || undefined;
+					let subdomainCodes: string[] = [];
 
-					if(typeof(_this.#pathCode) !== 'undefined') {
-						const subdomainCodes: string[] = response.match(/(?<=case\s)[0-9]+(?=:)/g) as string[] || [];
-						let subdomainCodeTree: LooseObject = {};
+					for(let i: number = 0; i < splitResponseStrings['length']; i++) {
+						switch(splitResponseStrings[i].charAt(0)) {
+							case 'b': {
+								_this.#pathCode = splitResponseStrings[i].slice(0, -2).split('\'').pop();
 
-						for(let i: number = 0; i < subdomainCodes['length']; i++) {
-							let targetTree: LooseObject = subdomainCodeTree;
-							const _subdomainCodes: string[] = subdomainCodes[i].split('');
-							
-							for(let j: number = 0; j < _subdomainCodes['length']; j++) {
-								if(typeof(targetTree[_subdomainCodes[j]]) !== 'object') {
-									targetTree[_subdomainCodes[j]] = {};
-								}
+								if(typeof(_this.#pathCode) !== 'undefined') {
+									break;
+								} else {
+									reject(new HitomiError('INVALID_VALUE', 'ImageUrlResolver[\'#pathCode\']'));
 
-								targetTree = targetTree[_subdomainCodes[j]];
-
-								if(j === _subdomainCodes['length'] - 1) {
-									targetTree[''] = {};
+									return;
 								}
 							}
-						}
 
-						let splitSubdomainRegularExpressionStrings: string[] = _this.#getRegexString(subdomainCodeTree).replace(/\(\)\?|((?<=\()|^)\||\((?=\|[0-9]\(\)\?\))|(?<=\(\|[0-9]\(\)\?)\)|\|(?=[0-9]\(\))/g, '').split(/\((?=[0-9]{2,}\))|(?<=\([0-9]{2,})\)/);
+							case 'c': {
+								let subdomainCodeWithColon = splitResponseStrings[i].split(' ').pop();
 
-						for(let i: number = 0; i < splitSubdomainRegularExpressionStrings['length']; i++) {
-							if(i % 2 === 1) {
-								let _splitSubdomainRegularExpressionStrings: string[] = splitSubdomainRegularExpressionStrings[i].split('');
+								if(typeof(subdomainCodeWithColon) === 'string') {
+									subdomainCodes.push(subdomainCodeWithColon.slice(0, -1));
+								} else {
+									reject(new HitomiError('INVALID_VALUE', 'subdomainCodes[' + i + ']'));
 
-								let distance: number = 0;
-
-								for(let j: number = 0; j < _splitSubdomainRegularExpressionStrings['length']; j++) {
-									if(j + distance < _splitSubdomainRegularExpressionStrings['length'] && Number(_splitSubdomainRegularExpressionStrings[j]) + distance === Number(_splitSubdomainRegularExpressionStrings[j + distance])) {
-										distance++;
-										j--;
-									} else if(distance !== 1) {
-										_splitSubdomainRegularExpressionStrings[j] += '-' + _splitSubdomainRegularExpressionStrings[j + distance - 1];
-
-										_splitSubdomainRegularExpressionStrings = _splitSubdomainRegularExpressionStrings.slice(0, j + 1).concat(_splitSubdomainRegularExpressionStrings.slice(j + distance));
-
-										distance = 0;
-									}
+									return;
 								}
 
-								splitSubdomainRegularExpressionStrings[i] = '[' + _splitSubdomainRegularExpressionStrings.join('') + ']';
+								break;
+							}
+
+							case 'o': {
+								if(splitResponseStrings[i].split(' = ').pop()?.charAt(0) === '1') {
+									_this.#isFirstSubdomainA = false;
+								}
+
+								break;
 							}
 						}
+					}
 
-						_this.#subdomainRegularExpression = new RegExp('^(' + splitSubdomainRegularExpressionStrings.join('') + ')$');
+					let subdomainCodeTree: LooseObject = {};
 
-						if(_this.#subdomainRegularExpression['source'] !== '(?:)') {
-							resolve(_this);
-						} else {
-							reject(new HitomiError('INVALID_VALUE', 'ImageUrlResolver[\'#subdomainRegularExpression\']'));
+					for(let i: number = 0; i < subdomainCodes['length']; i++) {
+						let targetTree: LooseObject = subdomainCodeTree;
+						const _subdomainCodes: string[] = subdomainCodes[i].split('');
+
+						for(let j: number = 0; j < _subdomainCodes['length']; j++) {
+							if(typeof(targetTree[_subdomainCodes[j]]) !== 'object') {
+								targetTree[_subdomainCodes[j]] = {};
+							}
+
+							targetTree = targetTree[_subdomainCodes[j]];
+
+							if(j === _subdomainCodes['length'] - 1) {
+								targetTree[''] = {};
+							}
 						}
+					}
+
+					let splitSubdomainRegularExpressionStrings: string[] = _this.#getRegexString(subdomainCodeTree).replace(/\(\)\?|((?<=\()|^)\||\((?=\|[0-9]\(\)\?\))|(?<=\(\|[0-9]\(\)\?)\)|\|(?=[0-9]\(\))/g, '').split(/\((?=[0-9]{2,}\))|(?<=\([0-9]{2,})\)/);
+
+					for(let i: number = 0; i < splitSubdomainRegularExpressionStrings['length']; i++) {
+						if(i % 2 === 1) {
+							let _splitSubdomainRegularExpressionStrings: string[] = splitSubdomainRegularExpressionStrings[i].split('');
+
+							let distance: number = 0;
+
+							for(let j: number = 0; j < _splitSubdomainRegularExpressionStrings['length']; j++) {
+								if(j + distance < _splitSubdomainRegularExpressionStrings['length'] && Number(_splitSubdomainRegularExpressionStrings[j]) + distance === Number(_splitSubdomainRegularExpressionStrings[j + distance])) {
+									distance++;
+									j--;
+								} else if(distance !== 1) {
+									_splitSubdomainRegularExpressionStrings[j] += '-' + _splitSubdomainRegularExpressionStrings[j + distance - 1];
+
+									_splitSubdomainRegularExpressionStrings = _splitSubdomainRegularExpressionStrings.slice(0, j + 1).concat(_splitSubdomainRegularExpressionStrings.slice(j + distance));
+
+									distance = 0;
+								}
+							}
+
+							splitSubdomainRegularExpressionStrings[i] = '[' + _splitSubdomainRegularExpressionStrings.join('') + ']';
+						}
+					}
+
+					_this.#subdomainRegularExpression = new RegExp('^(' + splitSubdomainRegularExpressionStrings.join('') + ')$');
+
+					if(_this.#subdomainRegularExpression['source'] !== '(?:)') {
+						resolve(_this);
 					} else {
-						reject(new HitomiError('INVALID_VALUE', 'ImageUrlResolver[\'#pathCode\']'));
+						reject(new HitomiError('INVALID_VALUE', 'ImageUrlResolver[\'#subdomainRegularExpression\']'));
 					}
 
 					return;
@@ -394,20 +428,20 @@ module hitomi {
 							break;
 						}
 					}
-		
+
 					default: {
 						throw new HitomiError('INVALID_VALUE', 'extension');
 					}
 				}
-		
+
 				if(/^[0-9a-f]{64}$/.test(image['hash'])) {
 					if(Number.isInteger(image['index']) && image['index'] >= 0) {
 						const imageHashCode: string = String(Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16));
-		
+
 						let subdomain: string = 'a';
 						// Reference make_source_element function from https://ltn.hitomi.la/reader.js
 						let path: string = extension;
-		
+
 						if(!options['isThumbnail']) {
 							path += '/' + this.#pathCode + '/' + imageHashCode + '/' + image['hash'];
 						} else {
@@ -422,9 +456,9 @@ module hitomi {
 							path +=  'bigtn/' + image['hash'].slice(-1) + '/' + image['hash'].slice(-3, -1)  + '/' + image['hash'];
 							subdomain = 'tn';
 						}
-		
+
 						// Reference subdomain_from_url function from https://ltn.hitomi.la/common.js
-						return 'https://' + (this.#subdomainRegularExpression.test(imageHashCode) ? 'b' : 'a') + subdomain + '.hitomi.la/' + path + '.' + extension;
+						return 'https://' + (this.#subdomainRegularExpression.test(imageHashCode) === this.#isFirstSubdomainA /* ~(this.#subdomainRegularExpression.test(imageHashCode) ^ this.#isMatchCharacterA) */ ? 'a' : 'b') + subdomain + '.hitomi.la/' + path + '.' + extension;
 					} else {
 						throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
 					}
