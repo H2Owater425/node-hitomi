@@ -1,21 +1,21 @@
-# Stop people from downloading source file when they download package
+# Sources
 source/
 
-# Ignore and config file
-.gitignore
-.npmignore
-.babelrc
+# Github templetes
+.github/
+
+# Configs
 tsconfig.json
 tsconfig.build.json
 
-# Readme file
+# Readme
 README.md
 
-# Test file
-test.ts
+# Tests
+test.*
 
-# Minify and browserify file
+# Build post-processor
 after.js
 
-# Browser file - will uploaded as releases of package
+# Browser file (Will uploaded as releases of package)
 library/browser.js
