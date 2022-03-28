@@ -65,41 +65,39 @@ module hitomi {
 
 			this['code'] = key;
 
-			const quote: string = argument.includes('\'') ? '`' : '\'';
-
-			argument = quote + argument + quote;
-
 			switch(key) {
 				case 'INVALID_VALUE': {
-					this['message'] = 'Value of ' + argument + ' was not valid';
+					this['message'] = 'Value of % was not valid';
 
 					break;
 				}
 
 				case 'DUPLICATED_ELEMENT': {
-					this['message'] = 'Element of ' + argument + ' was duplicated';
+					this['message'] = 'Element of % was duplicated';
 
 					break;
 				}
 
 				case 'LACK_OF_ELEMENT': {
-					this['message'] = 'Elements of ' + argument + ' was not enough';
+					this['message'] = 'Elements of % was not enough';
 
 					break;
 				}
 
 				case 'REQEUST_REJECTED': {
-					this['message'] = 'Request to ' + argument + ' was rejected';
+					this['message'] = 'Request to % was rejected';
 
 					break;
 				}
 
 				case 'INVALID_SEQUENCE': {
-					this['message'] = 'Must execute ' + argument + ' before';
+					this['message'] = 'Must execute % before';
 
 					break;
 				}
 			}
+
+			this['message'] = this['message'].replace('%', argument.includes('\'') ? '`%`' : '\'%\'').replace('%', argument);
 		}
 
 		get name(): string {
@@ -108,14 +106,7 @@ module hitomi {
 	}
 
 	function get32BitIntegerNumbers(buffer: Buffer): Set<number> {
-		let arrayBuffer: ArrayBuffer = new ArrayBuffer(buffer['byteLength']);
-		let unit8Array: Uint8Array = new Uint8Array(arrayBuffer);
-
-		for (let i: number = 0; i < buffer['byteLength']; ++i) {
-			unit8Array[i] = buffer[i];
-		}
-
-		const dataView: DataView = new DataView(arrayBuffer);
+		const dataView: DataView = new DataView(buffer['buffer']);
 		const numberCount: number = dataView['byteLength'] / 4;
 
 		let numbers: Set<number> = new Set<number>();
@@ -231,7 +222,7 @@ module hitomi {
 	export function getTagUrl(type: Tag['type'], options: { startWith?: StartingCharacter; } = {}): string {
 		const isTypeNotLanguage: boolean = type !== 'language';
 
-		if((typeof(options['startWith']) !== 'undefined') === isTypeNotLanguage) {
+		if((typeof(options['startWith']) !== 'undefined') === isTypeNotLanguage/* ~((typeof(options['startWith']) !== 'undefined') ^ isTypeNotLanguage) */) {
 			let subdomain: string = 'ltn.';
 			let path: string = 'all';
 
@@ -310,7 +301,7 @@ module hitomi {
 		}
 
 		public synchronize(): Promise<ImageUrlResolver> {
-			const _this: typeof this = this;
+			const _this: this = this;
 
 			return new Promise<typeof this>(function (resolve: (value: typeof _this) => void, reject: (reason?: any) => void): void {
 				fetchBuffer('https://ltn.hitomi.la/gg.js')
@@ -458,7 +449,7 @@ module hitomi {
 						}
 
 						// Reference subdomain_from_url function from https://ltn.hitomi.la/common.js
-						return 'https://' + (this.#subdomainRegularExpression.test(imageHashCode) === this.#isFirstSubdomainA /* ~(this.#subdomainRegularExpression.test(imageHashCode) ^ this.#isMatchCharacterA) */ ? 'a' : 'b') + subdomain + '.hitomi.la/' + path + '.' + extension;
+						return 'https://' + (this.#subdomainRegularExpression.test(imageHashCode) === this.#isFirstSubdomainA/* ~(this.#subdomainRegularExpression.test(imageHashCode) ^ this.#isMatchCharacterA) */ ? 'a' : 'b') + subdomain + '.hitomi.la/' + path + '.' + extension;
 					} else {
 						throw new HitomiError('INVALID_VALUE', 'image[\'index\']');
 					}
@@ -514,9 +505,9 @@ module hitomi {
 						for(let i: number = 0; i < responseJson['tags']['length']; i++) {
 							let type: Tag['type'] = 'tag';
 
-							if(Boolean(responseJson['tags'][i]['male'])) {
+							if(responseJson['tags'][i]['male'] === 1) {
 								type = 'male';
-							} else if(Boolean(responseJson['tags'][i]['female'])) {
+							} else if(responseJson['tags'][i]['female'] === 1) {
 								type = 'female';
 							}
 
@@ -527,7 +518,7 @@ module hitomi {
 						}
 					}
 
-					if((typeof(options['includeFiles']) === 'boolean') !== options['includeFiles']/* typeof(options['includeFiles']) === 'boolean') ^ options['includeFiles'] */) {
+					if(typeof(options['includeFiles']) === 'boolean' && options['includeFiles']) {
 						for(let i: number = 0; i < responseJson['files']['length']; i++) {
 							gallery['files'].push({
 								index: i,
@@ -573,10 +564,9 @@ module hitomi {
 	export function getIds(options: { tags?: Tag[]/* = [] */; range?: { startIndex?: number/* = 0 */; endIndex?: number; }/* = {} */; orderByPopularityPeriod?: PopularityPeriod; reverseResult?: boolean/* = false */; } = {}): Promise<number[]> {
 		return new Promise<number[]>(function (resolve: (value: number[]) => void, reject: (reason: any) => void) {
 			const isTagsInvalid: boolean = !Array.isArray(options['tags']) || options['tags']['length'] === 0;
-			const [isStartIndexInteger, isEndIndexInteger]: boolean[] = [Number.isInteger(options['range']?.['startIndex']), Number.isInteger(options['range']?.['endIndex'])];
 
-			if(!isStartIndexInteger || options['range']?.['startIndex'] as number >= 0) {
-				if(!isEndIndexInteger || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] || 0)) {
+			if(!Number.isInteger(options['range']?.['startIndex']) || options['range']?.['startIndex'] as number >= 0) {
+				if(!Number.isInteger(options['range']?.['endIndex']) || (options['range']?.['endIndex'] as number) >= (options['range']?.['startIndex'] || 0)) {
 					(isTagsInvalid ? [] : options['tags'] as Tag[]).reduce(function (promise: Promise<Set<number>>, tag: Tag): Promise<Set<number>> {
 						return promise.then(function (ids: Set<number>): Promise<Set<number>> {
 							return new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
@@ -603,7 +593,7 @@ module hitomi {
 							});
 						});
 					}, isTagsInvalid || typeof(options['orderByPopularityPeriod']) === 'string' || typeof((options['tags'] as Tag[])[0]['isNegative']) === 'boolean' && (options['tags'] as Tag[])[0]['isNegative'] ? new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-						fetchBuffer(getNozomiUrl({ orderByPopularityPeriod: options['orderByPopularityPeriod'] }), isTagsInvalid ? { Range: 'bytes=' + ((options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['startIndex'] * 4) + '-' + (isEndIndexInteger ? (options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['endIndex'] as number * 4 + 3 : '') } : undefined)
+						fetchBuffer(getNozomiUrl({ orderByPopularityPeriod: options['orderByPopularityPeriod'] }), isTagsInvalid ? { Range: 'bytes=' + ((options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['startIndex'] * 4 || '0') + '-' + ((options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['endIndex'] * 4 + 3 || '') } : undefined)
 						.then(function (buffer: Buffer): void {
 							resolve(get32BitIntegerNumbers(buffer));
 
@@ -624,13 +614,11 @@ module hitomi {
 					.then(function (ids: Set<number>): void {
 						let _ids: number[] = Array.from(ids);
 
-						if(options['reverseResult'] || false) {
+						if(typeof(options['reverseResult']) === 'boolean' && options['reverseResult']) {
 							_ids.reverse();
 						}
 
-						if(!isTagsInvalid && (isStartIndexInteger || isEndIndexInteger)) {
-							_ids = _ids.slice(options['range']?.['startIndex'], options['range']?.['endIndex']);
-						}
+						_ids = _ids.slice(options['range']?.['startIndex'], options['range']?.['endIndex']);
 
 						resolve(_ids);
 
@@ -660,7 +648,7 @@ module hitomi {
 			for(let i: number = 0; i < splitTagStrings['length']; i++) {
 				const splitPositiveTagStrings: string[] = splitTagStrings[i].replace(/^-/, '').split(':');
 
-				if(splitPositiveTagStrings['length'] === 2 && /^(artist|group|series|tag|(languag|typ|mal|femal)e)$/.test(splitPositiveTagStrings[0]) && /^[^-_\.][a-z0-9-_.]+$/.test(splitPositiveTagStrings[1])) {
+				if(splitPositiveTagStrings['length'] === 2 && /^(artist|group|series|tag|(languag|typ|(fe)?mal)e)$/.test(splitPositiveTagStrings[0]) && /^[^-_\.][a-z0-9-_.]+$/.test(splitPositiveTagStrings[1])) {
 					const positiveTagString: string = splitPositiveTagStrings[0] + ':' + splitPositiveTagStrings[1];
 
 					if(!positiveTagStrings.has(positiveTagString)) {
