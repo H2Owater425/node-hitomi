@@ -109,7 +109,7 @@ module hitomi {
 		const dataView: DataView = new DataView(buffer['buffer']);
 		const numberCount: number = dataView['byteLength'] / 4;
 
-		let numbers: Set<number> = new Set<number>();
+		const numbers: Set<number> = new Set<number>();
 
 		for(let i: number = 0; i < numberCount; i++) {
 			numbers.add(dataView.getInt32(i * 4));
@@ -140,7 +140,7 @@ module hitomi {
 				}),
 				agent: agent
 			}, function (response: IncomingMessage): void {
-				let buffers: Buffer[] = [];
+				const buffers: Buffer[] = [];
 				let bufferLength: number = 0;
 
 				switch(response['statusCode']) {
@@ -308,7 +308,7 @@ module hitomi {
 				.then(function (buffer: Buffer): void {
 					const splitResponseStrings: string[] = buffer.toString().split('\n');
 
-					let subdomainCodes: string[] = [];
+					const subdomainCodes: string[] = [];
 
 					for(let i: number = 0; i < splitResponseStrings['length']; i++) {
 						switch(splitResponseStrings[i].charAt(0)) {
@@ -325,7 +325,7 @@ module hitomi {
 							}
 
 							case 'c': {
-								let subdomainCodeWithColon = splitResponseStrings[i].split(' ').pop();
+								const subdomainCodeWithColon = splitResponseStrings[i].split(' ').pop();
 
 								if(typeof(subdomainCodeWithColon) === 'string') {
 									subdomainCodes.push(subdomainCodeWithColon.slice(0, -1));
@@ -348,7 +348,7 @@ module hitomi {
 						}
 					}
 
-					let subdomainCodeTree: LooseObject = {};
+					const subdomainCodeTree: LooseObject = {};
 
 					for(let i: number = 0; i < subdomainCodes['length']; i++) {
 						let targetTree: LooseObject = subdomainCodeTree;
@@ -367,7 +367,7 @@ module hitomi {
 						}
 					}
 
-					let splitSubdomainRegularExpressionStrings: string[] = _this.#getRegexString(subdomainCodeTree).replace(/\(\)\?|((?<=\()|^)\||\((?=\|[0-9]\(\)\?\))|(?<=\(\|[0-9]\(\)\?)\)|\|(?=[0-9]\(\))/g, '').split(/\((?=[0-9]{2,}\))|(?<=\([0-9]{2,})\)/);
+					const splitSubdomainRegularExpressionStrings: string[] = _this.#getRegexString(subdomainCodeTree).replace(/\(\)\?|((?<=\()|^)\||\((?=\|[0-9]\(\)\?\))|(?<=\(\|[0-9]\(\)\?)\)|\|(?=[0-9]\(\))/g, '').split(/\((?=[0-9]{2,}\))|(?<=\([0-9]{2,})\)/);
 
 					for(let i: number = 0; i < splitSubdomainRegularExpressionStrings['length']; i++) {
 						if(i % 2 === 1) {
@@ -489,7 +489,7 @@ module hitomi {
 				.then(function (buffer: Buffer): void {
 					const responseJson: LooseObject = JSON.parse(buffer.toString('utf8').slice(18));
 
-					let gallery: Gallery = JSON.parse('{"id":' + id + ',"title":{"display":"' + responseJson['title'].replace(/\"/g, '\\"') + '","japanese":' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + '},"type":"' + responseJson['type'] + '","languageName":{"english":' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ',"local":' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + '},"artists":[],"groups":[],"series":[],"characters":[],"tags":[],"files":[],"publishedDate":null,"translations":[],"relatedIds":[]}');
+					const gallery: Gallery = JSON.parse('{"id":' + id + ',"title":{"display":"' + responseJson['title'].replace(/\"/g, '\\"') + '","japanese":' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + '},"type":"' + responseJson['type'] + '","languageName":{"english":' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ',"local":' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + '},"artists":[],"groups":[],"series":[],"characters":[],"tags":[],"files":[],"publishedDate":null,"translations":[],"relatedIds":[]}');
 
 					for(let i: number = 0; i < galleryCommonTypes['length']; i++) {
 						const pluralType: string = galleryCommonTypes[i] + 's';
@@ -642,8 +642,8 @@ module hitomi {
 		const splitTagStrings: string[] = tagString.split(' ');
 
 		if(splitTagStrings['length'] !== 0) {
-			let tags: Tag[] = [];
-			let positiveTagStrings: Set<string> = new Set<string>();
+			const tags: Tag[] = [];
+			const positiveTagStrings: Set<string> = new Set<string>();
 
 			for(let i: number = 0; i < splitTagStrings['length']; i++) {
 				const splitPositiveTagStrings: string[] = splitTagStrings[i].replace(/^-/, '').split(':');
@@ -681,10 +681,9 @@ module hitomi {
 				if(!isTypeType) {
 					fetchBuffer(getTagUrl(type, { startWith: options['startWith'] }))
 					.then(function (buffer: Buffer): void {
-						const matchedNames: string[] = buffer.toString('utf8').match(RegExp(type === 'language' ? '(?<=")(?!all)[a-z]+(?=":)' : '(?<=\/tag\/' + (type === 'male' || type === 'female' ? type + '%3A' : '') + ')[a-z0-9%]+(?=-all\\.html)', 'g')) || [];
-						let tags: Tag[] = [];
 						const isTypeGender: boolean = type === 'tag' || type === 'male';
 						const matchedNames: string[] = buffer.toString('utf8').match(RegExp(type === 'language' ? '(?<=")(?!all)[a-z]+(?=":)' : '(?<=\/' + (isTypeGender || type === 'tag' ? 'tag\/' : '') + (isTypeGender ? type + '%3A' : '') + ')[a-z0-9%]+(?=-all\\.html)', 'g')) || [];
+						const tags: Tag[] = [];
 
 						for(let i: number = 0; i < matchedNames['length']; i++) {
 							tags.push({
