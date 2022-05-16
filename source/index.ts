@@ -683,6 +683,8 @@ module hitomi {
 					.then(function (buffer: Buffer): void {
 						const matchedNames: string[] = buffer.toString('utf8').match(RegExp(type === 'language' ? '(?<=")(?!all)[a-z]+(?=":)' : '(?<=\/tag\/' + (type === 'male' || type === 'female' ? type + '%3A' : '') + ')[a-z0-9%]+(?=-all\\.html)', 'g')) || [];
 						let tags: Tag[] = [];
+						const isTypeGender: boolean = type === 'tag' || type === 'male';
+						const matchedNames: string[] = buffer.toString('utf8').match(RegExp(type === 'language' ? '(?<=")(?!all)[a-z]+(?=":)' : '(?<=\/' + (isTypeGender || type === 'tag' ? 'tag\/' : '') + (isTypeGender ? type + '%3A' : '') + ')[a-z0-9%]+(?=-all\\.html)', 'g')) || [];
 
 						for(let i: number = 0; i < matchedNames['length']; i++) {
 							tags.push({
