@@ -681,8 +681,9 @@ module hitomi {
 				if(!isTypeType) {
 					fetchBuffer(getTagUrl(type, { startWith: options['startWith'] }))
 					.then(function (buffer: Buffer): void {
-						const isTypeGender: boolean = type === 'tag' || type === 'male';
-						const matchedNames: string[] = buffer.toString('utf8').match(RegExp(type === 'language' ? '(?<=")(?!all)[a-z]+(?=":)' : '(?<=\/' + (isTypeGender || type === 'tag' ? 'tag\/' : '') + (isTypeGender ? type + '%3A' : '') + ')[a-z0-9%]+(?=-all\\.html)', 'g')) || [];
+						const isTypeGender: boolean = type === 'male' || type === 'female';
+						const matchedNames: string[] = buffer.toString('utf8').match(RegExp(type === 'language' ? '(?<=")(?!all)[a-z]+(?=":)' : '(?<=\/' + (isTypeGender || type === 'tag' ? 'tag\/' : '') + (isTypeGender ? type + '%3A' : '') + ')[a-z0-9%D]+(?=-all\\.html)', 'g')) || [];
+						
 						const tags: Tag[] = [];
 
 						for(let i: number = 0; i < matchedNames['length']; i++) {
