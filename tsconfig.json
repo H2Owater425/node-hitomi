@@ -10,5 +10,5 @@
 		"forceConsistentCasingInFileNames": true
 	},
 	"exclude": ["./node_modules/"],
-	"include": ["./source/**/*", "library/index.d.ts"]
+	"include": ["./source/index.ts", "library/index.d.ts"]
 }
