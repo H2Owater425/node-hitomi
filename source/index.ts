@@ -106,12 +106,18 @@ module hitomi {
 	}
 
 	function get32BitIntegerNumbers(buffer: Buffer): Set<number> {
-		const dataView: DataView = new DataView(buffer['buffer']);
-		const numberCount: number = dataView['byteLength'] / 4;
+		const arrayBuffer: ArrayBuffer = new ArrayBuffer(buffer['byteLength']);
+		const unit8Array: Uint8Array = new Uint8Array(arrayBuffer);
 
+		for(let i: number = 0; i < buffer['byteLength']; i++) {
+			unit8Array[i] = buffer[i];
+		}
+
+		const dataView: DataView = new DataView(arrayBuffer);
+		const totalLength: number = dataView['byteLength'] / 4;
 		const numbers: Set<number> = new Set<number>();
 
-		for(let i: number = 0; i < numberCount; i++) {
+		for(let i: number = 0; i < totalLength; i++) {
 			numbers.add(dataView.getInt32(i * 4));
 		}
 
@@ -593,7 +599,7 @@ module hitomi {
 							});
 						});
 					}, isTagsInvalid || typeof(options['orderByPopularityPeriod']) === 'string' || typeof((options['tags'] as Tag[])[0]['isNegative']) === 'boolean' && (options['tags'] as Tag[])[0]['isNegative'] ? new Promise<Set<number>>(function (resolve: (value: Set<number>) => void, reject: (reason?: any) => void): void {
-						fetchBuffer(getNozomiUrl({ orderByPopularityPeriod: options['orderByPopularityPeriod'] }), isTagsInvalid ? { Range: 'bytes=' + ((options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['startIndex'] * 4 || '0') + '-' + ((options['range'] as RequiredProperty<NonNullable<typeof options['range']>>)['endIndex'] * 4 + 3 || '') } : undefined)
+						fetchBuffer(getNozomiUrl({ orderByPopularityPeriod: options['orderByPopularityPeriod'] }), isTagsInvalid ? { Range: 'bytes=' + (options['range']?.['startIndex'] as number * 4 || '0') + '-' + (options['range']?.['endIndex'] as number * 4 + 3 || '') } : undefined)
 						.then(function (buffer: Buffer): void {
 							resolve(get32BitIntegerNumbers(buffer));
 
@@ -618,7 +624,9 @@ module hitomi {
 							_ids.reverse();
 						}
 
-						_ids = _ids.slice(options['range']?.['startIndex'], options['range']?.['endIndex']);
+						if(!isTagsInvalid) {
+							_ids = _ids.slice(options['range']?.['startIndex'], options['range']?.['endIndex'] as number + 1 || undefined);
+						}
 
 						resolve(_ids);
 
