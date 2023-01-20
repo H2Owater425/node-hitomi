@@ -9,8 +9,6 @@ module hitomi {
 		[key: string]: any;
 	}
 
-	type RequiredProperty<T> = { [P in keyof T]-?: RequiredProperty<NonNullable<T[P]>> };
-
 	export interface Image {
 		index: number;
 		hash: string;
@@ -407,7 +405,8 @@ module hitomi {
 					}
 
 					return;
-				});
+				})
+				.catch(reject);
 
 				return;
 			});
