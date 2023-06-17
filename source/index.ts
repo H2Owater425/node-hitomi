@@ -494,7 +494,27 @@ module hitomi {
 				.then(function (buffer: Buffer): void {
 					const responseJson: LooseObject = JSON.parse(buffer.toString('utf8').slice(18));
 
-					const gallery: Gallery = JSON.parse('{"id":' + id + ',"title":{"display":"' + responseJson['title'].replace(/\"/g, '\\"') + '","japanese":' + (responseJson['japanese_title'] !== null ? '"' + responseJson['japanese_title'].replace(/\"/g, '\\"') + '"' : 'null') + '},"type":"' + responseJson['type'] + '","languageName":{"english":' + (responseJson['language'] !== null ? '"' + responseJson['language'] + '"' : 'null') + ',"local":' + (responseJson['language_localname'] !== null ? '"' + responseJson['language_localname'] + '"' : 'null') + '},"artists":[],"groups":[],"series":[],"characters":[],"tags":[],"files":[],"publishedDate":null,"translations":[],"relatedIds":[]}');
+					const gallery: Gallery = {
+						id,
+						title: {
+							display: responseJson['title'],
+							japanese: responseJson['japanese_title'],
+						},
+						type: responseJson['type'],
+						languageName: {
+							english: responseJson['language'],
+							local: responseJson['language_localname'],
+						},
+						artists: [],
+						groups: [],
+						series: [],
+						characters: [],
+						tags: [],
+						files: [],
+						publishedDate: null,
+						translations: [],
+						relatedIds: [],
+					}
 
 					for(let i: number = 0; i < galleryCommonTypes['length']; i++) {
 						const pluralType: string = galleryCommonTypes[i] + 's';
