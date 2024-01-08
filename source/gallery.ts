@@ -3,7 +3,7 @@ import { ERROR_CODE, IS_NEGATIVE, RAW_GALLERY_KEYS } from './constant';
 import { IdSet, JsonObject, Node, PopularityPeriod, Tag } from './type';
 import { Gallery } from './type';
 import { getNozomiUri } from './uri';
-import { HitomiError, binarySearch, fetch, filterIdSet, getIdSet, getNodeAtAddress } from './utility';
+import { HitomiError, binarySearch, fetch, getIdSet, getNodeAtAddress } from './utility';
 
 export function getGallery(id: number): Promise<Gallery> {
 	return fetch('ltn.hitomi.la/galleries/' + id + '.js')
@@ -102,7 +102,6 @@ export function getGalleryIds(options: {
 		if(isOptionsTitleAvailable) {
 			options['title'] += ' ';
 	
-			const idSetPromises: Promise<IdSet>[] = [];
 			let currentIndex: number = 0;
 			// @ts-expect-error | Already checked
 			let nextIndex: number = options['title'].indexOf(' ');
@@ -154,7 +153,19 @@ export function getGalleryIds(options: {
 			}
 		}
 	
-		return idSetPromises.reduce(filterIdSet, fetch(getNozomiUri()).then(getIdSet))
+		return idSetPromises.reduce(function (previousIdSetPromise: Promise<IdSet>, idSetPromise: Promise<IdSet>): Promise<IdSet> {
+			return previousIdSetPromise.then(function (previousIdSet: IdSet): Promise<IdSet> {
+				return idSetPromise.then(function (idSet: IdSet): IdSet {
+					for(const id of previousIdSet) {
+						if(idSet[IS_NEGATIVE] === idSet.has(id)/* ~(idSet[IS_NEGATIVE] ^ idSet.has(id)) */) {
+							previousIdSet.delete(id);
+						}
+					}
+		
+					return previousIdSet;
+				});
+			});
+		}, fetch(getNozomiUri()).then(getIdSet))
 		.then(function (idSet: IdSet): number[] {
 			const ids: number[] = Array.from(idSet);
 	

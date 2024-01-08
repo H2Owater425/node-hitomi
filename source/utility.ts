@@ -228,17 +228,3 @@ export function binarySearch(key: Buffer, node: Node, version: string): Promise<
 		return Promise.resolve() as Promise<undefined>;
 	}
 }
-
-export function filterIdSet(previousIdSetPromise: Promise<IdSet>, idSetPromise: Promise<IdSet>): Promise<IdSet> {
-	return previousIdSetPromise.then(function (previousIdSet: IdSet): Promise<IdSet> {
-		return idSetPromise.then(function (idSet: IdSet): IdSet {
-			for(const id of previousIdSet) {
-				if(idSet[IS_NEGATIVE] === idSet.has(id)/* ~(idSet[IS_NEGATIVE] ^ idSet.has(id)) */) {
-					previousIdSet.delete(id);
-				}
-			}
-
-			return previousIdSet;
-		});
-	});
-}
