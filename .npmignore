@@ -6,7 +6,6 @@ source/
 
 # Configs
 tsconfig.json
-tsconfig.build.json
 
 # Readme
 README.md
@@ -14,8 +13,8 @@ README.md
 # Tests
 test.*
 
-# Build post-processor
-after.js
+# Bundler config
+rollup.config.ts
 
 # Browser file (Will uploaded as releases of package)
 library/browser.js

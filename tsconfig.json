@@ -1,14 +1,13 @@
 {
 	"compilerOptions": {
-		"target": "es2015",
-		"module": "commonjs",
+		"target": "ES2020",
+		"module": "CommonJS",
 		"outDir": "./library/",
 		"removeComments": true,
 		"strict": true,
 		"esModuleInterop": true,
-		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true
 	},
 	"exclude": ["./node_modules/"],
-	"include": ["./source/index.ts", "library/index.d.ts"]
+	"include": ["rollup.config.ts", "./source/**/*", "./library/index.d.ts"]
 }
