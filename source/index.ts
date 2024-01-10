@@ -1,6 +1,6 @@
 import { getGallery, getGalleryIds } from './gallery';
 import { getParsedTags, getTags } from './tag';
-import { getNozomiUri, getTagUri, getVideoUri, getGalleryUri } from './uri';
+import { getNozomiUri, getTagUri, getVideoUri, getGalleryUri, ImageUriResolver } from './uri';
 
 export default {
 	getGallery,
@@ -11,6 +11,7 @@ export default {
 	getTagUri,
 	getVideoUri,
 	getGalleryUri,
+	ImageUriResolver,
 	default: {
 		getGallery,
 		getGalleryIds,
@@ -19,6 +20,7 @@ export default {
 		getNozomiUri,
 		getTagUri,
 		getVideoUri,
-		getGalleryUri
+		getGalleryUri,
+		ImageUriResolver
 	}
 }
