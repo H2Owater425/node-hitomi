@@ -100,15 +100,15 @@ export function getGalleryIds(options: {
 		}
 	
 		if(isOptionsTitleAvailable) {
-			options['title'] += ' ';
+			// @ts-expect-error | Already checked
+			options['title'] = options['title'].toLocaleLowerCase() + ' ';
 	
 			let currentIndex: number = 0;
-			// @ts-expect-error | Already checked
 			let nextIndex: number = options['title'].indexOf(' ');
 			
 			while(nextIndex !== -1) {
 				if(nextIndex - currentIndex !== 0) {
-					const key: Buffer = createHash('sha256').update((options['title'] as string).slice(currentIndex, nextIndex)).digest().subarray(0, 4);
+					const key: Buffer = createHash('sha256').update(options['title'].slice(currentIndex, nextIndex)).digest().subarray(0, 4);
 	
 					idSetPromises.push(getNodeAtAddress(0n, version)
 					.then(function (node?: Node): Promise<[bigint, number] | undefined> | undefined {
@@ -135,7 +135,6 @@ export function getGalleryIds(options: {
 				}
 	
 				currentIndex = nextIndex + 1;
-				// @ts-expect-error | Already checked
 				nextIndex = options['title'].indexOf(' ', currentIndex);
 			}
 		}
