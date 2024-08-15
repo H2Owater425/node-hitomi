@@ -17,11 +17,11 @@
 		"hitomi.la",
 		"hentai"
 	],
-	"author": "H2Owater425 <h2o@h2owr.xyz>",
+	"author": "H2Owater425 <h2o@dhmo.kr>",
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/h2owater425/node-hitomi/issues",
-		"email": "h2o@h2owr.xyz"
+		"email": "h2o@dhmo.kr"
 	},
 	"homepage": "https://github.com/H2Owater425/node-hitomi#readme",
 	"devDependencies": {
