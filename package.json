@@ -6,7 +6,7 @@
 	"types": "./library/index.d.ts",
 	"scripts": {
 		"build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript --bundleConfigAsCjs",
-		"test": "ts-node-dev --rs --files test.ts"
+		"test": "node --require=ts-node/register --watch test.ts"
 	},
 	"repository": {
 		"type": "git",
@@ -26,11 +26,11 @@
 	"homepage": "https://github.com/H2Owater425/node-hitomi#readme",
 	"devDependencies": {
 		"@rollup/plugin-terser": "^0.4.4",
-		"@rollup/plugin-typescript": "^11.1.5",
-		"@types/node": "^20.10.7",
-		"rollup": "^4.9.4",
-		"ts-node-dev": "^2.0.0",
-		"tslib": "^2.6.2",
-		"typescript": "^5.3.3"
+		"@rollup/plugin-typescript": "^11.1.6",
+		"@types/node": "^20.17.6",
+		"rollup": "^4.26.0",
+		"ts-node": "^10.9.2",
+		"tslib": "^2.8.1",
+		"typescript": "^5.6.3"
 	}
 }
