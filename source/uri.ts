@@ -13,7 +13,7 @@ export function getNozomiUri(options: {
 		switch(options['tag']['type']) {
 			case 'male':
 			case 'female': {
-				path = 'tag/' + options['tag']['type'] + ':' + encodeURIComponent(options['tag']['name'].replace(/_/g, ' '));
+				path = 'tag/' + options['tag']['type'] + ':' + encodeURIComponent(options['tag']['name']);
 
 				break;
 			}

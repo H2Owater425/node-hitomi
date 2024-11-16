@@ -28,6 +28,8 @@ export function getParsedTags(text: string): Tag[] {
 					const positiveRawTag: string = tag['type'] + ':' + tag['name'];
 
 					if(!rawPositiveTags.has(positiveRawTag)) {
+						tag['name'] = tag['name'].replace(/_/g, ' ');
+
 						tags.push(tag);
 						rawPositiveTags.add(positiveRawTag);
 					} else {
@@ -94,7 +96,6 @@ export function getTags(type: Tag['type'], startsWith?: StartingCharacter): Prom
 
 					if(type !== 'tag') {
 						while(currentIndex !== endIndex) {
-
 							tags.push({
 								type: type,
 								name: decodeURIComponent(responseText.slice(currentIndex, nextIndex - 4))
