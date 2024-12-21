@@ -2,7 +2,7 @@ import { IncomingMessage, OutgoingHttpHeaders } from 'http';
 import { request, Agent, AgentOptions } from 'https';
 import { connect, TLSSocket } from 'tls';
 import { IdSet, Node, RejectFunction, ResolveFunction } from './type';
-import { ERROR_CODE, IS_NEGATIVE } from './constant';
+import { ERROR_CODE } from './constant';
 
 export class HitomiError extends Error {
 	constructor(code: ERROR_CODE, ...values: string[]) {
@@ -116,7 +116,7 @@ export function fetch(uri: string, headers: OutgoingHttpHeaders = {}): Promise<B
 export function getIdSet(buffer: Buffer, isNegative: boolean = false): IdSet {
   const integers: IdSet = new Set<number>() as IdSet;
 
-	integers[IS_NEGATIVE] = isNegative;
+	integers['isNegative'] = isNegative;
 
   for (let i: number = 0; i < buffer['byteLength']; i += 4) {
     integers.add(buffer.readInt32BE(i));
@@ -126,15 +126,9 @@ export function getIdSet(buffer: Buffer, isNegative: boolean = false): IdSet {
 }
 
 function getNode(data: Buffer): Node {
-	const node: Node = {
-		keys: [],
-		datas: [],
-		subnodeAddresses: []
-	};
-	let index: number = 0;
-	const keyCount: number = data.readInt32BE(index);
-	
-	index += 4;
+	const node: Node = [[], [], []];
+	const keyCount: number = data.readInt32BE(0);
+	let index: number = 4;
 
 	for(let i: number = 0; i < keyCount; i++) {
 		const keySize: number = data.readInt32BE(index);
@@ -142,7 +136,7 @@ function getNode(data: Buffer): Node {
 		if(keySize > 0 && keySize < 32) {
 			index += 4;
 
-			node['keys'].push(data.subarray(index, index + keySize));
+			node[0].push(data.subarray(index, index + keySize));
 
 			index += keySize;
 		} else {
@@ -155,13 +149,13 @@ function getNode(data: Buffer): Node {
 	index += 4;
 
 	for(let i: number = 0; i < dataCount; i++) {
-		node['datas'].push([data.readBigUInt64BE(index), data.readInt32BE(index + 8)]);
+		node[1].push([data.readBigUInt64BE(index), data.readInt32BE(index + 8)]);
 		
 		index += 12;
 	}
 
 	for (let i: number = 0; i < 17; i++) {
-		node['subnodeAddresses'].push(data.readBigUInt64BE(index));
+		node[2].push(data.readBigUInt64BE(index));
 		index += 8;
 	}
 
@@ -181,13 +175,13 @@ export function getNodeAtAddress(address: bigint, version: string): Promise<Node
 	});
 }
 
-export function binarySearch(key: Buffer, node: Node, version: string): Promise<Node['datas'][number] | undefined> {
-	if(node['keys']['length'] !== 0) {
+export function binarySearch(key: Buffer, node: Node, version: string): Promise<Node[1][number] | undefined> {
+	if(node[0]['length'] !== 0) {
 		let compareResult: number = -1;
 		let index: number = 0;
 		
-		while(index < node['keys']['length']) {
-			compareResult = key.compare(node['keys'][index]);
+		while(index < node[0]['length']) {
+			compareResult = key.compare(node[0][index]);
 
 			if(compareResult <= 0) {
 				break;
@@ -197,14 +191,14 @@ export function binarySearch(key: Buffer, node: Node, version: string): Promise<
 		}
 
 		if(compareResult === 0) {
-			return Promise.resolve(node['datas'][index]);
-		} else if(node['subnodeAddresses'][index] === 0n) {
+			return Promise.resolve(node[1][index]);
+		} else if(node[2][index] === 0n) {
 			return Promise.resolve() as Promise<undefined>;
 		} {
 			let isLeaf: boolean = true;
 
-			for(let i: number = 0; i < node['subnodeAddresses']['length']; i++) {
-				if(node['subnodeAddresses'][i] !== 0n) {
+			for(let i: number = 0; i < node[2]['length']; i++) {
+				if(node[2][i] !== 0n) {
 					isLeaf = false;
 
 					break;
@@ -216,8 +210,8 @@ export function binarySearch(key: Buffer, node: Node, version: string): Promise<
 			}
 		}
 
-		return getNodeAtAddress(node['subnodeAddresses'][index], version)
-		.then(function (node: Node | void): Promise<Node['datas'][number] | undefined> | undefined {
+		return getNodeAtAddress(node[2][index], version)
+		.then(function (node: Node | void): Promise<Node[1][number] | undefined> | undefined {
 			if(typeof(node) === 'object') {
 				return binarySearch(key, node, version);
 			} else {

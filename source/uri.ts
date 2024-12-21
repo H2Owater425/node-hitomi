@@ -1,4 +1,4 @@
-import { ERROR_CODE, PATH_CODE, STARTS_WITH_A, SUBDOMAIN_CODES } from './constant';
+import { ERROR_CODE, IMAGE_URI_PARTS } from './constant';
 import { Gallery, Image, PopularityPeriod, StartingCharacter, Tag } from './type';
 import { HitomiError, fetch } from './utility';
 
@@ -98,10 +98,6 @@ export function getGalleryUri(gallery: Gallery): string {
 }
 
 export class ImageUriResolver {
-	private static [PATH_CODE]: string;
-	private static [STARTS_WITH_A]: boolean;
-	private static [SUBDOMAIN_CODES]: Set<number> = new Set<number>();
-
 	public static synchronize(): Promise<void> {
 		return fetch('ltn.hitomi.la/gg.js')
 		.then(function (response: Buffer): void {
@@ -109,24 +105,24 @@ export class ImageUriResolver {
 			let currentIndex: number = 0;
 			let nextIndex: number = responseText.indexOf('\n');
 
-			ImageUriResolver[SUBDOMAIN_CODES].clear();
+			IMAGE_URI_PARTS[2].clear();
 			
 			while(nextIndex !== -1) {
 				switch(responseText[currentIndex]) {
 					case 'b': {
-						ImageUriResolver[PATH_CODE] = responseText.slice(currentIndex + 4, nextIndex - 2);
+						IMAGE_URI_PARTS[0] = responseText.slice(currentIndex + 4, nextIndex - 2);
 
 						break;
 					}
 
 					case 'o': {
-						ImageUriResolver[STARTS_WITH_A] = responseText[currentIndex + 4] === '0';
+						IMAGE_URI_PARTS[1] = responseText[currentIndex + 4] === '0';
 
 						break;
 					}
 
 					case 'c': {
-						ImageUriResolver[SUBDOMAIN_CODES].add(Number(responseText.slice(currentIndex + 5, nextIndex - 1)));
+						IMAGE_URI_PARTS[2].add(Number(responseText.slice(currentIndex + 5, nextIndex - 1)));
 
 						break;
 					}
@@ -136,14 +132,14 @@ export class ImageUriResolver {
 				nextIndex = responseText.indexOf('\n', currentIndex);
 			}
 
-			if(typeof(ImageUriResolver[PATH_CODE]) === 'string' && typeof(ImageUriResolver[STARTS_WITH_A]) === 'boolean' && ImageUriResolver[SUBDOMAIN_CODES]['size'] !== 0 && !ImageUriResolver[SUBDOMAIN_CODES].has(NaN)) {
+			if(IMAGE_URI_PARTS[0]['length'] !== 0 && IMAGE_URI_PARTS[2]['size'] !== 0 && !IMAGE_URI_PARTS[2].has(NaN)) {
 				return;
 			} else {
-				const subdomainCodeCount: number = ImageUriResolver[SUBDOMAIN_CODES]['size'];
+				const subdomainCodeCount: number = IMAGE_URI_PARTS[2]['size'];
 				
-				ImageUriResolver[SUBDOMAIN_CODES].clear();
+				IMAGE_URI_PARTS[2].clear();
 				
-				throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'ImageUriResolver { [Symbol(pathCode)]: \'' + ImageUriResolver[PATH_CODE] + '\', [Symbol(startsWithA)]: ' + ImageUriResolver[STARTS_WITH_A] + ', [Symbol(subdomainCodes)]: Set(' + subdomainCodeCount + ') }');
+				throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'ImageUriResolver { [Symbol(pathCode)]: \'' + IMAGE_URI_PARTS[0] + '\', [Symbol(startsWithA)]: ' + IMAGE_URI_PARTS[1] + ', [Symbol(subdomainCodes)]: Set(' + subdomainCodeCount + ') }');
 			}
 		});
 	}
@@ -152,7 +148,7 @@ export class ImageUriResolver {
 		isThumbnail?: boolean;
 		isSmall?: boolean;
 	} = {}): string {
-		if(ImageUriResolver[SUBDOMAIN_CODES]['size'] !== 0) {
+		if(IMAGE_URI_PARTS[2]['size'] !== 0) {
 			switch(extension) {
 				case 'webp': {
 					if(image['hasWebp']) {
@@ -183,7 +179,7 @@ export class ImageUriResolver {
 			let path: string = extension;
 
 			if(!options['isThumbnail']) {
-				path += '/' + ImageUriResolver[PATH_CODE] + '/' + imageHashCode + '/' + image['hash'];
+				path += '/' + IMAGE_URI_PARTS[0] + '/' + imageHashCode + '/' + image['hash'];
 			} else {
 				if(options['isSmall']) {
 					if(extension === 'avif') {
@@ -198,7 +194,7 @@ export class ImageUriResolver {
 			}
 
 			// Reference subdomain_from_url from https://ltn.hitomi.la/common.js
-			return (ImageUriResolver[SUBDOMAIN_CODES].has(imageHashCode) === ImageUriResolver[STARTS_WITH_A] /* ~(ImageUriResolver[SUBDOMAIN_CODES].has(imageHashCode) ^ this['startsWithA']) */ ? 'a' : 'b') + subdomain + '.hitomi.la/' + path + '.' + extension;
+			return (IMAGE_URI_PARTS[2].has(imageHashCode) === IMAGE_URI_PARTS[1] /* ~(IMAGE_URI_PARTS[2].has(imageHashCode) ^ IMAGE_URI_PARTS[1]) */ ? 'a' : 'b') + subdomain + '.hitomi.la/' + path + '.' + extension;
 		} else {
 			throw new HitomiError(ERROR_CODE['INVALID_CALL'], 'ImageUriResolver.getImageUri()', 'be called after ImageUriResolver.synchronize()');
 		}

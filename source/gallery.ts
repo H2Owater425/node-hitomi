@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { ERROR_CODE, IS_NEGATIVE, RAW_GALLERY_KEYS } from './constant';
+import { ERROR_CODE, RAW_GALLERY_KEYS } from './constant';
 import { IdSet, JsonObject, Node, PopularityPeriod, Tag } from './type';
 import { Gallery } from './type';
 import { getNozomiUri } from './uri';
@@ -156,7 +156,7 @@ export function getGalleryIds(options: {
 			return previousIdSetPromise.then(function (previousIdSet: IdSet): Promise<IdSet> {
 				return idSetPromise.then(function (idSet: IdSet): IdSet {
 					for(const id of previousIdSet) {
-						if(idSet[IS_NEGATIVE] === idSet.has(id)/* ~(idSet[IS_NEGATIVE] ^ idSet.has(id)) */) {
+						if(idSet['isNegative'] === idSet.has(id)/* ~(idSet['isNegative'] ^ idSet.has(id)) */) {
 							previousIdSet.delete(id);
 						}
 					}

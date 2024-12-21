@@ -1,5 +1,3 @@
-import { IS_NEGATIVE } from './constant';
-
 export type ResolveFunction<T = void> = (value: T) => void;
 
 export type RejectFunction = (error?: Error) => void;
@@ -7,14 +5,10 @@ export type RejectFunction = (error?: Error) => void;
 export type JsonObject = Record<string, unknown>;
 
 export interface IdSet extends Set<number> {
-	[IS_NEGATIVE]: boolean;
+	isNegative: boolean;
 }
 
-export interface Node {
-	keys: Buffer[];
-	datas: [bigint, number][];
-	subnodeAddresses: bigint[];
-}
+export type Node = [Buffer[]/* keys */, [bigint, number][]/* datas */, bigint[]/* subnodeAddresses */];
 
 export interface Image {
 	index: number;
