@@ -150,20 +150,10 @@ export class ImageUriResolver {
 	} = {}): string {
 		if(IMAGE_URI_PARTS[2]['size'] !== 0) {
 			switch(extension) {
-				case 'webp': {
-					if(image['hasWebp']) {
-						break;
-					}
-				}
-
-				case 'avif': {
-					if(image['hasAvif']) {
-						break;
-					}
-				}
-				
+				case 'webp':
+				case 'avif':
 				case 'jxl': {
-					if(image['hasJxl']) {
+					if(image['has' + extension[0].toUpperCase() + extension.slice(1) as `has${'Webp' | 'Avif' | 'Jxl'}`]) {
 						break;
 					}
 				}
