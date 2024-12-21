@@ -4,6 +4,9 @@
 	"description": "Hitomi.la api for Node.js",
 	"main": "./library/index.js",
 	"types": "./library/index.d.ts",
+	"engines": {
+		"node": ">=10.4.0"
+	},
 	"scripts": {
 		"build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript --bundleConfigAsCjs",
 		"test": "node --require=ts-node/register --watch test.ts"
@@ -30,7 +33,6 @@
 		"@types/node": "^20.17.10",
 		"rollup": "^4.28.1",
 		"ts-node": "^10.9.2",
-		"tslib": "^2.8.1",
 		"typescript": "^5.7.2"
 	}
 }
