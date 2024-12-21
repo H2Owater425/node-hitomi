@@ -45,9 +45,9 @@ export function getGallery(id: number): Promise<Gallery> {
 				index: i,
 				hash: (responseJson['files'] as JsonObject[])[i]['hash'] as Gallery['files'][number]['hash'],
 				name: (responseJson['files'] as JsonObject[])[i]['name'] as Gallery['files'][number]['name'],
-				hasAvif: Boolean((responseJson['files'] as JsonObject[])[i]['hasavif']),
-				hasWebp: Boolean((responseJson['files'] as JsonObject[])[i]['haswebp']),
-				hasJxl: Boolean((responseJson['files'] as JsonObject[])[i]['hasjxl']),
+				hasAvif: (responseJson['files'] as JsonObject[])[i]['hasavif'] === 1,
+				hasWebp: (responseJson['files'] as JsonObject[])[i]['haswebp'] !== 0,
+				hasJxl: (responseJson['files'] as JsonObject[])[i]['hasjxl'] === 1,
 				width: (responseJson['files'] as JsonObject[])[i]['width'] as Gallery['files'][number]['width'],
 				height: (responseJson['files'] as JsonObject[])[i]['height'] as Gallery['files'][number]['height']
 			});
