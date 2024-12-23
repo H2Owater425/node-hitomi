@@ -7,14 +7,8 @@ source/
 # Configs
 tsconfig.json
 
-# Readme
-README.md
-
 # Tests
 test.*
 
 # Bundler config
 rollup.config.ts
-
-# Browser file (Will uploaded as releases of package)
-library/browser.js
