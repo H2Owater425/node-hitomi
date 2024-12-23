@@ -8,9 +8,9 @@ export const enum ERROR_CODE {
 	REQEUST_REJECTED
 }
 
-export const RAW_GALLERY_KEYS = ['artist', 'group', 'parody', 'character'] as const;
+export const RAW_GALLERY_KEYS = ['parody', 'artist', 'group', 'character'] as const;
 
-export const TAG_TYPES: ReadonlySet<Tag['type']> = new Set<Tag['type']>(['artist', 'group', 'type', 'language', 'series', 'character', 'male', 'female', 'tag']);
+export const TAG_TYPES: ReadonlySet<Tag['type']> = new Set<Tag['type']>((RAW_GALLERY_KEYS.slice(1) as Tag['type'][]).concat('type', 'language', 'series', 'male', 'female', 'tag'));
 
 // Preparation for future class-based update
 export const IMAGE_URI_PARTS: [string, boolean, Set<number>] = [''/* pathCode */, false/* startsWithA */, new Set<number>()/* subdomainCodes */];
