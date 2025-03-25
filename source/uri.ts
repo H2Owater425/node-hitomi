@@ -34,7 +34,7 @@ export function getNozomiUri(options: {
 		path = options['popularityOrderBy'] !== 'day' ? options['popularityOrderBy'] : 'today';
 	}
 
-	return 'ltn.hitomi.la/' + (typeof(options['popularityOrderBy']) !== 'string' ? 'n' : 'popular') + '/' + path + '-' + language + '.nozomi';
+	return 'ltn.gold-usergeneratedcontent.net/' + (typeof(options['popularityOrderBy']) !== 'string' ? 'n' : 'popular') + '/' + path + '-' + language + '.nozomi';
 }
 
 export function getTagUri(type: Tag['type'], startsWith?: StartingCharacter): string {
@@ -79,7 +79,7 @@ export function getTagUri(type: Tag['type'], startsWith?: StartingCharacter): st
 			path += '-' + (startsWith !== '0-9' ? startsWith : '123') + '.html';
 		}
 
-		return subdomain + 'hitomi.la/' + path;
+		return subdomain + 'gold-usergeneratedcontent.net/' + path;
 	} else {
 		throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'startsWith', 'not be used only with language');
 	}
@@ -87,19 +87,19 @@ export function getTagUri(type: Tag['type'], startsWith?: StartingCharacter): st
 
 export function getVideoUri(gallery: Gallery): string {
 	if(gallery['type'] === 'anime') {
-		return 'streaming.hitomi.la/videos/' + gallery['title']['display'].toLowerCase().replace(/\s/g, '-') + '.mp4';
+		return 'streaming.gold-usergeneratedcontent.net/videos/' + gallery['title']['display'].toLowerCase().replace(/\s/g, '-') + '.mp4';
 	} else {
 		throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'gallery[\'type\']', 'be \'anime\'');
 	}
 }
 
 export function getGalleryUri(gallery: Gallery): string {
-	return ('hitomi.la/' + (gallery['type'] !== 'artistcg' ? gallery['type'] : 'cg') + '/' + encodeURIComponent(Buffer.from(gallery['title']['japanese'] || gallery['title']['display']).subarray(0, 200).toString('utf-8')).replace(/\(|\)|'|%(2[0235F]|3[CEF]|5[BD]|7[BD])/g, '-') + (gallery['languageName']['local'] !== null ? '-' + encodeURIComponent(gallery['languageName']['local']) : '') + '-' + gallery['id'] + '.html').toLocaleLowerCase();
+	return ('gold-usergeneratedcontent.net/' + (gallery['type'] !== 'artistcg' ? gallery['type'] : 'cg') + '/' + encodeURIComponent(Buffer.from(gallery['title']['japanese'] || gallery['title']['display']).subarray(0, 200).toString('utf-8')).replace(/\(|\)|'|%(2[0235F]|3[CEF]|5[BD]|7[BD])/g, '-') + (gallery['languageName']['local'] !== null ? '-' + encodeURIComponent(gallery['languageName']['local']) : '') + '-' + gallery['id'] + '.html').toLocaleLowerCase();
 }
 
 export class ImageUriResolver {
 	public static synchronize(): Promise<void> {
-		return fetch('ltn.hitomi.la/gg.js')
+		return fetch('ltn.gold-usergeneratedcontent.net/gg.js')
 		.then(function (response: Buffer): void {
 			const responseText: string = response.toString('utf-8');
 			let currentIndex: number = 0;
@@ -164,12 +164,15 @@ export class ImageUriResolver {
 			}
 
 			const imageHashCode: number = Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16);
-			let subdomain: string = 'a';
+			// let subdomain: string = 'a';
+			let subdomain: string = extension[0];
 			// Reference make_source_element from https://ltn.hitomi.la/reader.js
-			let path: string = extension;
+			// let path: string = extension;
+			let path: string = '';
+
 
 			if(!options['isThumbnail']) {
-				path += '/' + IMAGE_URI_PARTS[0] + '/' + imageHashCode + '/' + image['hash'];
+				path += IMAGE_URI_PARTS[0] + '/' + imageHashCode + '/' + image['hash'];
 			} else {
 				if(options['isSmall']) {
 					if(extension === 'avif') {
@@ -184,7 +187,7 @@ export class ImageUriResolver {
 			}
 
 			// Reference subdomain_from_url from https://ltn.hitomi.la/common.js
-			return (IMAGE_URI_PARTS[2].has(imageHashCode) === IMAGE_URI_PARTS[1] /* ~(IMAGE_URI_PARTS[2].has(imageHashCode) ^ IMAGE_URI_PARTS[1]) */ ? 'a' : 'b') + subdomain + '.hitomi.la/' + path + '.' + extension;
+			return subdomain + (IMAGE_URI_PARTS[2].has(imageHashCode) === IMAGE_URI_PARTS[1] /* ~(IMAGE_URI_PARTS[2].has(imageHashCode) ^ IMAGE_URI_PARTS[1]) */ ? '1' : '2') + '.gold-usergeneratedcontent.net/' + path + '.' + extension;
 		} else {
 			throw new HitomiError(ERROR_CODE['INVALID_CALL'], 'ImageUriResolver.getImageUri()', 'be called after ImageUriResolver.synchronize()');
 		}
