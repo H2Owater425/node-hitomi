@@ -6,7 +6,7 @@ import { getNozomiUri } from './uri';
 import { HitomiError, binarySearch, fetch, getIdSet, getNodeAtAddress } from './utility';
 
 export function getGallery(id: number): Promise<Gallery> {
-	return fetch('ltn.hitomi.la/galleries/' + id + '.js')
+	return fetch('ltn.gold-usergeneratedcontent.net/galleries/' + id + '.js')
 	.then(function (response: Buffer): Gallery {
 		// Sequence of keys varies among galleries
 		const responseJson: JsonObject = JSON.parse(response.toString('utf-8').slice(18));
@@ -80,7 +80,7 @@ export function getGalleryIds(options: {
 	};
 	popularityOrderBy?: PopularityPeriod;
 } = {}): Promise<number[]> {
-	return fetch('ltn.hitomi.la/galleriesindex/version')
+	return fetch('ltn.gold-usergeneratedcontent.net/galleriesindex/version')
 	.then(function (response: Buffer): Promise<number[]> {
 		const isOptionsTitleAvailable: boolean = typeof(options['title']) === 'string';
 		const isOptionsTagsAvailable: boolean = Array.isArray(options['tags']) && options['tags']['length'] !== 0;
@@ -120,7 +120,7 @@ export function getGalleryIds(options: {
 					})
 					.then(function (data?: [bigint, number]): Promise<Buffer | undefined> | undefined {
 						if(Array.isArray(data)) {
-							return fetch('ltn.hitomi.la/galleriesindex/galleries.' + version + '.data', {
+							return fetch('ltn.gold-usergeneratedcontent.net/galleriesindex/galleries.' + version + '.data', {
 								range: 'bytes=' + (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n)
 							});
 						} else {

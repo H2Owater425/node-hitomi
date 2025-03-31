@@ -166,7 +166,7 @@ export class ImageUriResolver {
 			const imageHashCode: number = Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16);
 			// let subdomain: string = 'a';
 			let subdomain: string = extension[0];
-			// Reference make_source_element from https://ltn.hitomi.la/reader.js
+			// Reference make_source_element from https://ltn.gold-usergeneratedcontent.net/reader.js
 			// let path: string = extension;
 			let path: string = '';
 
@@ -186,7 +186,7 @@ export class ImageUriResolver {
 				subdomain = 'tn';
 			}
 
-			// Reference subdomain_from_url from https://ltn.hitomi.la/common.js
+			// Reference subdomain_from_url from https://ltn.gold-usergeneratedcontent.net/common.js
 			return subdomain + (IMAGE_URI_PARTS[2].has(imageHashCode) === IMAGE_URI_PARTS[1] /* ~(IMAGE_URI_PARTS[2].has(imageHashCode) ^ IMAGE_URI_PARTS[1]) */ ? '1' : '2') + '.gold-usergeneratedcontent.net/' + path + '.' + extension;
 		} else {
 			throw new HitomiError(ERROR_CODE['INVALID_CALL'], 'ImageUriResolver.getImageUri()', 'be called after ImageUriResolver.synchronize()');

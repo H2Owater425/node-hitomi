@@ -72,7 +72,7 @@ export function fetch(uri: string, headers: OutgoingHttpHeaders = {}): Promise<B
 			headers: Object.assign(headers, {
 				accept: '*/*',
 				connection: 'keep-alive',
-				referer: 'https://hitomi.la'
+				referer: 'https://gold-usergeneratedcontent.net'
 			})
 		}, function (response: IncomingMessage): void {
 			const chunks: Buffer[] = [];
@@ -163,7 +163,7 @@ function getNode(data: Buffer): Node {
 }
 
 export function getNodeAtAddress(address: bigint, version: string): Promise<Node | undefined> {
-	return fetch('ltn.hitomi.la/galleriesindex/galleries.' + version + '.index', {
+	return fetch('ltn.gold-usergeneratedcontent.net/galleriesindex/galleries.' + version + '.index', {
 		range: 'bytes=' + address + '-' + (address + 463n)
 	})
 	.then(function (response: Buffer): Node | undefined {
