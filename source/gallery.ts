@@ -45,13 +45,13 @@ export function getGallery(id: number): Promise<Gallery> {
 		for(let i: number = 0; i < (responseJson['files'] as JsonObject[])['length']; i++) {
 			gallery['files'].push({
 				index: i,
-				hash: (responseJson['files'] as JsonObject[])[i]['hash'] as Gallery['files'][number]['hash'],
-				name: (responseJson['files'] as JsonObject[])[i]['name'] as Gallery['files'][number]['name'],
+				hash: (responseJson['files'] as JsonObject<Gallery['files'][number]['hash']>[])[i]['hash'],
+				name: (responseJson['files'] as JsonObject<Gallery['files'][number]['name']>[])[i]['name'],
 				hasAvif: (responseJson['files'] as JsonObject[])[i]['hasavif'] === 1,
 				hasWebp: (responseJson['files'] as JsonObject[])[i]['haswebp'] !== 0,
 				hasJxl: (responseJson['files'] as JsonObject[])[i]['hasjxl'] === 1,
-				width: (responseJson['files'] as JsonObject[])[i]['width'] as Gallery['files'][number]['width'],
-				height: (responseJson['files'] as JsonObject[])[i]['height'] as Gallery['files'][number]['height']
+				width: (responseJson['files'] as JsonObject<Gallery['files'][number]['width']>[])[i]['width'],
+				height: (responseJson['files'] as JsonObject<Gallery['files'][number]['height']>[])[i]['height']
 			});
 		}
 
@@ -61,8 +61,8 @@ export function getGallery(id: number): Promise<Gallery> {
 			gallery['translations'].push({
 				id: Number((responseJson['languages'] as JsonObject[])[i]['galleryid']),
 				languageName: {
-					english: (responseJson['languages'] as JsonObject[])[i]['name'] as Gallery['languageName']['english'],
-					local: (responseJson['languages'] as JsonObject[])[i]['language_localname'] as Gallery['languageName']['local']
+					english: (responseJson['languages'] as JsonObject<Gallery['languageName']['english']>[])[i]['name'],
+					local: (responseJson['languages'] as JsonObject<Gallery['languageName']['local']>[])[i]['language_localname']
 				}
 			});
 		}
