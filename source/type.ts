@@ -2,7 +2,7 @@ export type ResolveFunction<T = void> = (value: T) => void;
 
 export type RejectFunction = (error?: Error) => void;
 
-export type JsonObject = Record<string, unknown>;
+export type JsonObject<T = unknown> = Record<string, T>;
 
 export interface IdSet extends Set<number> {
 	isNegative: boolean;
