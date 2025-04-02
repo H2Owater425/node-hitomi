@@ -17,8 +17,10 @@ export function getGallery(id: number): Promise<Gallery> {
 			const pluralType: string = RAW_GALLERY_KEYS[i] + 's';
 
 			if(responseJson[pluralType] !== null) {
+				const galleryPluralType: 'artists' | 'groups' | 'series' | 'characters' = !pluralType.startsWith('p') ? pluralType as 'artists' | 'groups' | 'characters' : 'series';
+
 				for(let j: number = 0; j < (responseJson[pluralType] as string[])['length']; j++) {
-					(gallery[(!pluralType.startsWith('p') ? pluralType : 'series') as keyof Gallery] as string[]).push((responseJson[pluralType] as JsonObject[])[j][RAW_GALLERY_KEYS[i]] as string);
+					gallery[galleryPluralType].push((responseJson[pluralType] as JsonObject<string>[])[j][RAW_GALLERY_KEYS[i]]);
 				}
 			}
 		}
