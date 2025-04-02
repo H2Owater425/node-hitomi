@@ -91,18 +91,18 @@ export function getGalleryIds(options: {
 		const version: string = response.toString('utf-8');
 		const idSetPromises: Promise<IdSet>[] = [];
 	
-		// @ts-expect-error | Already checked
+		// @ts-expect-error :: options['tag'] is available
 		if((typeof(options['popularityOrderBy']) === 'string' || isOptionsRangeAvailable || isOptionsTagsAvailable && options['tags'][0]['isNegative'])) {
 			idSetPromises.push(fetch(getNozomiUri({
 				popularityOrderBy: options['popularityOrderBy']
 			}), !shouldSliceResult ? {
-				// @ts-expect-error | Already checked
+				// @ts-expect-error :: options['range'] is available
 				range: 'bytes=' + (typeof(options['range']['start']) === 'number' ? options['range']['start'] * 4 : '0') + '-' + (typeof(options['range']['end']) === 'number' ? options['range']['end'] * 4 - 1 : '')
 			} : undefined).then(getIdSet));
 		}
 	
 		if(isOptionsTitleAvailable) {
-			// @ts-expect-error | Already checked
+			// @ts-expect-error :: options['title'] is available
 			options['title'] = options['title'].toLocaleLowerCase() + ' ';
 	
 			let currentIndex: number = 0;
@@ -142,13 +142,13 @@ export function getGalleryIds(options: {
 		}
 	
 		if(isOptionsTagsAvailable) {
-			// @ts-expect-error | Already checked
+			// @ts-expect-error :: options['tags'] is available
 			for(let i: number = 0; i < options['tags']['length']; i++) {
 				idSetPromises.push(fetch(getNozomiUri({
-					// @ts-expect-error | Already checked
+					// @ts-expect-error :: options['tags'] is available
 					tag: options['tags'][i]
 				})).then(function (response: Buffer): IdSet {
-					// @ts-expect-error | Already checked
+					// @ts-expect-error :: options['tags'] is available
 					return getIdSet(response, options['tags'][i]['isNegative']);
 				}));
 			}
@@ -170,7 +170,7 @@ export function getGalleryIds(options: {
 		.then(function (idSet: IdSet): number[] {
 			const ids: number[] = Array.from(idSet);
 	
-			// @ts-expect-error | Already checked
+			// @ts-expect-error :: options['range'] is available
 			return shouldSliceResult ? ids.slice(options['range']['start'], options['range']['end']) : ids;
 		});
 	});
