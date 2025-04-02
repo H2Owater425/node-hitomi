@@ -81,7 +81,7 @@ export function getTagUri(type: Tag['type'], startsWith?: StartingCharacter): st
 
 		return subdomain + 'gold-usergeneratedcontent.net/' + path;
 	} else {
-		throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'startsWith', 'not be used only with language');
+		throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'startsWith', 'not be used with language');
 	}
 }
 
@@ -136,9 +136,9 @@ export class ImageUriResolver {
 				return;
 			} else {
 				const subdomainCodeCount: number = IMAGE_URI_PARTS[2]['size'];
-				
+
 				IMAGE_URI_PARTS[2].clear();
-				
+
 				throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'ImageUriResolver { [Symbol(pathCode)]: \'' + IMAGE_URI_PARTS[0] + '\', [Symbol(startsWithA)]: ' + IMAGE_URI_PARTS[1] + ', [Symbol(subdomainCodes)]: Set(' + subdomainCodeCount + ') }');
 			}
 		});
