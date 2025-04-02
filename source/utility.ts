@@ -1,6 +1,5 @@
 import { IncomingMessage, OutgoingHttpHeaders } from 'http';
-import { request, Agent, AgentOptions } from 'https';
-import { connect, TLSSocket } from 'tls';
+import { request } from 'https';
 import { IdSet, Node, RejectFunction, ResolveFunction } from './type';
 import { ERROR_CODE } from './constant';
 
@@ -51,14 +50,6 @@ export class HitomiError extends Error {
 	}
 }
 
-const agent: Agent = new class extends Agent {
-	public createConnection(options: AgentOptions, callback?: () => void): TLSSocket {
-		return connect(Object.assign(options, {
-			servername: undefined
-		}), callback);
-	}
-};
-
 export function fetch(uri: string, headers: OutgoingHttpHeaders = {}): Promise<Buffer> {
 	return new Promise<Buffer>(function (resolve: ResolveFunction<Buffer>, reject: RejectFunction): void {
 		const pathIndex: number = uri.indexOf('/');
@@ -68,7 +59,6 @@ export function fetch(uri: string, headers: OutgoingHttpHeaders = {}): Promise<B
 			path: uri.slice(pathIndex),
 			method: 'GET',
 			port: '443',
-			agent: agent,
 			headers: Object.assign(headers, {
 				accept: '*/*',
 				connection: 'keep-alive',
