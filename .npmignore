@@ -12,3 +12,6 @@ test.*
 
 # Bundler config
 rollup.config.ts
+
+# Output of 'npm pack'
+*.tgz
