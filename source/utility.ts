@@ -1,7 +1,7 @@
 import { IncomingMessage, OutgoingHttpHeaders } from 'http';
 import { request } from 'https';
 import { IdSet, Node, RejectFunction, ResolveFunction } from './type';
-import { ERROR_CODE } from './constant';
+import { BASE_DOMAIN, ERROR_CODE, RESOURCE_DOMAIN } from './constant';
 
 export class HitomiError extends Error {
 	constructor(code: ERROR_CODE, ...values: string[]) {
@@ -62,7 +62,7 @@ export function fetch(uri: string, headers: OutgoingHttpHeaders = {}): Promise<B
 			headers: Object.assign(headers, {
 				accept: '*/*',
 				connection: 'keep-alive',
-				referer: 'https://gold-usergeneratedcontent.net'
+				referer: 'https://' + BASE_DOMAIN
 			})
 		}, function (response: IncomingMessage): void {
 			const chunks: Buffer[] = [];
@@ -153,7 +153,7 @@ function getNode(data: Buffer): Node {
 }
 
 export function getNodeAtAddress(address: bigint, version: string): Promise<Node | undefined> {
-	return fetch('ltn.gold-usergeneratedcontent.net/galleriesindex/galleries.' + version + '.index', {
+	return fetch(RESOURCE_DOMAIN + '/galleriesindex/galleries.' + version + '.index', {
 		range: 'bytes=' + address + '-' + (address + 463n)
 	})
 	.then(function (response: Buffer): Node | undefined {

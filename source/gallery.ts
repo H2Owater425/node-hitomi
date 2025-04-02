@@ -1,12 +1,12 @@
 import { createHash } from 'crypto';
-import { ERROR_CODE, RAW_GALLERY_KEYS } from './constant';
+import { BASE_DOMAIN, ERROR_CODE, RESOURCE_DOMAIN, RAW_GALLERY_KEYS } from './constant';
 import { IdSet, JsonObject, Node, PopularityPeriod, Tag } from './type';
 import { Gallery } from './type';
 import { getNozomiUri } from './uri';
 import { HitomiError, binarySearch, fetch, getIdSet, getNodeAtAddress } from './utility';
 
 export function getGallery(id: number): Promise<Gallery> {
-	return fetch('ltn.gold-usergeneratedcontent.net/galleries/' + id + '.js')
+	return fetch(RESOURCE_DOMAIN + '/galleries/' + id + '.js')
 	.then(function (response: Buffer): Gallery {
 		// Sequence of keys varies among galleries
 		const responseJson: JsonObject = JSON.parse(response.toString('utf-8').slice(18));
@@ -82,7 +82,7 @@ export function getGalleryIds(options: {
 	};
 	popularityOrderBy?: PopularityPeriod;
 } = {}): Promise<number[]> {
-	return fetch('ltn.gold-usergeneratedcontent.net/galleriesindex/version')
+	return fetch(RESOURCE_DOMAIN + '/galleriesindex/version')
 	.then(function (response: Buffer): Promise<number[]> {
 		const isOptionsTitleAvailable: boolean = typeof(options['title']) === 'string';
 		const isOptionsTagsAvailable: boolean = Array.isArray(options['tags']) && options['tags']['length'] !== 0;
@@ -122,7 +122,7 @@ export function getGalleryIds(options: {
 					})
 					.then(function (data?: [bigint, number]): Promise<Buffer | undefined> | undefined {
 						if(Array.isArray(data)) {
-							return fetch('ltn.gold-usergeneratedcontent.net/galleriesindex/galleries.' + version + '.data', {
+							return fetch(RESOURCE_DOMAIN + '/galleriesindex/galleries.' + version + '.data', {
 								range: 'bytes=' + (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n)
 							});
 						} else {

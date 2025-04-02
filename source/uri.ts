@@ -1,4 +1,4 @@
-import { ERROR_CODE, IMAGE_URI_PARTS } from './constant';
+import { BASE_DOMAIN, ERROR_CODE, IMAGE_URI_PARTS, RESOURCE_DOMAIN } from './constant';
 import { Gallery, Image, PopularityPeriod, StartingCharacter, Tag } from './type';
 import { HitomiError, fetch } from './utility';
 
@@ -34,7 +34,7 @@ export function getNozomiUri(options: {
 		path = options['popularityOrderBy'] !== 'day' ? options['popularityOrderBy'] : 'today';
 	}
 
-	return 'ltn.gold-usergeneratedcontent.net/' + (typeof(options['popularityOrderBy']) !== 'string' ? 'n' : 'popular') + '/' + path + '-' + language + '.nozomi';
+	return RESOURCE_DOMAIN + '/' + (typeof(options['popularityOrderBy']) !== 'string' ? 'n' : 'popular') + '/' + path + '-' + language + '.nozomi';
 }
 
 export function getTagUri(type: Tag['type'], startsWith?: StartingCharacter): string {
@@ -79,7 +79,7 @@ export function getTagUri(type: Tag['type'], startsWith?: StartingCharacter): st
 			path += '-' + (startsWith !== '0-9' ? startsWith : '123') + '.html';
 		}
 
-		return subdomain + 'gold-usergeneratedcontent.net/' + path;
+		return subdomain + BASE_DOMAIN + '/' + path;
 	} else {
 		throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'startsWith', 'not be used with language');
 	}
@@ -87,19 +87,19 @@ export function getTagUri(type: Tag['type'], startsWith?: StartingCharacter): st
 
 export function getVideoUri(gallery: Gallery): string {
 	if(gallery['type'] === 'anime') {
-		return 'streaming.gold-usergeneratedcontent.net/videos/' + gallery['title']['display'].toLowerCase().replace(/\s/g, '-') + '.mp4';
+		return 'streaming.' + BASE_DOMAIN + '/videos/' + gallery['title']['display'].toLowerCase().replace(/\s/g, '-') + '.mp4';
 	} else {
 		throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'gallery[\'type\']', 'be \'anime\'');
 	}
 }
 
 export function getGalleryUri(gallery: Gallery): string {
-	return ('gold-usergeneratedcontent.net/' + (gallery['type'] !== 'artistcg' ? gallery['type'] : 'cg') + '/' + encodeURIComponent(Buffer.from(gallery['title']['japanese'] || gallery['title']['display']).subarray(0, 200).toString('utf-8')).replace(/\(|\)|'|%(2[0235F]|3[CEF]|5[BD]|7[BD])/g, '-') + (gallery['languageName']['local'] !== null ? '-' + encodeURIComponent(gallery['languageName']['local']) : '') + '-' + gallery['id'] + '.html').toLocaleLowerCase();
+	return (BASE_DOMAIN + '/' + (gallery['type'] !== 'artistcg' ? gallery['type'] : 'cg') + '/' + encodeURIComponent(Buffer.from(gallery['title']['japanese'] || gallery['title']['display']).subarray(0, 200).toString('utf-8')).replace(/\(|\)|'|%(2[0235F]|3[CEF]|5[BD]|7[BD])/g, '-') + (gallery['languageName']['local'] !== null ? '-' + encodeURIComponent(gallery['languageName']['local']) : '') + '-' + gallery['id'] + '.html').toLocaleLowerCase();
 }
 
 export class ImageUriResolver {
 	public static synchronize(): Promise<void> {
-		return fetch('ltn.gold-usergeneratedcontent.net/gg.js')
+		return fetch(RESOURCE_DOMAIN + '/gg.js')
 		.then(function (response: Buffer): void {
 			const responseText: string = response.toString('utf-8');
 			let currentIndex: number = 0;
@@ -187,7 +187,7 @@ export class ImageUriResolver {
 			}
 
 			// Reference subdomain_from_url from https://ltn.gold-usergeneratedcontent.net/common.js
-			return subdomain + (IMAGE_URI_PARTS[2].has(imageHashCode) === IMAGE_URI_PARTS[1] /* ~(IMAGE_URI_PARTS[2].has(imageHashCode) ^ IMAGE_URI_PARTS[1]) */ ? '1' : '2') + '.gold-usergeneratedcontent.net/' + path + '.' + extension;
+			return subdomain + (IMAGE_URI_PARTS[2].has(imageHashCode) === IMAGE_URI_PARTS[1] /* ~(IMAGE_URI_PARTS[2].has(imageHashCode) ^ IMAGE_URI_PARTS[1]) */ ? '1' : '2') + '.' + BASE_DOMAIN + '/' + path + '.' + extension;
 		} else {
 			throw new HitomiError(ERROR_CODE['INVALID_CALL'], 'ImageUriResolver.getImageUri()', 'be called after ImageUriResolver.synchronize()');
 		}

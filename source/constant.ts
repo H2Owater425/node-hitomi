@@ -14,3 +14,7 @@ export const TAG_TYPES: ReadonlySet<Tag['type']> = new Set<Tag['type']>((RAW_GAL
 
 // Preparation for future class-based update
 export const IMAGE_URI_PARTS: [string, boolean, Set<number>] = [''/* pathCode */, false/* startsWithA */, new Set<number>()/* subdomainCodes */];
+
+export const BASE_DOMAIN: string = 'gold-usergeneratedcontent.net';
+
+export const RESOURCE_DOMAIN: string = 'ltn.' + BASE_DOMAIN;
