@@ -29,9 +29,9 @@ export function getGallery(id: number): Promise<Gallery> {
 			for(let i: number = 0; i < responseJson['tags']['length']; i++) {
 				let type: Tag['type'] = 'tag';
 
-				if(Number.parseInt(responseJson['tags'][i]['male']) === 1) {
+				if(Boolean(responseJson['tags'][i]['male'])) {
 					type = 'male';
-				} else if(Number.parseInt(responseJson['tags'][i]['female']) === 1) {
+				} else if(Boolean(responseJson['tags'][i]['female'])) {
 					type = 'female';
 				}
 
