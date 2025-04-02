@@ -29,10 +29,11 @@
 	"homepage": "https://github.com/H2Owater425/node-hitomi#readme",
 	"devDependencies": {
 		"@rollup/plugin-terser": "^0.4.4",
-		"@rollup/plugin-typescript": "^11.1.6",
-		"@types/node": "^20.17.10",
-		"rollup": "^4.28.1",
+		"@rollup/plugin-typescript": "^12.1.2",
+		"@types/node": "^22.13.17",
+		"rollup": "^4.38.0",
 		"ts-node": "^10.9.2",
-		"typescript": "^5.7.2"
+		"tslib": "^2.8.1",
+		"typescript": "^5.8.2"
 	}
 }
