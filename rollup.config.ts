@@ -13,6 +13,10 @@ export default {
 	},
 	plugins: [typescript({
 		module: 'ES2020'
-	}), terser()],
+	}), terser({
+		format: {
+			preamble: '/*\n * This is a minified bundle of the library.\n * Full source code and documentation are available at:\n * https://github.com/H2Owater425/node-hitomi\n */'
+		}
+	})],
 	external: ['crypto', 'https', 'tls']
 } satisfies RollupOptions;
