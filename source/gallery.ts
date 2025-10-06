@@ -55,7 +55,7 @@ export function getGallery(id: number): Promise<Gallery> {
 			});
 		}
 
-		gallery['publishedDate'] = new Date(responseJson['datepublished'] as string);
+		gallery['publishedDate'] = new Date((responseJson['datepublished'] || responseJson['date']) as string);
 
 		for(let i: number = 0; i < (responseJson['languages'] as JsonObject[])['length']; i++) {
 			gallery['translations'].push({
