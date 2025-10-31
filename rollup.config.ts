@@ -15,7 +15,7 @@ export default {
 		module: 'ES2020'
 	}), terser({
 		format: {
-			preamble: '/*\n * This is a minified bundle of the library.\n * Full source code and documentation are available at:\n * https://github.com/H2Owater425/node-hitomi\n */'
+			preamble: '/*\n * This is a minified bundle of node-hitomi.\n * https://github.com/H2Owater425/node-hitomi\n */'
 		}
 	})],
 	external: ['crypto', 'https', 'tls']
