@@ -163,31 +163,26 @@ export class ImageUriResolver {
 				}
 			}
 
-			const imageHashCode: number = Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16);
-			// let subdomain: string = 'a';
-			let subdomain: string = extension[0];
-			// Reference make_source_element from https://ltn.gold-usergeneratedcontent.net/reader.js
-			// let path: string = extension;
-			let path: string = '';
-
+			let subdomain: string;
+			let path: string;
 
 			if(!options['isThumbnail']) {
-				path += IMAGE_URI_PARTS[0] + '/' + imageHashCode + '/' + image['hash'];
-			} else {
-				if(options['isSmall']) {
-					if(extension === 'avif') {
-						path += 'small';
-					} else {
-						throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'options[\'isSmall\']', 'be used with avif');
-					}
-				}
+				if(!options['isSmall']) {
+					const imageHashCode: number = Number.parseInt(image['hash'].slice(-1) + image['hash'].slice(-3, -1), 16);
 
-				path +=  'bigtn/' + image['hash'].slice(-1) + '/' + image['hash'].slice(-3, -1)  + '/' + image['hash'];
+					subdomain = extension[0];
+					path = IMAGE_URI_PARTS[0] + '/' + imageHashCode + '/' + image['hash'];
+					subdomain += IMAGE_URI_PARTS[2].has(imageHashCode) === IMAGE_URI_PARTS[1] /* ~(IMAGE_URI_PARTS[2].has(imageHashCode) ^ IMAGE_URI_PARTS[1]) */ ? '1' : '2';
+				} else {
+					throw new HitomiError(ERROR_CODE['INVALID_VALUE'], 'options[\'isSmall\']', 'be used with options[\'isThumbnail\']');
+				}
+			} else {
+				path = extension + (options['isSmall'] ? 'small' : 'big') + 'tn/' + image['hash'].slice(-1) + '/' + image['hash'].slice(-3, -1)  + '/' + image['hash'];
 				subdomain = 'tn';
 			}
 
 			// Reference subdomain_from_url from https://ltn.gold-usergeneratedcontent.net/common.js
-			return subdomain + (IMAGE_URI_PARTS[2].has(imageHashCode) === IMAGE_URI_PARTS[1] /* ~(IMAGE_URI_PARTS[2].has(imageHashCode) ^ IMAGE_URI_PARTS[1]) */ ? '1' : '2') + '.' + BASE_DOMAIN + '/' + path + '.' + extension;
+			return subdomain + '.' + BASE_DOMAIN + '/' + path + '.' + extension;
 		} else {
 			throw new HitomiError(ERROR_CODE['INVALID_CALL'], 'ImageUriResolver.getImageUri()', 'be called after ImageUriResolver.synchronize()');
 		}
