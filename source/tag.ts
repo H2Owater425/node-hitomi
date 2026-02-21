@@ -290,17 +290,17 @@ export class TagManager extends Base {
 	 * @returns {Promise<[Tag, number][]>} A promise that resolves to an array of `[Tag, count]` tuples.
 	 */
 	public async search(query: string): Promise<[Tag, number][]> {
-		let index: number = query.indexOf(':') + 1;
-		let path: string = index ? '/' + query.slice(0, index - 1) : '';
+		let i: number = query.indexOf(':') + 1;
+		let path: string = i ? '/' + query.slice(0, i - 1) : '';
 
-		while(index < query['length'] && query[index] !== ':') {
-			path += '/' + query[index];
+		while(i < query['length'] && query[i] !== ':') {
+			path += '/' + query[i++];
 		}
 
 		const response: [string, number, Tag['type']][] = JSON.parse(String(await this['hitomi'].request(['tagindex.hitomi.la', path + '.json'])));
 		const tagAndCounts: [Tag, number][] = [];
 
-		for(let i: number = 0; i < response['length']; i++) {
+		for(i = 0; i < response['length']; i++) {
 			tagAndCounts.push([
 				new Tag(this['hitomi'], response[i][2], response[i][0]),
 				response[i][1]
