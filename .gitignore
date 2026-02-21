@@ -5,6 +5,8 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -15,12 +17,12 @@ pids
 *.seed
 *.pid.lock
 
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
 # Dependency directories
 node_modules/
 jspm_packages/
-
-# TypeScript v1 declaration files
-typings/
 
 # TypeScript cache
 *.tsbuildinfo
@@ -28,25 +30,24 @@ typings/
 # Optional npm cache directory
 .npm
 
+# Optional REPL history
+.node_repl_history
+
 # Output of 'npm pack'
 *.tgz
 
-# VSCode extension tests
-.vscode-test
-
-# Temporary folders
-tmp/
-temp/
-
-### yarn ###
-# https://yarnpkg.com/advanced/qa#which-files-should-be-gitignored
-.yarn/*
+# Yarn Integrity file
 .yarn-integrity
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
-!.yarn/cache
-yarn.lock
 
-test.*
+# Yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Build output
+distribution/
+
+# Debug script
+debug.*

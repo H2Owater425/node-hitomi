@@ -1,17 +1,8 @@
-# Sources
-source/
+# All ignored
+*
 
-# Github templetes
-.github/
-
-# Configs
-tsconfig.json
-
-# Tests
-test.*
-
-# Bundler config
-rollup.config.ts
-
-# Output of 'npm pack'
-*.tgz
+# Allowed files
+!/LICENSE
+!/README.md
+!/package.json
+!/distribution/**/*
