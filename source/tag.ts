@@ -1,163 +1,402 @@
-import { ERROR_CODE, TAG_TYPES } from './constant';
-import { StartingCharacter, Tag } from './type';
-import { getTagUri } from './uri';
-import { HitomiError, fetch } from './utility';
+import { Hitomi } from './hitomi';
+import { Base, HitomiError } from './utilities/structures';
+import { formatOneOfState, hashTerm } from './utilities/functions';
+import { BINARY_ORDERED_LANGUAGES, NameInitial, GALLERY_TYPES, LANGUAGE_NAMES } from './utilities/constants';
+import type { Node } from './utilities/types';
+import type { Gallery } from './gallery';
 
-export function getParsedTags(text: string): Tag[] {
-	const tags: Tag[] = [];
-	const rawPositiveTags: Set<string> = new Set<string>();
-	
-	text += ' ';
+// Moved from gallery to avoid circular dependency
+/**
+ * Represents a language associated with a gallery.
+ *
+ * @see {@link Gallery}
+ */
+export class Language extends Base {
+	/**
+	 * The URL path to the language-specific galleries.
+	 *
+	 * @type {string}
+	 * @readonly
+	 */
+	public readonly url: string;
 
-	let currentIndex: number = 0;
-	let nextIndex: number = text.indexOf(' ');
+	// @internal
+	constructor(
+		hitomi: Hitomi,
+		/**
+		 * The anglicized name of the language.
+		 *
+		 * @type {string}
+		 * @readonly
+		 */
+		public readonly name: string,
+		/**
+		 * The native name of the language.
+		 *
+		 * @type {string}
+		 * @readonly
+		 */
+		public readonly localName: string
+	) {
+		super(hitomi);
 
-	while(nextIndex !== -1) {
-		const colonIndex: number = text.indexOf(':', currentIndex);
-
-		if(colonIndex !== -1 && colonIndex < nextIndex) {
-			const isNegative: Tag['isNegative'] = text.startsWith('-', currentIndex);
-			const tag: Tag = {
-				type: text.slice(currentIndex + (isNegative ? 1 : 0), colonIndex) as Tag['type'],
-				name: text.slice(colonIndex + 1, nextIndex),
-				isNegative: isNegative
-			};
-
-			if(TAG_TYPES.has(tag['type'])) {
-				if(/^[a-z0-9][a-z0-9-_.]*$/.test(tag['name'])) {
-					const positiveRawTag: string = tag['type'] + ':' + tag['name'];
-
-					if(!rawPositiveTags.has(positiveRawTag)) {
-						tag['name'] = tag['name'].replace(/_/g, ' ');
-
-						tags.push(tag);
-						rawPositiveTags.add(positiveRawTag);
-					} else {
-						throw new HitomiError(ERROR_CODE['DUPLICATED_ELEMENT'], '\'' + positiveRawTag + '\'');
-					}
-				} else {
-					throw new HitomiError(ERROR_CODE['INVALID_VALUE'], '\'' + tag['name'] + '\'', 'match /^[a-z0-9][a-z0-9-_.]*$/');
-				}
-			} else {
-				let message: string = 'be one of ';
-
-				for(const tagType of TAG_TYPES) {
-					message += '\'' + tagType + '\', ';
-				}
-
-				throw new HitomiError(ERROR_CODE['INVALID_VALUE'], '\'' + tag['type'] + '\'', message.slice(0, -2));
-			}
-		} else {
-			throw new HitomiError(ERROR_CODE['INVALID_VALUE'], '\'' + text.slice(currentIndex, nextIndex) + '\'');
-		}
-
-		currentIndex = nextIndex + 1;
-		nextIndex = text.indexOf(' ', currentIndex);
+		this['url'] = '/index-' + name + '.html';
 	}
 
-	return tags;
+	/**
+	 * Converts the language into a {@link Tag} instance.
+	 *
+	 * @param {boolean} [isNegative=false] Whether the tag should be excluded from search.
+	 * @returns {Tag} A new {@link Tag} representing the language.
+	 */
+	public toTag(isNegative: boolean = false): Tag {
+		return new Tag(this['hitomi'], 'language', this['name'], isNegative);
+	}
 }
 
-export function getTags(type: Tag['type'], startsWith?: StartingCharacter): Promise<Tag[]> {
-	const isTypeType: boolean = type === 'type';
-	const isLanguageType: boolean = type === 'language';
+/**
+ * Represents a tag used for searching and categorizing galleries.
+ * 
+ * @see {@link Gallery}
+ * @see {@link TagManager}
+ */
+export class Tag extends Base {
+	/**
+	 * The URL path to the tag-specific galleries.
+	 * 
+	 * @type {string}
+	 * @readonly
+	 */
+	public readonly url: string;
 
-	if(typeof(startsWith) === 'string' !== (isTypeType || isLanguageType)) {
-		if(!isTypeType) {
-			return fetch(getTagUri(type, startsWith))
-			.then(function (response: Buffer): Tag[] {
-				const responseText: string = response.toString('utf-8');
-				const tags: Tag[] = [];
-				let currentIndex: number;
-				let nextIndex: number;
+	// @internal
+	constructor(
+		hitomi: Hitomi,
+		/**
+		 * The type of the tag.
+		 *
+		 * @type {'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag'}
+		 * @readonly
+		 */
+		public readonly type: 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag',
+		/**
+		 * The name of the tag.
+		 *
+		 * For `'language'` and `'type'` tags, the name is validated against known values.
+		 *
+		 * @type {string}
+		 * @readonly
+		 */
+		public readonly name: string,
+		/**
+		 * Whether the tag should be excluded from search.
+		 *
+		 * @type {boolean}
+		 * @readonly
+		 */
+		public readonly isNegative: boolean = false
+	) {
+		super(hitomi);
 
-				if(!isLanguageType) {
-					let target: string = 'href="/';
+		let names: Set<unknown> | undefined;
 
-					switch(type) {
-						case 'male':
-						case 'female': {
-							target += 'tag/' + type + '%3A';
+		switch(type) {
+			case 'male':
+			case 'female': {
+				this['url'] = '/tag/' + type + '%3A';
 
-							break;
-						}
+				break;
+			}
 
-						default: {
-							target += type + '/';
+			case 'language': {
+				// cannot use asynchronous operation
+				names = LANGUAGE_NAMES;
+			}
+			case 'type': {
+				if(!names) {
+					names = GALLERY_TYPES;
+				}
+			}
+			case 'artist':
+			case 'group':
+			case 'character':
+			case 'series':
+			case 'tag': {
+				if(names && !names.has(name)) {
+					throw new HitomiError('name', formatOneOfState(names));
+				}
 
-							break;
-						}
-					}
+				this['url'] = '/' + type + '/';
 
-					const endIndex: number = target['length'] - 1;
+				break;
+			}
 
-					currentIndex = responseText.indexOf(target) + target['length'];
-					nextIndex = responseText.indexOf('.', currentIndex);
+			default: {
+				throw HitomiError['TAG_TYPE'];
+			}
+		}
 
-					if(type !== 'tag') {
-						while(currentIndex !== endIndex) {
-							tags.push({
-								type: type,
-								name: decodeURIComponent(responseText.slice(currentIndex, nextIndex - 4))
-							});
+		this['url'] += encodeURIComponent(name) + '-all.html';
+	}
 
-							currentIndex = responseText.indexOf(target, nextIndex) + target['length'];
-							nextIndex = responseText.indexOf('.', currentIndex);
-						}
-					} else {
-						while(currentIndex !== endIndex) {
-							if(!responseText.startsWith('male', currentIndex) && !responseText.startsWith('female', currentIndex)) {
-								tags.push({
-									type: type,
-									name: decodeURIComponent(responseText.slice(currentIndex, nextIndex - 4))
-								});
-							}
+	/**
+	 * Retrieves the list of languages available for galleries matching the tag.
+	 *
+	 * @returns {Promise<Language[]>} A promise that resolves to an array of {@link Language} instances.
+	 */
+	public async getLanguages(): Promise<Language[]> {
+		const languages: Language[] = [];
+		let term: string;
+		let i: number = 0;
 
-							currentIndex = responseText.indexOf(target, nextIndex) + target['length'];
-							nextIndex = responseText.indexOf('.', currentIndex);
-						}
-					}
-				} else {
-					const endIndex: number = responseText.indexOf('}');
+		switch(this['type']) {
+			case 'female':
+			case 'male': {
+				term = 'tag/' + this['type'] + ':' + this['name'];
 
-					currentIndex = responseText.indexOf(':') + 2;
-					nextIndex = responseText.indexOf('"', currentIndex);
+				break;
+			}
 
-					while(nextIndex < endIndex) {
-						tags.push({
-							type: 'language',
-							name: responseText.slice(currentIndex, nextIndex)
-						});
-
-						currentIndex = responseText.indexOf(':', nextIndex) + 2;
-						nextIndex = responseText.indexOf('"', currentIndex);
+			case 'language': {
+				for(; i < BINARY_ORDERED_LANGUAGES['length']; i++) {
+					if(this['name'] === BINARY_ORDERED_LANGUAGES[i][0]) {
+						// @ts-expect-error
+						return [new Language(this['hitomi'], ...BINARY_ORDERED_LANGUAGES[i])];
 					}
 				}
 
-				return tags;
-			});
-		} else {
-			return Promise.resolve([{
-				type: 'type',
-				name: 'doujinshi'
-			}, {
-				type: 'type',
-				name: 'manga'
-			}, {
-				type: 'type',
-				name: 'artistcg'
-			}, {
-				type: 'type',
-				name: 'gamecg'
-			}, {
-				type: 'type',
-				name: 'imageset'
-			}, {
-				type: 'type',
-				name: 'anime'
-			}]);
+				// unreachable
+			}
+
+			default: {
+				term = this['type'] + '/' + this['name'];
+			}
 		}
-	} else {
-		return Promise.reject(new HitomiError(ERROR_CODE['INVALID_VALUE'], 'startsWith', 'not be used only with type and language'));
+
+		const version: string = await this['hitomi']['languageIndex'].retrieve();
+		const rootNode: Node | undefined = await this['hitomi']['languageIndex'].getNodeAtAddress(0n, version);
+
+		if(!rootNode) {
+			throw HitomiError['ROOT_NODE_EMPTY'];
+		}
+
+		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(hashTerm(term), rootNode, version);
+
+		if(!data) {
+			throw new HitomiError('Name', 'valid');
+		}
+
+		for(let mask: bigint = 1n; i < BINARY_ORDERED_LANGUAGES['length']; i++, mask <<= 1n) {
+			if(data[0] & mask) {
+				// @ts-expect-error
+				languages.push(new Language(this['hitomi'], ...BINARY_ORDERED_LANGUAGES[i]));
+			}
+		}
+
+		return languages;
+	}
+
+	/**
+	 * Converts the tag into the string representation.
+	 *
+	 * The output format is `[-]type:name`, where spaces in the name are replaced with underscores.
+	 *
+	 * @param {boolean} [isNegative] Overrides whether the tag should be excluded from search. ({@link Tag.isNegative} if omitted)
+	 * @returns {string} The formatted tag string.
+	 */
+	public toString(isNegative: boolean = this['isNegative']): string {
+		return (isNegative ? '-' : '') + this['type'] + ':' + this['name'].replace(/ /g, '_');
+	}
+}
+
+/**
+ * Manages creating, parsing, searching, and listing {@link Tag} instances.
+ *
+ * @see {@link Hitomi}
+ */
+export class TagManager extends Base {
+	// @internal
+	constructor(hitomi: Hitomi) {
+		super(hitomi);
+	}
+
+	/**
+	 * Creates a new {@link Tag} instance with the specified type, name, and optional negation.
+	 *
+	 * The same restrictions on name apply as in {@link Tag.prototype.name | Tag.name}.
+	 *
+	 * @param {Tag['type']} type The type of the tag.
+	 * @param {Tag['name']} name The name of the tag.
+	 * @param {boolean} [isNegative=false] Whether the tag should be excluded.
+	 * @returns {Tag} A new {@link Tag} instance.
+	 */
+	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
+		return new Tag(this['hitomi'], type, name, isNegative);
+	}
+
+	/**
+	 * Parses a space-separated string of tag terms into an array of {@link Tag} instances.
+	 *
+	 * Each tag term should follow the format returned by {@link Tag.prototype.toString | Tag.toString}.
+	 *
+	 * Duplicated tags (ignoring negation) and tokens without a colon separator are silently ignored.
+	 *
+	 * @param {string} query A space-separated string of tag terms.
+	 * @returns {Tag[]} An array of parsed {@link Tag} instances.
+	 */
+	public parse(query: string): Tag[] {
+		const tags: Tag[] = [];
+		const positiveTags: Set<string> = new Set<string>();
+
+		query += ' ';
+
+		let currentIndex: number = 0;
+		let nextIndex: number = query.indexOf(' ');
+
+		while(nextIndex !== -1) {
+			const colonIndex: number = query.indexOf(':', currentIndex);
+
+			if(colonIndex !== -1 && colonIndex < nextIndex) {
+				const isNegative: Tag['isNegative'] = query[currentIndex] === '-';
+
+				currentIndex += isNegative as unknown as number;
+
+				const positiveTag: string = query.slice(currentIndex, nextIndex);
+
+				if(!positiveTags.has(positiveTag)) {
+					tags.push(new Tag(
+						this['hitomi'],
+						query.slice(currentIndex, colonIndex) as Tag['type'],
+						query.slice(colonIndex + 1, nextIndex).replace(/_/g, ' '),
+						isNegative
+					));
+					positiveTags.add(positiveTag);
+				}
+			}
+
+			currentIndex = nextIndex + 1;
+			nextIndex = query.indexOf(' ', currentIndex);
+		}
+
+		return tags;
+	}
+
+	/**
+	 * Searches for tags matching the given query.
+	 *
+	 * Returns an array of tuples, each containing a {@link Tag} and the number of associated galleries.
+	 *
+	 * @param {string} query The search query, optionally prefixed with a tag type and colon.
+	 * @returns {Promise<[Tag, number][]>} A promise that resolves to an array of `[Tag, count]` tuples.
+	 */
+	public async search(query: string): Promise<[Tag, number][]> {
+		let index: number = query.indexOf(':') + 1;
+		let path: string = index ? '/' + query.slice(0, index - 1) : '';
+
+		while(index < query['length'] && query[index] !== ':') {
+			path += '/' + query[index];
+		}
+
+		const response: [string, number, Tag['type']][] = JSON.parse(String(await this['hitomi'].request(['tagindex.hitomi.la', path + '.json'])));
+		const tagAndCounts: [Tag, number][] = [];
+
+		for(let i: number = 0; i < response['length']; i++) {
+			tagAndCounts.push([
+				new Tag(this['hitomi'], response[i][2], response[i][0]),
+				response[i][1]
+			]);
+		}
+
+		return tagAndCounts;
+	}
+
+	/**
+	 * Lists all available tags of the specified type.
+	 *
+	 * @param {Tag['type']} type The category type of tags to list.
+	 * @param {NameInitial} [startsWith] The initial character to filter by (required for types other than `'language'` and `'type'`).
+	 * @returns {Promise<Tag[]>} A promise that resolves to an array of {@link Tag} instances.
+	 * @throws {HitomiError} If `startsWith` is not provided for types that require it, or if `type` is invalid.
+	 */
+	public async list(type: Tag['type'], startsWith?: NameInitial): Promise<Tag[]> {
+		const tags: Tag[] = [];
+		let names: Set<string> | undefined;
+
+		switch(type) {
+			case 'type': {
+				names = GALLERY_TYPES;
+			}
+			case 'language': {
+				if(!names) {
+					names = LANGUAGE_NAMES;
+				}
+
+				for(const name of names) {
+					tags.push(new Tag(this['hitomi'], type, name));
+				}
+
+				break;
+			}
+
+			default: {
+				if(!startsWith) {
+					throw new HitomiError('StartsWith', 'provided except for language and type');
+				}
+
+				// createTagUrn
+				let target: string = 'href="/' + type + '/';
+				let area: string;
+
+				switch(type) {
+					case 'male':
+					case 'female': {
+						target = 'href="/tag/' + type + '%3A';
+					}
+					case 'tag': {
+						area = 'tags';
+
+						break;
+					}
+
+					case 'series': {
+						area = type;
+
+						break;
+					}
+
+					case 'artist':
+					case 'character':
+					case 'group': {
+						area = type + 's';
+
+						break;
+					}
+
+					default: {
+						throw HitomiError['TAG_TYPE'];
+					}
+				}
+
+				const response: string = String(await this['hitomi'].request(['hitomi.la', '/all' + area + '-' + startsWith + '.html']));
+				const endIndex: number = target['length'] - 1;
+
+				let currentIndex: number;
+				let nextIndex: number = 0;
+
+				while((currentIndex = response.indexOf(target, nextIndex) + target['length']) !== endIndex) {
+					nextIndex = response.indexOf('.', currentIndex);
+
+					if(type !== 'tag' || !response.startsWith('male', currentIndex) && !response.startsWith('female', currentIndex)) {
+						tags.push(new Tag(
+							this['hitomi'],
+							type,
+							decodeURIComponent(response.slice(currentIndex, nextIndex - 4))
+						));
+					}
+				}
+			}
+		}
+
+		return tags;
 	}
 }

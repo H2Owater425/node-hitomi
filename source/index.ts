@@ -1,19 +1,11 @@
-import { getGallery, getGalleryIds } from './gallery';
-import { getParsedTags, getTags } from './tag';
-import { getNozomiUri, getTagUri, getVideoUri, getGalleryUri, ImageUriResolver } from './uri';
+import { Hitomi } from './hitomi';
 
-const hitomi = {
-	getGallery: getGallery,
-	getGalleryIds: getGalleryIds,
-	getParsedTags: getParsedTags,
-	getTags: getTags,
-	getNozomiUri: getNozomiUri,
-	getTagUri: getTagUri,
-	getVideoUri: getVideoUri,
-	getGalleryUri: getGalleryUri,
-	ImageUriResolver: ImageUriResolver,
-} as const;
+export { Gallery, Title, TranslatedGallery as TranslatedGallery, GalleryReference } from './gallery';
+export { Hitomi } from './hitomi';
+export { Image } from './media';
+export { Language, Tag } from './tag';
+export { HitomiError } from './utilities/structures';
+export { SortType, NameInitial, Extension, ThumbnailSize } from './utilities/constants';
 
-export default Object.assign(hitomi, {
-	default: hitomi
-});
+export const hitomi: Hitomi = new Hitomi();
+export default hitomi;
