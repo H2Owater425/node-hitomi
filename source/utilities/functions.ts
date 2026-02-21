@@ -13,10 +13,7 @@ export function parseNumber(value: string, isHex: boolean = false): number {
 // @internal
 export function defineProperty(target: unknown, key: string, property: unknown): void {
 	Object.defineProperty(target, key, {
-    configurable: false,
-    enumerable: false,
-    value: property,
-    writable: false,
+    value: property
 	});
 }
 
