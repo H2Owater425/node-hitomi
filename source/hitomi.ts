@@ -15,13 +15,6 @@ import { HitomiError, IndexProvider, Provider } from './utilities/structures';
  */
 export class Hitomi {
 	/**
-	 * The HTTPS agent used for connection pooling.
-	 *
-	 * @type {Agent}
-	 * @readonly
-	 */
-	public readonly agent!: Agent;
-	/**
 	 * The manager for retrieving and listing galleries.
 	 *
 	 * @type {GalleryManager}
@@ -37,6 +30,8 @@ export class Hitomi {
 	public readonly tags: TagManager = new TagManager(this);
 
 	// @internal
+	private readonly agent!: Agent;
+	// @internal
 	public readonly languageIndex!: IndexProvider;
 	// @internal
 	public readonly imageContext!: Provider<ImageContext>;
@@ -49,7 +44,7 @@ export class Hitomi {
 	constructor(agent: Agent = new Agent({
 		keepAlive: true
 	})) {
-		this['agent'] = agent;
+		defineProperty(this, 'agent', agent);
 		defineProperty(this, 'languageIndex', new IndexProvider(this, 'languages'));
 		defineProperty(this, 'imageContext', new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
 			const response: string = String(await this['hitomi'].request([RESOURCE_DOMAIN, '/gg.js']));
