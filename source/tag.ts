@@ -1,4 +1,4 @@
-import { Hitomi } from './hitomi';
+import type { Hitomi } from './hitomi';
 import { Base, HitomiError } from './utilities/structures';
 import { formatOneOfState, hashTerm } from './utilities/functions';
 import { BINARY_ORDERED_LANGUAGES, NameInitial, GALLERY_TYPES, LANGUAGE_NAMES } from './utilities/constants';
@@ -91,7 +91,7 @@ export class Tag extends Base {
 		/**
 		 * Whether the tag should be excluded from search.
 		 *
-		 * @type {boolean}
+		 * @type {boolean}`
 		 * @readonly
 		 */
 		public readonly isNegative: boolean = false

@@ -1,4 +1,4 @@
-import { Hitomi } from './hitomi';
+import type { Hitomi } from './hitomi';
 import { Image, Video } from './media';
 import { Language, Tag } from './tag';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES, SortType } from './utilities/constants';

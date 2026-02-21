@@ -2,7 +2,7 @@ import type { Hitomi } from './hitomi';
 import { BASE_DOMAIN, Extension, ThumbnailSize } from './utilities/constants';
 import { formatOneOfState, parseNumber } from './utilities/functions';
 import { Base, HitomiError } from './utilities/structures';
-import { ImageContext } from './utilities/types';
+import type { ImageContext } from './utilities/types';
 import type { Gallery } from './gallery';
 
 /**

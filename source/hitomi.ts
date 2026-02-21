@@ -1,5 +1,5 @@
 import { Agent, request } from 'https';
-import { IncomingMessage } from 'http';
+import type { IncomingMessage } from 'http';
 import { gunzip } from 'zlib';
 import type { ImageContext, URL } from './utilities/types';
 import { GalleryManager } from './gallery';

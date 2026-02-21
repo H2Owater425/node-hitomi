@@ -3,8 +3,9 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import { dts } from 'rollup-plugin-dts';
 import { rmSync } from 'fs';
-import { Plugin, RollupOptions } from "rollup";
-import { SourceFile, TransformationContext, Node, isEnumDeclaration, visitEachChild, PropertyAssignment, Expression, NodeFlags, visitNode } from 'typescript';
+import type { Plugin, RollupOptions } from "rollup";
+import type { SourceFile, TransformationContext, Node, PropertyAssignment, Expression } from 'typescript';
+import { isEnumDeclaration, visitEachChild, NodeFlags, visitNode } from 'typescript';
 
 function rmdir(type: 'cjs' | 'esm' | 'types'): Plugin {
 	return {
