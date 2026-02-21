@@ -6,10 +6,12 @@ export const BASE_DOMAIN = 'gold-usergeneratedcontent.net' as const;
 // @ts-expect-error - typescript internal error
 export const RESOURCE_DOMAIN: `ltn.${typeof BASE_DOMAIN}` = 'ltn.' + BASE_DOMAIN;
 
+export const FRONT_DOMAIN = 'hitomi.la' as const;
+
 export const DEFAULT_HEADERS = {
 	'accept-encoding': 'gzip',
 	connection: 'keep-alive',
-	referer: 'https://' + BASE_DOMAIN as `https://${typeof BASE_DOMAIN}`
+	referer: 'https://' + FRONT_DOMAIN
 } as const;
 
 export const DEDICATED_TAG_PROPERTIES = ['artist', 'group', 'parody', 'character'] as const;
