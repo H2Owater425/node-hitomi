@@ -4,9 +4,12 @@ import type { Node } from './types';
 import { defineProperty } from './functions';
 
 export class HitomiError extends Error {
+	// @internal
 	public static readonly TAG_TYPE: HitomiError = new HitomiError('type', 'one of artist, group, type, language, series, character, male, female, tag');
+	// @internal
 	public static readonly ROOT_NODE_EMPTY: HitomiError = new HitomiError('Root node', 'empty', false);
 
+	// @internal
 	constructor(messageOrTarget: string, state?: string, isAffirmative: boolean = true) {
 		if(arguments['length'] === 1) {
 			super(messageOrTarget);
