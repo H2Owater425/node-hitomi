@@ -2,32 +2,38 @@
 	"name": "node-hitomi",
 	"version": "8.1.2",
 	"description": "Hitomi.la api for Node.js",
-	"main": "./distribution/cjs/index.cjs",
-	"types": "./distribution/types/index.d.ts",
-	"engines": {
-		"node": ">=10.20"
-	},
-	"scripts": {
-		"build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
-		"dev": "node --require=ts-node/register debug.ts",
-		"test": "node --require=ts-node/register --test tests/*.test.ts"
+	"keywords": [
+		"hitomi",
+		"e-hentai",
+		"exhentai",
+		"api",
+		"downloader"
+	],
+	"homepage": "https://github.com/H2Owater425/node-hitomi#readme",
+	"bugs": {
+		"url": "https://github.com/h2owater425/node-hitomi/issues",
+		"email": "h2o@dhmo.kr"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/h2owater425/node-hitomi.git"
 	},
-	"keywords": [
-		"hitomi",
-		"hitomi.la",
-		"hentai"
-	],
-	"author": "H2Owater425 <h2o@dhmo.kr>",
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/h2owater425/node-hitomi/issues",
-		"email": "h2o@dhmo.kr"
+	"author": "H2Owater425 <h2o@dhmo.kr>",
+	"exports": {
+		".": {
+			"types": "./distribution/types/index.d.ts",
+			"import": "./distribution/esm/index.mjs",
+			"default": "./distribution/cjs/index.cjs"
+		}
 	},
-	"homepage": "https://github.com/H2Owater425/node-hitomi#readme",
+	"main": "./distribution/cjs/index.cjs",
+	"types": "./distribution/types/index.d.ts",
+	"scripts": {
+		"build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
+		"dev": "node --require=ts-node/register debug.ts",
+		"test": "node --require=ts-node/register --test tests/*.test.ts"
+	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^29.0.0",
 		"@rollup/plugin-node-resolve": "^16.0.3",
@@ -46,11 +52,7 @@
 			"optional": true
 		}
 	},
-	"exports": {
-		".": {
-			"types": "./distribution/types/index.d.ts",
-			"import": "./distribution/esm/index.mjs",
-			"default": "./distribution/cjs/index.cjs"
-		}
+	"engines": {
+		"node": ">=10.20"
 	}
 }
