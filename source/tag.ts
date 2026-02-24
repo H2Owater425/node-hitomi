@@ -140,11 +140,11 @@ export class Tag extends Base {
 	}
 
 	/**
-	 * Retrieves the list of languages available for galleries matching the tag.
+	 * Lists {@link Language} available for galleries matching the tag.
 	 *
 	 * @returns {Promise<Language[]>} A promise that resolves to an array of {@link Language} instances.
 	 */
-	public async getLanguages(): Promise<Language[]> {
+	public async listLanguages(): Promise<Language[]> {
 		const languages: Language[] = [];
 		let term: string;
 		let i: number = 0;
