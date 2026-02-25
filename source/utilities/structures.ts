@@ -17,7 +17,7 @@ export class HitomiError extends Error {
 			return;
 		}
 
-		super(messageOrTarget + 'must ' + (isAffirmative ? '' : 'not ') + 'be' + state);
+		super(messageOrTarget + ' must ' + (isAffirmative ? '' : 'not ') + 'be ' + state);
 	}
 }
 
