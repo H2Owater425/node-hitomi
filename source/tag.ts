@@ -235,38 +235,38 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Parses a space-separated string of tag terms into an array of {@link Tag} instances.
+	 * Parses a space-separated string of tag expressions into an array of {@link Tag} instances.
 	 *
-	 * Each tag term should follow the format returned by {@link Tag.prototype.toString | Tag.toString}.
+	 * Each tag expression should follow the format returned by {@link Tag.prototype.toString | Tag.toString}.
 	 *
 	 * Duplicated tags (ignoring negation) and tokens without a colon separator are silently ignored.
 	 *
-	 * @param {string} query A space-separated string of tag terms.
+	 * @param {string} expression A space-separated string of tag expressions.
 	 * @returns {Tag[]} An array of parsed {@link Tag} instances.
 	 */
-	public parse(query: string): Tag[] {
+	public parse(expression: string): Tag[] {
 		const tags: Tag[] = [];
 		const positiveTags: Set<string> = new Set<string>();
 
-		query += ' ';
+		expression += ' ';
 
 		let currentIndex: number = 0;
-		let nextIndex: number = query.indexOf(' ');
+		let nextIndex: number = expression.indexOf(' ');
 
 		while(nextIndex !== -1) {
-			const colonIndex: number = query.indexOf(':', currentIndex);
+			const colonIndex: number = expression.indexOf(':', currentIndex);
 
 			if(colonIndex !== -1 && colonIndex < nextIndex) {
-				const isNegative: Tag['isNegative'] = query[currentIndex] === '-';
+				const isNegative: Tag['isNegative'] = expression[currentIndex] === '-';
 
 				currentIndex += isNegative as unknown as number;
 
-				const positiveTag: string = query.slice(currentIndex, nextIndex);
+				const positiveTag: string = expression.slice(currentIndex, nextIndex);
 
 				if(!positiveTags.has(positiveTag)) {
 					tags.push(this.create(
-						query.slice(currentIndex, colonIndex) as Tag['type'],
-						query.slice(colonIndex + 1, nextIndex),
+						expression.slice(currentIndex, colonIndex) as Tag['type'],
+						expression.slice(colonIndex + 1, nextIndex),
 						isNegative
 					));
 					positiveTags.add(positiveTag);
@@ -274,26 +274,33 @@ export class TagManager extends Base {
 			}
 
 			currentIndex = nextIndex + 1;
-			nextIndex = query.indexOf(' ', currentIndex);
+			nextIndex = expression.indexOf(' ', currentIndex);
 		}
 
 		return tags;
 	}
 
 	/**
-	 * Searches for tags matching the given query.
+	 * Searches for tags matching the given term.
 	 *
 	 * Returns an array of tuples, each containing a {@link Tag} and the number of associated galleries.
 	 *
-	 * @param {string} query The search query, optionally prefixed with a tag type and colon.
+	 * @param {string} term The search term, optionally prefixed with a tag type and colon.
 	 * @returns {Promise<[Tag, number][]>} A promise that resolves to an array of `[Tag, count]` tuples.
 	 */
-	public async search(query: string): Promise<[Tag, number][]> {
-		let i: number = query.indexOf(':') + 1;
-		let path: string = i ? '/' + query.slice(0, i - 1) : '';
+	public async search(term: string): Promise<[Tag, number][]> {
+		const isNegative: boolean = term[0] === '-';
+		let i: number = term.indexOf(':') + 1;
+		let path: string = '';
 
-		while(i < query['length'] && query[i] !== ':') {
-			path += '/' + query[i++];
+		if(i) {
+			path = term.slice(isNegative as unknown as number, i - 1);
+		} else if(isNegative) {
+			i++;
+		}
+
+		while(i < term['length'] && term[i] !== ':') {
+			path += '/' + term[i++];
 		}
 
 		const response: [string, number, Tag['type']][] = JSON.parse(String(await this['hitomi'].request(['tagindex.' + FRONT_DOMAIN, path + '.json'])));
