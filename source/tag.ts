@@ -231,7 +231,7 @@ export class TagManager extends Base {
 	 * @returns {Tag} A new {@link Tag} instance.
 	 */
 	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
-		return new Tag(this['hitomi'], type, name, isNegative);
+		return new Tag(this['hitomi'], type, name.replace(/_/g, ' '), isNegative);
 	}
 
 	/**
@@ -264,10 +264,9 @@ export class TagManager extends Base {
 				const positiveTag: string = query.slice(currentIndex, nextIndex);
 
 				if(!positiveTags.has(positiveTag)) {
-					tags.push(new Tag(
-						this['hitomi'],
+					tags.push(this.create(
 						query.slice(currentIndex, colonIndex) as Tag['type'],
-						query.slice(colonIndex + 1, nextIndex).replace(/_/g, ' '),
+						query.slice(colonIndex + 1, nextIndex),
 						isNegative
 					));
 					positiveTags.add(positiveTag);
