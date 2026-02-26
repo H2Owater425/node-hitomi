@@ -5,9 +5,13 @@ import { defineProperties } from './functions';
 
 export class HitomiError extends Error {
 	// @internal
-	public static readonly TAG_TYPE: HitomiError = new HitomiError('type', 'one of artist, group, type, language, series, character, male, female, tag');
+	public static get TAG_TYPE(): HitomiError {
+		return new HitomiError('type', 'one of artist, group, type, language, series, character, male, female, tag');
+	}
 	// @internal
-	public static readonly ROOT_NODE_EMPTY: HitomiError = new HitomiError('Root node', 'empty', false);
+	public static get ROOT_NODE_EMPTY(): HitomiError {
+		return new HitomiError('Root node', 'empty', false);
+	}
 
 	// @internal
 	constructor(messageOrTarget: string, state?: string, isAffirmative: boolean = true) {
