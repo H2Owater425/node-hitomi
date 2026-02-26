@@ -1,7 +1,7 @@
 import { RESOURCE_DOMAIN } from './constants';
 import type { Hitomi } from '../hitomi';
 import type { Node } from './types';
-import { defineProperty } from './functions';
+import { defineProperties } from './functions';
 
 export class HitomiError extends Error {
 	// @internal
@@ -27,7 +27,9 @@ export class Base {
 
 	// @internal
 	constructor(hitomi: Hitomi) {
-		defineProperty(this, 'hitomi', hitomi);
+		defineProperties(this, {
+			hitomi: hitomi
+		});
 	}
 }
 
@@ -71,7 +73,7 @@ export class IndexProvider extends Provider<string> {
 	) {
 		super(hitomi, async function (this: IndexProvider): Promise<string> {
 			return String(await this['hitomi'].request([RESOURCE_DOMAIN, '/' + this['field'] + 'index/version']));
-		}, 600000);
+		}, hitomi['indexStaleTime']);
 	}
 
 	public async getNodeAtAddress(address: Node[2][number], version: string): Promise<Node | undefined> {

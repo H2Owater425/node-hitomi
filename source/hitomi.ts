@@ -4,8 +4,8 @@ import { gunzip } from 'zlib';
 import type { ImageContext, URL } from './utilities/types';
 import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
-import { DEFAULT_HEADERS, RESOURCE_DOMAIN } from './utilities/constants';
-import { defineProperty, parseNumber } from './utilities/functions';
+import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './utilities/constants';
+import { defineProperties, parseNumber } from './utilities/functions';
 import { HitomiError, IndexProvider, Provider } from './utilities/structures';
 
 /**
@@ -32,6 +32,8 @@ export class Hitomi {
 	// @internal
 	private readonly agent!: Agent;
 	// @internal
+	public readonly indexStaleTime!: number;
+	// @internal
 	public readonly languageIndex!: IndexProvider;
 	// @internal
 	public readonly imageContext!: Provider<ImageContext>;
@@ -39,38 +41,54 @@ export class Hitomi {
 	/**
 	 * Creates a new Hitomi client.
 	 *
-	 * @param {Agent} [agent] An optional HTTPS {@link Agent} for connection pooling. (A keep-alive agent if omitted)
+	 * @param {Object} [options] Client configuration options.
+	 * @param {Agent} [options.agent] A HTTPS {@link Agent} for connection pooling. (A keep-alive agent if omitted)
+	 * @param {number} [options.indexStaleTime] A cache stale time for the index version in milliseconds. (`600000` if omitted)
+	 * @param {number} [options.imageContextStaleTime] A cache stale time for the image url context in milliseconds. (`3600000` if omitted)
 	 */
-	constructor(agent: Agent = new Agent({
-		keepAlive: true
-	})) {
-		defineProperty(this, 'agent', agent);
-		defineProperty(this, 'languageIndex', new IndexProvider(this, 'languages'));
-		defineProperty(this, 'imageContext', new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
-			const response: string = String(await this['hitomi'].request([RESOURCE_DOMAIN, '/gg.js']));
-			const context: ImageContext = [new Set<number>(), false, ''];
-
-			let currentIndex: number = 0;
-			let nextIndex: number;
-
-			while((currentIndex = response.indexOf('case ', currentIndex) + 5) !== 4 && (nextIndex = response.indexOf(':', currentIndex)) !== -1) {
-				context[0].add(+response.slice(currentIndex, nextIndex));
-
-				currentIndex = nextIndex + 1;
+	constructor(options: {
+		agent?: Agent;
+		indexStaleTime?: number;
+		imageContextStaleTime?: number;
+	} = {}) {
+		for(let i: number = 0; i < STALE_TIME_PROPERTIES['length']; i++) {
+			if(options[STALE_TIME_PROPERTIES[i]] && !Number.isFinite(options[STALE_TIME_PROPERTIES[i]]) || options[STALE_TIME_PROPERTIES[i]] as number < 1) {
+				throw new HitomiError('options.' + STALE_TIME_PROPERTIES[i], 'a positive integer');
 			}
+		}
 
-			context[1] = response.indexOf('var o = 0;') === -1;
-
-			currentIndex = response.indexOf('\'', response.lastIndexOf('b:') + 2) + 1;
-
-			context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
-
-			if(!context[0]['size'] || context[0].has(NaN) || !context[2]['length']) {
-				throw new HitomiError('ImageContextResolver must succeed');
-			}
-
-			return context;
-		}, 3600000));
+		defineProperties(this, {
+			agent: options['agent'] || new Agent({
+				keepAlive: true
+			}),
+			indexStaleTime: options['indexStaleTime'] || 600000,
+			languageIndex: new IndexProvider(this, 'languages'),
+			imageContext: new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
+				const response: string = String(await this['hitomi'].request([RESOURCE_DOMAIN, '/gg.js']));
+				const context: ImageContext = [new Set<number>(), false, ''];
+	
+				let currentIndex: number = 0;
+				let nextIndex: number;
+	
+				while((currentIndex = response.indexOf('case ', currentIndex) + 5) !== 4 && (nextIndex = response.indexOf(':', currentIndex)) !== -1) {
+					context[0].add(+response.slice(currentIndex, nextIndex));
+	
+					currentIndex = nextIndex + 1;
+				}
+	
+				context[1] = response.indexOf('var o = 0;') === -1;
+	
+				currentIndex = response.indexOf('\'', response.lastIndexOf('b:') + 2) + 1;
+	
+				context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
+	
+				if(!context[0]['size'] || context[0].has(NaN) || !context[2]['length']) {
+					throw new HitomiError('ImageContextResolver must succeed');
+				}
+	
+				return context;
+			}, options['imageContextStaleTime'] || 3600000)
+		});
 	}
 
 	// @internal

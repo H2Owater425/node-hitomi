@@ -2,7 +2,7 @@ import type { Hitomi } from './hitomi';
 import { Image, Video } from './media';
 import { Language, Tag } from './tag';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES, SortType } from './utilities/constants';
-import { defineProperty, parseNumber, hashTerm, formatOneOfState } from './utilities/functions';
+import { defineProperties, parseNumber, hashTerm, formatOneOfState } from './utilities/functions';
 import { Base, IndexProvider, HitomiError } from './utilities/structures';
 import type { URL, Node } from './utilities/types';
 
@@ -228,7 +228,9 @@ export class GalleryManager extends Base {
 	constructor(hitomi: Hitomi) {
 		super(hitomi);
 
-		defineProperty(this, 'index', new IndexProvider(hitomi, 'galleries'));
+		defineProperties(this, {
+			index: new IndexProvider(hitomi, 'galleries')
+		});
 	}
 
 	/**

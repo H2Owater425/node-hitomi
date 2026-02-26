@@ -11,10 +11,14 @@ export function parseNumber(value: string, isHex: boolean = false): number {
 }
 
 // @internal
-export function defineProperty(target: unknown, key: string, property: unknown): void {
-	Object.defineProperty(target, key, {
-    value: property
-	});
+export function defineProperties<T>(target: T, properties: Record<string, unknown>) {
+	for(const key in properties) {
+		properties[key] = {
+			value: properties[key]
+		};
+	}
+
+	Object.defineProperties(target, properties as PropertyDescriptorMap);
 }
 
 // @internal
