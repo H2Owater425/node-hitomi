@@ -206,7 +206,7 @@ console.log(`Thumbnail URL: ${thumbnailUrl}`);
 
 #### `Image.fetch(extension, thumbnailSize?)`
 
-Downloads the image as a buffer with the specified format and optional thumbnail size. The same restrictions on extension and thumbnail size combinations apply as in [`Image.createUrl`](#imagecreateurlextension-thumbnailsize).
+Downloads the image into a buffer with the specified format and optional thumbnail size. The same restrictions on extension and thumbnail size combinations apply as in [`Image.createUrl`](#imagecreateurlextension-thumbnailsize).
 
 
 ```typescript
@@ -223,7 +223,7 @@ writeFileSync('image.webp', imageBuffer);
 
 #### `Video.fetch()`
 
-Downloads the video as a buffer.
+Downloads the video into a buffer in MP4 format.
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -240,7 +240,7 @@ if(gallery.video) {
 
 #### `Video.fetchPoster()`
 
-Downloads the poster (video thumbnail) as a buffer.
+Downloads the poster (video thumbnail) into a buffer in WebP format.
 
 ```typescript
 import hitomi from 'node-hitomi';

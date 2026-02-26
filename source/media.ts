@@ -226,7 +226,7 @@ export class Video extends Media {
 	}
 
 	/**
-	 * Fetches the video.
+	 * Fetches the video in MP4 format.
 	 *
 	 * @returns {Promise<Buffer>} A promise that resolves to the video as a buffer.
 	 */
@@ -235,7 +235,7 @@ export class Video extends Media {
 	}
 
 	/**
-	 * Fetches the poster of the video.
+	 * Fetches the poster (video thumbnail) in WebP format.
 	 *
 	 * @returns {Promise<Buffer>} A promise that resolves to the poster as a buffer.
 	 */
