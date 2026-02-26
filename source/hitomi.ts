@@ -43,8 +43,8 @@ export class Hitomi {
 	 *
 	 * @param {Object} [options] Client configuration options.
 	 * @param {Agent} [options.agent] A HTTPS {@link Agent} for connection pooling. (A keep-alive agent if omitted)
-	 * @param {number} [options.indexStaleTime] A cache stale time for the index version in milliseconds. (`600000` if omitted)
-	 * @param {number} [options.imageContextStaleTime] A cache stale time for the image url context in milliseconds. (`3600000` if omitted)
+	 * @param {number} [options.indexStaleTime=600000] A cache stale time for the index version in milliseconds. (`600000` if omitted)
+	 * @param {number} [options.imageContextStaleTime=3600000] A cache stale time for the image url context in milliseconds. (`3600000` if omitted)
 	 */
 	constructor(options: {
 		agent?: Agent;
