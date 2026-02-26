@@ -98,8 +98,6 @@ export class Tag extends Base {
 	) {
 		super(hitomi);
 
-		let names: Set<unknown> | undefined;
-
 		switch(type) {
 			case 'male':
 			case 'female': {
@@ -108,13 +106,9 @@ export class Tag extends Base {
 				break;
 			}
 
-			case 'language': {
-				// cannot use asynchronous operation
-				names = LANGUAGE_NAMES;
-			}
 			case 'type': {
-				if(!names) {
-					names = GALLERY_TYPES;
+				if(!GALLERY_TYPES.has(name as Gallery['type'])) {
+					throw new HitomiError('name', formatOneOfState(GALLERY_TYPES));
 				}
 			}
 			case 'artist':
@@ -122,13 +116,19 @@ export class Tag extends Base {
 			case 'character':
 			case 'series':
 			case 'tag': {
-				if(names && !names.has(name)) {
-					throw new HitomiError('name', formatOneOfState(names));
-				}
-
 				this['url'] = '/' + type + '/';
 
 				break;
+			}
+
+			case 'language': {
+				if(!LANGUAGE_NAMES.has(name)) {
+					throw new HitomiError('name', formatOneOfState(GALLERY_TYPES));
+				}
+				
+				this['url'] = '/index-' + name + '.html';
+
+				return;
 			}
 
 			default: {
