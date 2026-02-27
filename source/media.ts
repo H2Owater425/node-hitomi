@@ -122,7 +122,7 @@ export class Image extends Media {
 	 * @see {@link hasJxl}
 	 * @see {@link hasThumbnail}
 	 */
-	public async createUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
+	public async resolveUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
 		if(!extension || !this['has' + String.fromCharCode(extension.charCodeAt(0) - 32) + extension.slice(1) as `has${'Webp' | 'Avif' | 'Jxl'}`]) {
 			throw new HitomiError('Extension', 'supported');
 		}
@@ -180,7 +180,7 @@ export class Image extends Media {
 	 * @throws {HitomiError} If the provided combination of extension and thumbnail size is invalid.
 	 */
 	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Buffer> {
-		return super.request(await this.createUrl(extension, thumbnailSize));
+		return super.request(await this.resolveUrl(extension, thumbnailSize));
 	}
 }
 
