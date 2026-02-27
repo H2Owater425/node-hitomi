@@ -45,7 +45,11 @@ export class Provider<T> extends Base {
 	private update: () => Promise<T>;
 	private assign: (value: T) => void;
 
-	constructor(hitomi: Hitomi, update: Provider<T>['update'], private age: number) {
+	constructor(
+		hitomi: Hitomi,
+		update: Provider<T>['update'],
+		private age: number
+	) {
 		super(hitomi);
 
 		this.update = update.bind(this);
