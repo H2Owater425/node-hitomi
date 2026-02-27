@@ -61,7 +61,10 @@ export class Hitomi {
 			agent: options['agent'] || new Agent({
 				keepAlive: true
 			}),
-			indexStaleTime: options['indexStaleTime'] || 600000,
+			indexStaleTime: options['indexStaleTime'] || 600000
+		});
+
+		defineProperties(this, {
 			languageIndex: new IndexProvider(this, 'languages'),
 			imageContext: new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
 				const response: string = String(await this['hitomi'].request([RESOURCE_DOMAIN, '/gg.js']));
