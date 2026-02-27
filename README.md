@@ -178,9 +178,9 @@ for(const tag of femaleATags) {
 
 ### Medias
 
-#### `Image.createUrl(extension, thumbnailSize?)`
+#### `Image.resolveUrl(extension, thumbnailSize?)`
 
-Generates a URL of the image with the specified format and optional thumbnail size. Please note that only the following combinations of extension and thumbnail size are valid.
+Resolves a URL of the image with the specified format and optional thumbnail size. Please note that only the following combinations of extension and thumbnail size are valid.
 
 | Thumbnail Size | Extension | Requirement (must be true)       |
 | :------------- | :-------- | :------------------------------- |
@@ -196,17 +196,17 @@ const gallery = await hitomi.galleries.retrieve(1234567);
 const firstImage = gallery.files[0];
 
 // Generate a full-size image URL
-const imageUrl = await firstImage.createUrl(Extension.Webp);
+const imageUrl = await firstImage.resolveUrl(Extension.Webp);
 console.log(`Image URL: ${imageUrl}`);
 
 // Generate a thumbnail URL
-const thumbnailUrl = await firstImage.createUrl(Extension.Avif, ThumbnailSize.Medium);
+const thumbnailUrl = await firstImage.resolveUrl(Extension.Avif, ThumbnailSize.Medium);
 console.log(`Thumbnail URL: ${thumbnailUrl}`);
 ```
 
 #### `Image.fetch(extension, thumbnailSize?)`
 
-Downloads the image into a buffer with the specified format and optional thumbnail size. The same restrictions on extension and thumbnail size combinations apply as in [`Image.createUrl`](#imagecreateurlextension-thumbnailsize).
+Downloads the image into a buffer with the specified format and optional thumbnail size. The same restrictions on extension and thumbnail size combinations apply as in [`Image.resolveUrl`](#imagecreateurlextension-thumbnailsize).
 
 
 ```typescript

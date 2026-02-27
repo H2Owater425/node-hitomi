@@ -102,9 +102,9 @@ export class Image extends Media {
 	}
 
 	/**
-	 * Generates a URL of the image with the specified format and optional thumbnail size.
+	 * Resolves a URL of the image with the specified format and optional thumbnail size.
 	 *
-	 * Not all combinations of extension and thumbnail size are valid:
+	 * The allowed combinations of extension and thumbnail size are as follows:
 	 *
 	 * | Thumbnail Size | Extension | Requirement (must be true)       |
 	 * | :------------- | :-------- | :------------------------------- |
@@ -172,7 +172,7 @@ export class Image extends Media {
 	/**
 	 * Fetches the image with the specified format and optional thumbnail size.
 	 *
-	 * The same restrictions on extension and thumbnail size combinations apply as in {@link createUrl}.
+	 * The same restrictions on extension and thumbnail size combinations apply as in {@link resolveUrl}.
 	 *
 	 * @param {Extension} extension The desired image format.
 	 * @param {ThumbnailSize} [thumbnailSize] An optional thumbnail size. (the full-size image is returned if omitted)
