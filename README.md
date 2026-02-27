@@ -58,6 +58,12 @@ const hitomi = new Hitomi({
 });
 ```
 
+Or using CommonJS modules you can import as follows:
+
+```typescript
+const { hitomi, SortType, /* and more... */ } = require('node-hitomi');
+```
+
 ---
 
 ### Galleries
@@ -131,7 +137,7 @@ console.log(languages);
 
 #### `TagManager.parse(expression)`
 
-Parses a human-readable tag expression string into an array of `Tag` instances. Requires the format of `[-]type:name`, where spaces in the name are replaced with underscores.
+Parses a human-readable tag expression string into an array of unique `Tag` instances. Requires the format of `[-]type:name`, where spaces in the name are replaced with underscores.
 
 ```typescript
 import hitomi from 'node-hitomi';
