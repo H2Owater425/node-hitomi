@@ -20,14 +20,14 @@ export class Hitomi {
 	 * @type {GalleryManager}
 	 * @readonly
 	 */
-	public readonly galleries: GalleryManager = new GalleryManager(this);
+	public readonly galleries: GalleryManager;
 	/**
 	 * The manager for creating, parsing, searching, and listing tags.
 	 *
 	 * @type {TagManager}
 	 * @readonly
 	 */
-	public readonly tags: TagManager = new TagManager(this);
+	public readonly tags: TagManager;
 
 	// @internal
 	private readonly agent!: Agent;
@@ -63,6 +63,9 @@ export class Hitomi {
 			}),
 			indexStaleTime: options['indexStaleTime'] || 600000
 		});
+
+		this['galleries'] = new GalleryManager(this);
+		this['tags'] = new TagManager(this);
 
 		defineProperties(this, {
 			languageIndex: new IndexProvider(this, 'languages'),
