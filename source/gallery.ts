@@ -2,7 +2,7 @@ import type { Hitomi } from './hitomi';
 import { Image, Video } from './media';
 import { Language, Tag } from './tag';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES, SortType } from './utilities/constants';
-import { defineProperties, parseNumber, hashTerm, formatOneOfState } from './utilities/functions';
+import { defineProperties, hashTerm, formatOneOfState } from './utilities/functions';
 import { Base, IndexProvider, HitomiError } from './utilities/structures';
 import type { URL, Node } from './utilities/types';
 
@@ -353,7 +353,7 @@ export class GalleryManager extends Base {
 
 		return new Gallery(
 			this['hitomi'],
-			parseNumber(rawGallery['id']),
+			+rawGallery['id'],
 			rawGallery['language'] ? new Language(
 				this['hitomi'],
 				rawGallery['language'],
@@ -464,11 +464,12 @@ export class GalleryManager extends Base {
 		if(shouldShuffle) {
 			let currentIndex: number = references['length'];
 			let targetIndex: number;
-			let temporary: GalleryReference;
 
 			while(currentIndex) {
 				targetIndex = Math.floor(Math.random() * currentIndex--);
-				temporary = references[targetIndex];
+
+				const temporary: GalleryReference = references[targetIndex];
+
 				references[targetIndex] = references[currentIndex];
 				references[currentIndex] = temporary;
 			}
@@ -614,7 +615,7 @@ export class GalleryManager extends Base {
 
 		if(idSets['length']) {
 			for(i = 1; i < idSets['length']; i++) {
-				if(!idSets[0]) {
+				if(!idSets[0]['size']) {
 					return [];
 				}
 

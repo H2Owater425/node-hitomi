@@ -1,6 +1,6 @@
 import type { Hitomi } from './hitomi';
 import { BASE_DOMAIN, Extension, ThumbnailSize } from './utilities/constants';
-import { formatOneOfState, parseNumber } from './utilities/functions';
+import { formatOneOfState } from './utilities/functions';
 import { Base, HitomiError } from './utilities/structures';
 import type { ImageContext } from './utilities/types';
 import type { Gallery } from './gallery';
@@ -159,10 +159,10 @@ export class Image extends Media {
 			subdomain = 'tn';
 			path = extension + thumbnailSize + 'tn/' + this['hash'].slice(-1) + '/' + this['hash'].slice(-3, -1) + '/' + this['hash'];
 		} else {
-			const hashCode: number = parseNumber(this['hash'].slice(-1) + this['hash'].slice(-3, -1), true);
-			const context: Readonly<ImageContext> = await this['hitomi']['imageContext'].retrieve();
+			const hashCode: number = Number.parseInt(this['hash'].slice(-1) + this['hash'].slice(-3, -1), 16);
+			const context: ImageContext = await this['hitomi']['imageContext'].retrieve();
 
-			subdomain = extension[0] + (1 + ((context[0].has(hashCode) !== context[1]) as unknown as number));
+			subdomain = extension[0] + (context[0].has(hashCode) === context[1] /* nxor */ ? '2' : '1');
 			path = context[2] + hashCode + '/' + this['hash'];
 		}
 

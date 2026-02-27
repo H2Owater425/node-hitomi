@@ -244,42 +244,38 @@ export class TagManager extends Base {
 	 *
 	 * Each tag expression should follow the format returned by {@link Tag.prototype.toString | Tag.toString}.
 	 *
-	 * Duplicated tags (ignoring negation) and tokens without a colon separator are silently ignored.
+	 * Duplicated tags and expression without a colon separator are silently ignored.
 	 *
 	 * @param {string} expression A space-separated string of tag expressions.
 	 * @returns {Tag[]} An array of parsed {@link Tag} instances.
 	 */
 	public parse(expression: string): Tag[] {
-		const tags: Tag[] = [];
-		const positiveTags: Set<string> = new Set<string>();
+		expression = expression.trim() + ' ';
 
-		expression += ' ';
+		const tags: Tag[] = [];
+		const rawTags: Set<string> = new Set<string>();
 
 		let currentIndex: number = 0;
-		let nextIndex: number = expression.indexOf(' ');
-
-		while(nextIndex !== -1) {
+		let nextIndex: number;
+		
+		while((nextIndex = expression.indexOf(' ', currentIndex)) !== -1) {
 			const colonIndex: number = expression.indexOf(':', currentIndex);
 
 			if(colonIndex !== -1 && colonIndex < nextIndex) {
+				const rawTag: string = expression.slice(currentIndex, nextIndex);
 				const isNegative: Tag['isNegative'] = expression[currentIndex] === '-';
 
-				currentIndex += isNegative as unknown as number;
-
-				const positiveTag: string = expression.slice(currentIndex, nextIndex);
-
-				if(!positiveTags.has(positiveTag)) {
+				if(!rawTags.has(rawTag)) {
 					tags.push(this.create(
-						expression.slice(currentIndex, colonIndex) as Tag['type'],
+						expression.slice(currentIndex + (isNegative as unknown as number), colonIndex) as Tag['type'],
 						expression.slice(colonIndex + 1, nextIndex),
 						isNegative
 					));
-					positiveTags.add(positiveTag);
+					rawTags.add(rawTag);
 				}
 			}
 
 			currentIndex = nextIndex + 1;
-			nextIndex = expression.indexOf(' ', currentIndex);
 		}
 
 		return tags;

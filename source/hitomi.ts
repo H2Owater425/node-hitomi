@@ -5,7 +5,7 @@ import type { ImageContext, URL } from './utilities/types';
 import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './utilities/constants';
-import { defineProperties, parseNumber } from './utilities/functions';
+import { defineProperties } from './utilities/functions';
 import { HitomiError, IndexProvider, Provider } from './utilities/structures';
 
 /**
@@ -72,26 +72,52 @@ export class Hitomi {
 			imageContext: new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
 				const response: string = String(await this['hitomi'].request([RESOURCE_DOMAIN, '/gg.js']));
 				const context: ImageContext = [new Set<number>(), false, ''];
-	
+
 				let currentIndex: number = 0;
 				let nextIndex: number;
-	
-				while((currentIndex = response.indexOf('case ', currentIndex) + 5) !== 4 && (nextIndex = response.indexOf(':', currentIndex)) !== -1) {
-					context[0].add(+response.slice(currentIndex, nextIndex));
-	
+
+				while(
+					// Kind of do-while loop
+					(currentIndex = response.indexOf('case ', currentIndex) + 5) !== 4 &&
+					(nextIndex = response.indexOf(':', currentIndex)) !== -1
+				) {
+					const subdomainCode: number = +response.slice(currentIndex, nextIndex);
+
+					if(!Number.isInteger(subdomainCode)) {
+						throw HitomiError['IMAGE_CONTEXT_RESOLVER'];
+					}
+
+					context[0].add(subdomainCode);
+
 					currentIndex = nextIndex + 1;
 				}
-	
-				context[1] = response.indexOf('var o = 0;') === -1;
-	
-				currentIndex = response.indexOf('\'', response.lastIndexOf('b:') + 2) + 1;
-	
-				context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
-	
-				if(!context[0]['size'] || context[0].has(NaN) || !context[2]['length']) {
-					throw new HitomiError('ImageContextResolver must succeed');
+
+				if(!context[0]['size']) {
+					throw HitomiError['IMAGE_CONTEXT_RESOLVER'];
 				}
-	
+
+				currentIndex = response.indexOf('var o = ') + 8;
+
+				const rawIsSuffix1: number = +response.slice(currentIndex, response.indexOf(';', currentIndex));
+
+				if(!Number.isInteger(rawIsSuffix1)) {
+					throw HitomiError['IMAGE_CONTEXT_RESOLVER'];
+				}
+
+				context[1] = !rawIsSuffix1;
+
+				currentIndex = response.lastIndexOf('b: \'') + 4;
+
+				if(currentIndex === 3) {
+					throw HitomiError['IMAGE_CONTEXT_RESOLVER'];
+				}
+
+				context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
+
+				if(!context[2]['length']) {
+					throw HitomiError['IMAGE_CONTEXT_RESOLVER'];
+				}
+
 				return context;
 			}, options['imageContextStaleTime'] || 3600000)
 		});
@@ -113,7 +139,7 @@ export class Hitomi {
 				switch(response['statusCode']) {
 					case 200:
 					case 206: {
-						const buffer: Buffer = Buffer.allocUnsafe(parseNumber(response['headers']['content-length'] as string));
+						const buffer: Buffer = Buffer.allocUnsafe(+(response['headers']['content-length'] as string));
 						let length: number = 0;
 	
 						response.on('data', function (chunk: Buffer): void {

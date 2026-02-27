@@ -6,11 +6,6 @@ export function hashTerm(term: string): Buffer {
 }
 
 // @internal
-export function parseNumber(value: string, isHex: boolean = false): number {
-	return Number.parseInt(value, isHex ? 16 : 10);
-}
-
-// @internal
 export function defineProperties<T>(target: T, properties: Record<string, unknown>) {
 	for(const key in properties) {
 		properties[key] = {
