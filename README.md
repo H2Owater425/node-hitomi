@@ -30,7 +30,7 @@ bun add node-hitomi
 
 - **Gallery Search:** List galleries with tag filters, title search, sorting, and pagination.
 - **Gallery Retrieval:** Retrieve full gallery metadata including title, type, language, artists, and more.
-- **Tag Management:** Create, parse, search, and list tags. Additionally, retrieve available languages for specific tags.
+- **Tag Management:** Create, parse, search, and list tags. Additionally, list available languages for specific tags.
 - **Image Downloads:** Generate image URLs and download images in AVIF, WebP, and JXL formats with optional thumbnail sizing.
 - **Video Downloads:** Download videos and video posters from galleries.
 
@@ -72,7 +72,7 @@ const { hitomi, SortType, /* and more... */ } = require('node-hitomi');
 
 #### `GalleryManager.retrieve(id)`
 
-Fetches the full gallery for a given gallery id. Returns a `Gallery` instance containing title, type, language, and other metadata.
+Retrieves the full gallery for a given gallery id. Returns a `Gallery` instance containing title, type, language, and other metadata.
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -87,7 +87,7 @@ console.log(`Language: ${gallery.language?.name}`);
 
 #### `GalleryManager.list(options?)`
 
-Searches for galleries matching the given criteria. Accepts optional tags, a title string, a sort order, and pagination options. Returns an array of `GalleryReference` instances that can be individually retrieved.
+Lists all galleries matching the given criteria. Accepts optional tags, a title string, a sort order, and pagination options. Returns an array of `GalleryReference` instances that can be individually retrieved.
 
 ```typescript
 import hitomi, { SortType } from 'node-hitomi';
@@ -212,7 +212,7 @@ console.log(`Thumbnail URL: ${thumbnailUrl}`);
 
 #### `Image.fetch(extension, thumbnailSize?)`
 
-Downloads the image into a buffer with the specified format and optional thumbnail size. The same restrictions on extension and thumbnail size combinations apply as in [`Image.resolveUrl`](#imagecreateurlextension-thumbnailsize).
+Fetches the image into a buffer with the specified format and optional thumbnail size. The same restrictions on extension and thumbnail size combinations apply as in [`Image.resolveUrl`](#imagecreateurlextension-thumbnailsize).
 
 
 ```typescript
@@ -229,7 +229,7 @@ writeFileSync('image.webp', imageBuffer);
 
 #### `Video.fetch()`
 
-Downloads the video into a buffer in MP4 format.
+Fetches the video into a buffer in MP4 format.
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -246,7 +246,7 @@ if(gallery.video) {
 
 #### `Video.fetchPoster()`
 
-Downloads the poster (video thumbnail) into a buffer in WebP format.
+Fetches the poster (video thumbnail) into a buffer in WebP format.
 
 ```typescript
 import hitomi from 'node-hitomi';
