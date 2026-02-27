@@ -12,6 +12,10 @@ export class HitomiError extends Error {
 	public static get ROOT_NODE_EMPTY(): HitomiError {
 		return new HitomiError('Root node', 'empty', false);
 	}
+	// @internal
+	public static get IMAGE_CONTEXT_RESOLVER(): HitomiError {
+		return new HitomiError('ImageContextResolver must succeed');
+	}
 
 	// @internal
 	constructor(messageOrTarget: string, state?: string, isAffirmative: boolean = true) {
