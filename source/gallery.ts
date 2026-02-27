@@ -583,7 +583,7 @@ export class GalleryManager extends Base {
 
 		if(options['title'] && options['title']['length']) {
 			const version: string = await this['index'].retrieve();
-			const title: string = options['title'].toLocaleLowerCase() + ' ';
+			const title: string = options['title'].toLowerCase() + ' ';
 			const rootNode: Node | undefined = await this['index'].getNodeAtAddress(0n, version);
 
 			if(!rootNode) {
