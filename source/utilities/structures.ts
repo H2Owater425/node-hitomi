@@ -6,7 +6,7 @@ import { defineProperties } from './functions';
 export class HitomiError extends Error {
 	// @internal
 	public static get TAG_TYPE(): HitomiError {
-		return new HitomiError('type', 'one of artist, group, type, language, series, character, male, female, tag');
+		return new HitomiError('Type', 'one of artist, group, type, language, series, character, male, female, tag');
 	}
 	// @internal
 	public static get ROOT_NODE_EMPTY(): HitomiError {
@@ -138,7 +138,10 @@ export class IndexProvider extends Provider<string> {
 		let compareResult: number = -1;
 		let index: number = 0;
 		
-		while(index < node[0]['length'] && (compareResult = key.compare(node[0][index])) === 1) {
+		while(
+			index < node[0]['length'] &&
+			(compareResult = key.compare(node[0][index])) === 1
+		) {
 			index++;
 		}
 

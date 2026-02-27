@@ -425,7 +425,7 @@ export class GalleryManager extends Base {
 
 				default: {
 					// @ts-expect-error
-					throw new HitomiError('orderBy', formatOneOfState(SortType));
+					throw new HitomiError('OrderBy', formatOneOfState(SortType));
 				}
 			}
 		}
@@ -539,11 +539,11 @@ export class GalleryManager extends Base {
 
 			if(range) {
 				if(tags['length'] > 2 || tags['length'] === 2 && !language) {
-					throw new HitomiError('page', 'used with multiple tags', false);
+					throw new HitomiError('Page', 'used with multiple tags', false);
 				}
 
 				if(tags[tags['length'] - 1]['isNegative']) {
-					throw new HitomiError('page', 'used with negative tag', false);
+					throw new HitomiError('Page', 'used with negative tag', false);
 				}
 
 				return this.createReferences(GalleryManager.parseIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({

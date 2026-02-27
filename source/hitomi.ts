@@ -52,8 +52,8 @@ export class Hitomi {
 		imageContextStaleTime?: number;
 	} = {}) {
 		for(let i: number = 0; i < STALE_TIME_PROPERTIES['length']; i++) {
-			if(options[STALE_TIME_PROPERTIES[i]] && !Number.isFinite(options[STALE_TIME_PROPERTIES[i]]) || options[STALE_TIME_PROPERTIES[i]] as number < 1) {
-				throw new HitomiError('options.' + STALE_TIME_PROPERTIES[i], 'a positive integer');
+			if(options[STALE_TIME_PROPERTIES[i]] && !Number.isInteger(options[STALE_TIME_PROPERTIES[i]]) || options[STALE_TIME_PROPERTIES[i]] as number < 1) {
+				throw new HitomiError('Options.' + STALE_TIME_PROPERTIES[i], 'a positive integer');
 			}
 		}
 
@@ -98,7 +98,7 @@ export class Hitomi {
 	}
 
 	// @internal
-	public request(urn: Readonly<URL> | URL, range?: string): Promise<Buffer> {
+	public request(urn: URL, range?: string): Promise<Buffer> {
 		return new Promise<Buffer>(function (this: Hitomi, resolve: (value: Buffer) => void, reject: (error?: unknown) => void): void {
 			request({
 				agent: this['agent'],

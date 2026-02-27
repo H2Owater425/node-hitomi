@@ -108,7 +108,7 @@ export class Tag extends Base {
 
 			case 'type': {
 				if(!GALLERY_TYPES.has(name as Gallery['type'])) {
-					throw new HitomiError('name', formatOneOfState(GALLERY_TYPES));
+					throw new HitomiError('Name', formatOneOfState(GALLERY_TYPES));
 				}
 			}
 			case 'artist':
@@ -123,7 +123,7 @@ export class Tag extends Base {
 
 			case 'language': {
 				if(!LANGUAGE_NAMES.has(name)) {
-					throw new HitomiError('name', formatOneOfState(GALLERY_TYPES));
+					throw new HitomiError('Name', formatOneOfState(GALLERY_TYPES));
 				}
 				
 				this['url'] = '/index-' + name + '.html';
