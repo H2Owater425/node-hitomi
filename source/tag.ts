@@ -229,8 +229,13 @@ export class TagManager extends Base {
 	 * @param {Tag['name']} name The name of the tag.
 	 * @param {boolean} [isNegative=false] Whether the tag should be excluded.
 	 * @returns {Tag} A new {@link Tag} instance.
+	 * @throws {HitomiError} If `type` or `name` is invalid.
 	 */
 	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
+		if(!name['length']) {
+			throw new HitomiError('Name', 'empty', false);
+		}
+
 		return new Tag(this['hitomi'], type, name.replace(/_/g, ' '), isNegative);
 	}
 
