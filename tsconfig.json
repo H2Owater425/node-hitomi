@@ -7,8 +7,7 @@
 		"types": ["node"],
 		"removeComments": true,
 		"stripInternal": true,
-		"preserveConstEnums": true,
-		"verbatimModuleSyntax": true
+		"preserveConstEnums": true
 	},
 	"include": ["./source/**/*", "rollup.config.ts"]
 }

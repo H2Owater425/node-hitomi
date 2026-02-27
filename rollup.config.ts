@@ -27,7 +27,8 @@ function indent(): Plugin {
 				code = code.replace(/(?<=^\t*) {4}/gm, '	');
 			}
 
-			return code.replace(/{\n}/gm, '{}');
+			return code.replace(/{\n}/gm, '{}')
+				.replace(/"([^'"]+)"/gm, '\'$1\'');
 		}
 	};
 }
@@ -78,18 +79,9 @@ function configuration(type: 'cjs' | 'esm'): RollupOptions {
 														node['name'],
 														undefined,
 														undefined,
-														context['factory'].createCallExpression(
-															context['factory'].createPropertyAccessExpression(
-																context['factory'].createIdentifier('Object'),
-																'freeze'
-															),
-															undefined,
-															[
-																context['factory'].createObjectLiteralExpression(
-																	propertyAssignments,
-																	true
-																)
-															]
+														context['factory'].createObjectLiteralExpression(
+															propertyAssignments,
+															true
 														)
 													)
 												], NodeFlags['Const'])
@@ -147,7 +139,7 @@ export default [
 						code = code.replace(/^$/m, 'import { Gallery } from \'./gallery.js\';\n');
 					}
 
-					return code;
+					return code.replace(/^declare const enum /gm, 'declare enum ');
 				}
 			}
 		]
