@@ -124,12 +124,12 @@ export class Hitomi {
 	}
 
 	// @internal
-	public request(urn: URL, range?: string): Promise<Buffer> {
+	public request(url: URL, range?: string): Promise<Buffer> {
 		return new Promise<Buffer>(function (this: Hitomi, resolve: (value: Buffer) => void, reject: (error?: unknown) => void): void {
 			request({
 				agent: this['agent'],
-				hostname: urn[0],
-				path: urn[1],
+				hostname: url[0],
+				path: url[1],
 				method: 'GET',
 				port: 443,
 				headers: range ? Object.assign({
@@ -165,7 +165,7 @@ export class Hitomi {
 					}
 
 					default: {
-						throw new HitomiError('Request to https://' + urn[0] + urn[1] + ' must succeed');
+						throw new HitomiError('Request to https://' + url[0] + url[1] + ' must succeed');
 					}
 				}
 			})
