@@ -1,9 +1,9 @@
 import { Hitomi } from './hitomi';
 
-export { Gallery, Title, TranslatedGallery as TranslatedGallery, GalleryReference } from './gallery';
+export type { Gallery, Title, TranslatedGallery, GalleryReference, GalleryManager } from './gallery';
 export { Hitomi } from './hitomi';
-export { Image } from './media';
-export { Language, Tag } from './tag';
+export type { Image, Video } from './media';
+export type { Language, Tag, TagManager } from './tag';
 export { HitomiError } from './utilities/structures';
 export { SortType, NameInitial, Extension, ThumbnailSize } from './utilities/constants';
 
