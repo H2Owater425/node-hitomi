@@ -244,8 +244,8 @@ export class GalleryManager extends Base {
 			id: string;
 			type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'anime';
 			galleryurl: string;
-			language: Language['name'] | null;
-			language_localname: Language['localName'] | null;
+			language: string | null;
+			language_localname: string | null;
 			title: string;
 			japanese_title: string | null;
 			artists: {
@@ -273,9 +273,10 @@ export class GalleryManager extends Base {
 				hasavif?: number;
 			}[];
 			languages: {
-				name: Language['name'];
 				galleryid: number;
-				language_localname: Language['localName'];
+				name: string;
+				language_localname: string;
+				url: string;
 			}[];
 			related: number[];
 			blocked: number;
@@ -341,7 +342,7 @@ export class GalleryManager extends Base {
 					rawGallery['languages'][i]['name'],
 					rawGallery['languages'][i]['language_localname']
 				),
-				'/galleries/' + rawGallery['languages'][i]['galleryid'] + '.html'
+				rawGallery['languages'][i]['url']
 			));
 		}
 
