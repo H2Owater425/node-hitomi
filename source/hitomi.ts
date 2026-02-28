@@ -141,7 +141,7 @@ export class Hitomi {
 					case 206: {
 						const buffer: Buffer = Buffer.allocUnsafe(+(response['headers']['content-length'] as string));
 						let length: number = 0;
-	
+
 						response.on('data', function (chunk: Buffer): void {
 							chunk.copy(buffer, length);
 							length += chunk['byteLength'];
@@ -152,7 +152,7 @@ export class Hitomi {
 									if(error) {
 										return reject(error);
 									}
-	
+
 									resolve(decompressedBuffer);
 								});
 							}
@@ -160,10 +160,10 @@ export class Hitomi {
 							resolve(buffer);
 						})
 						.once('error', reject);
-	
+
 						break;
 					}
-	
+
 					default: {
 						throw new HitomiError('Request to https://' + urn[0] + urn[1] + ' must succeed');
 					}

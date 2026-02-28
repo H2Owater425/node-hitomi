@@ -100,7 +100,7 @@ export class IndexProvider extends Provider<string> {
 		const keyCount: number = response.readInt32BE(0);
 		let offset: number = 4;
 		let i: number;
-	
+
 		for(i = 0; i < keyCount; i++) {
 			const keySize: number = response.readInt32BE(offset);
 
@@ -110,23 +110,23 @@ export class IndexProvider extends Provider<string> {
 
 			node[0].push(response.subarray(offset += 4, offset += keySize));
 		}
-	
+
 		const dataCount: number = response.readInt32BE(offset);
-		
+
 		offset += 4;
-	
+
 		for(i = 0; i < dataCount; i++) {
 			node[1].push([response.readBigUInt64BE(offset), response.readInt32BE(offset + 8)]);
-			
+
 			offset += 12;
 		}
-	
+
 		for(i = 0; i < 17; i++) {
 			node[2].push(response.readBigUInt64BE(offset));
 
 			offset += 8;
 		}
-	
+
 		return node;
 	}
 
@@ -137,7 +137,7 @@ export class IndexProvider extends Provider<string> {
 
 		let compareResult: number = -1;
 		let index: number = 0;
-		
+
 		while(
 			index < node[0]['length'] &&
 			(compareResult = key.compare(node[0][index])) === 1

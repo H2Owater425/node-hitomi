@@ -125,7 +125,7 @@ export class Tag extends Base {
 				if(!LANGUAGE_NAMES.has(name)) {
 					throw new HitomiError('Name', formatOneOfState(GALLERY_TYPES));
 				}
-				
+
 				this['url'] = '/index-' + name + '.html';
 
 				return;
@@ -257,7 +257,7 @@ export class TagManager extends Base {
 
 		let currentIndex: number = 0;
 		let nextIndex: number;
-		
+
 		while((nextIndex = expression.indexOf(' ', currentIndex)) !== -1) {
 			const colonIndex: number = expression.indexOf(':', currentIndex);
 
