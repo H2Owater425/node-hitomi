@@ -1,5 +1,5 @@
-import { describe, test } from 'node:test';
-import assert from 'assert/strict';
+import { describe, test } from 'mocha';
+import assert from 'assert';
 
 import { Image, Video } from '../source/media';
 import { Extension, ThumbnailSize } from '../source/utilities/constants';

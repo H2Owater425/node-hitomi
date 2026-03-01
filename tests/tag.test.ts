@@ -1,5 +1,5 @@
-import { describe, test } from 'node:test';
-import assert from 'assert/strict';
+import { describe, test } from 'mocha';
+import assert from 'assert';
 
 import { Language, Tag, TagManager } from '../source/tag';
 import { NameInitial, BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../source/utilities/constants';

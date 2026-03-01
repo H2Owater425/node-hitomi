@@ -1,5 +1,5 @@
-import { describe, test } from 'node:test';
-import assert from 'assert/strict';
+import { describe, test } from 'mocha';
+import assert from 'assert';
 
 import { Title, GalleryReference, TranslatedGallery, Gallery, GalleryManager } from '../source/gallery';
 import { Tag, Language } from '../source/tag';

@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';
+import assert from 'assert';
 
 export function createMock<T>(value: Partial<T>): T {
 	return value as T;
