@@ -28,17 +28,15 @@ bun add node-hitomi
 
 ## Features
 
-- **Gallery Search:** List galleries with tag filters, title search, sorting, and pagination.
-- **Gallery Retrieval:** Retrieve full gallery metadata including title, type, language, artists, and more.
-- **Tag Management:** Create, parse, search, and list tags. Additionally, list available languages for specific tags.
-- **Image Downloads:** Generate image URLs and download images in AVIF, WebP, and JXL formats with optional thumbnail sizing.
-- **Video Downloads:** Download videos and video posters from galleries.
-
-> Without any external dependencies!
+- **Gallery Search:** Filter by tags and title, choose sort order, and paginate results.
+- **Gallery Retrieval:** Load full gallery metadata, including title, type, language, artists, and relations.
+- **Tag Management:** Create, parse, search, and list tags. Also list available languages for a tag.
+- **Image Downloads:** Resolve URLs and fetch images in AVIF/WebP/JXL (when available), with optional thumbnail sizes.
+- **Video Downloads:** Fetch gallery videos and poster images.
 
 ## Usage
 
-The package provides a default client instance, but you can also instantiate your own client if you need custom configuration.
+The package exports a default client instance, but you can also create your own client for custom configuration.
 
 ```typescript
 import { Hitomi } from 'node-hitomi';
@@ -58,26 +56,26 @@ const hitomi = new Hitomi({
 });
 ```
 
-Or using CommonJS modules you can import as follows:
+If you use CommonJS module:
 
 ```typescript
-const { hitomi, SortType, /* and more... */ } = require('node-hitomi');
+const { hitomi, SortType /* and more... */ } = require('node-hitomi');
 ```
 
 ---
 
 ### Galleries
 
-`GalleryManager` allows you to retrieve and list galleries.
+`GalleryManager` lets you retrieve individual galleries and list matching gallery references.
 
 #### `GalleryManager.retrieve(id)`
 
-Retrieves the full gallery for a given gallery id. Returns a `Gallery` instance containing title, type, language, and other metadata.
+Retrieves a full gallery by id and returns a `Gallery` instance.
 
 ```typescript
 import hitomi from 'node-hitomi';
 
-// Retrieve the full gallery by id
+// Retrieve a gallery by id
 const gallery = await hitomi.galleries.retrieve(1234567);
 
 console.log(`Title: ${gallery.title.display}`);
@@ -87,26 +85,26 @@ console.log(`Language: ${gallery.language?.name}`);
 
 #### `GalleryManager.list(options?)`
 
-Lists all galleries matching the given criteria. Accepts optional tags, a title string, a sort order, and pagination options. Returns an array of `GalleryReference` instances that can be individually retrieved.
+Lists galleries that match the given criteria. You can pass tags, a title query, sort options, and paging options. The method returns `GalleryReference[]`.
 
 ```typescript
 import hitomi, { SortType } from 'node-hitomi';
 
-// Parse a search query into Tag instances
+// Parse a search expression into structured tag objects
 const tags = hitomi.tags.parse('male:sole_male -female:netorare series:blue_archive');
 
-// List the gallery references matching the criteria
+// List matching gallery references
 const references = await hitomi.galleries.list({
-	tags: tags,
+	tags,
 	title: 'serina',
 	orderBy: SortType.PopularityMonth,
 	page: {
-		index: 0 ,
+		index: 0,
 		size: 25
 	}
 });
 
-// Retrieve the full gallery for the first result
+// Resolve the first reference to a full gallery
 if(references.length > 0) {
 	const firstGallery = await references[0].retrieve();
 	console.log(firstGallery.title.display);
@@ -121,15 +119,13 @@ if(references.length > 0) {
 
 #### `TagManager.create(type, name, isNegative?)`
 
-Creates a new `Tag` instance with the specified type, name, and optional negation flag.
+Creates a `Tag` instance with a type, name, and optional negation flag.
 
 ```typescript
 import hitomi from 'node-hitomi';
 
-// Create a tag for a specific series
+// Create a series tag and list available languages for that tag
 const tag = hitomi.tags.create('series', 'trickcal_revive', false);
-
-// List all available languages for galleries with this tag
 const languages = await tag.listLanguages();
 
 console.log(languages);
@@ -137,7 +133,7 @@ console.log(languages);
 
 #### `TagManager.parse(expression)`
 
-Parses a human-readable tag expression string into an array of unique `Tag` instances. Requires the format of `[-]type:name`, where spaces in the name are replaced with underscores.
+Parses a human-readable expression into unique `Tag` instances. The expected format is `[-]type:name`, where spaces are represented by underscores.
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -152,12 +148,12 @@ for(const tag of parsedTags) {
 
 #### `TagManager.search(term)`
 
-Searches for tags whose names partially match the given term string. Returns an array of `[Tag, count]` tuples, where `count` is the number of galleries associated with that tag.
+Searches tags by partial term and returns tuples of `[Tag, count]`, where `count` is the number of galleries associated with each tag.
 
 ```typescript
 import hitomi from 'node-hitomi';
 
-// Search for tags matching a term
+// Search tags and print their gallery counts
 const tagAndCounts = await hitomi.tags.search('character:agnes');
 
 for(const [tag, count] of tagAndCounts) {
@@ -167,12 +163,12 @@ for(const [tag, count] of tagAndCounts) {
 
 #### `TagManager.list(type, startsWith?)`
 
-Lists all tags of a specific type that start with the given letter initial. Returns an array of `Tag` instances.
+Lists tags of a specific type, optionally filtered by an initial character.
 
 ```typescript
 import hitomi, { NameInitial } from 'node-hitomi';
 
-// List all tags of a specific type starting with a specific letter
+// List female tags that start with 'a'
 const femaleATags = await hitomi.tags.list('female', NameInitial.A);
 
 for(const tag of femaleATags) {
@@ -182,18 +178,20 @@ for(const tag of femaleATags) {
 
 ---
 
-### Medias
+### Media
 
 #### `Image.resolveUrl(extension, thumbnailSize?)`
 
-Resolves a URL of the image with the specified format and optional thumbnail size. Please note that only the following combinations of extension and thumbnail size are valid.
+Resolves an image URL in the requested format and optional thumbnail size.
 
-| Thumbnail Size | Extension | Requirement (must be true)       |
-| :------------- | :-------- | :------------------------------- |
-| *(none)*       | *(all)*   | `has{Extension}`                 |
-| `Small`        | *(all)*   | `has{Extension}`                 |
-| `Medium`       | `Avif`    | `hasThumbnail && has{Extension}` |
-| `Big`          | *(all)*   | `hasThumbnail && has{Extension}` |
+> [!WARNING]
+> Not every `extension` and `thumbnailSize` combination is valid. See the table below.
+> | Thumbnail Size | Extension | Requirement (must be true)       |
+> | :------------- | :-------- | :------------------------------- |
+> | *(none)*       | *(all)*   | `has{Extension}`                 |
+> | `Small`        | *(all)*   | `has{Extension}`                 |
+> | `Medium`       | `Avif`    | `hasThumbnail && has{Extension}` |
+> | `Big`          | *(all)*   | `hasThumbnail && has{Extension}` |
 
 ```typescript
 import hitomi, { Extension, ThumbnailSize } from 'node-hitomi';
@@ -201,19 +199,18 @@ import hitomi, { Extension, ThumbnailSize } from 'node-hitomi';
 const gallery = await hitomi.galleries.retrieve(1234567);
 const firstImage = gallery.files[0];
 
-// Generate a full-size image URL
+// Full-size WebP URL
 const imageUrl = await firstImage.resolveUrl(Extension.Webp);
 console.log(`Image URL: ${imageUrl}`);
 
-// Generate a thumbnail URL
+// AVIF medium thumbnail URL (valid only when thumbnail is available)
 const thumbnailUrl = await firstImage.resolveUrl(Extension.Avif, ThumbnailSize.Medium);
 console.log(`Thumbnail URL: ${thumbnailUrl}`);
 ```
 
 #### `Image.fetch(extension, thumbnailSize?)`
 
-Fetches the image into a buffer with the specified format and optional thumbnail size. The same restrictions on extension and thumbnail size combinations apply as in [`Image.resolveUrl`](#imagecreateurlextension-thumbnailsize).
-
+Fetches an image as a `Buffer`. The same extension and thumbnail constraints as [`Image.resolveUrl`](#imageresolveurlextension-thumbnailsize) apply.
 
 ```typescript
 import hitomi, { Extension, ThumbnailSize } from 'node-hitomi';
@@ -222,14 +219,14 @@ import { writeFileSync } from 'fs';
 const gallery = await hitomi.galleries.retrieve(1234567);
 const firstImage = gallery.files[0];
 
-// Fetch the image and save it to the disk
-const imageBuffer = await firstImage.fetch(Extension.Webp, ThumbnailSize.Medium);
+// Fetch and save a thumbnail image buffer
+const imageBuffer = await firstImage.fetch(Extension.Webp, ThumbnailSize.Small);
 writeFileSync('image.webp', imageBuffer);
 ```
 
 #### `Video.fetch()`
 
-Fetches the video into a buffer in MP4 format.
+Fetches a gallery video as an MP4 `Buffer`.
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -237,8 +234,8 @@ import { writeFileSync } from 'fs';
 
 const gallery = await hitomi.galleries.retrieve(1234567);
 
-// Fetch the video and save it to the disk if available
 if(gallery.video) {
+	// Fetch and store the MP4 video
 	const videoBuffer = await gallery.video.fetch();
 	writeFileSync('video.mp4', videoBuffer);
 }
@@ -246,7 +243,7 @@ if(gallery.video) {
 
 #### `Video.fetchPoster()`
 
-Fetches the poster (video thumbnail) into a buffer in WebP format.
+Fetches the video poster as a WebP `Buffer`.
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -254,16 +251,16 @@ import { writeFileSync } from 'fs';
 
 const gallery = await hitomi.galleries.retrieve(1234567);
 
-// Fetch the poster and save it to the disk if available
 if(gallery.video) {
+	// Fetch and store the WebP poster image
 	const posterBuffer = await gallery.video.fetchPoster();
-	writeFileSync('poster.webp', imageBuffer);
+	writeFileSync('poster.webp', posterBuffer);
 }
 ```
 
 ## Contribution
 
-Contributions are welcome! Feel free to report bugs via issues or share your improvements through pull requests.
+Contributions are welcome. Feel free to open an issue for bugs or submit a pull request with improvements.
 
 ## License
 

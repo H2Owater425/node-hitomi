@@ -7,13 +7,13 @@ import type { Gallery } from './gallery';
 
 // Moved from gallery to avoid circular dependency
 /**
- * Represents a language associated with a gallery.
+ * Language associated with galleries.
  *
  * @see {@link Gallery}
  */
 export class Language extends Base {
 	/**
-	 * The URL path to the language-specific galleries.
+	 * URL path for language-filtered galleries.
 	 *
 	 * @type {string}
 	 * @readonly
@@ -24,14 +24,14 @@ export class Language extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * The anglicized name of the language.
+		 * English name of the language.
 		 *
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly name: string,
 		/**
-		 * The native name of the language.
+		 * Native name of the language.
 		 *
 		 * @type {string}
 		 * @readonly
@@ -46,8 +46,8 @@ export class Language extends Base {
 	/**
 	 * Converts the language into a {@link Tag} instance.
 	 *
-	 * @param {boolean} [isNegative=false] Whether the tag should be excluded from search.
-	 * @returns {Tag} A new {@link Tag} representing the language.
+	 * @param {boolean} [isNegative=false] Negative flag for the generated tag.
+	 * @returns {Tag} New {@link Tag} instance of type `'language'`.
 	 */
 	public toTag(isNegative: boolean = false): Tag {
 		return new Tag(this['hitomi'], 'language', this['name'], isNegative);
@@ -55,14 +55,14 @@ export class Language extends Base {
 }
 
 /**
- * Represents a tag used for searching and categorizing galleries.
+ * Search tag used to filter and categorize galleries.
  * 
  * @see {@link Gallery}
  * @see {@link TagManager}
  */
 export class Tag extends Base {
 	/**
-	 * The URL path to the tag-specific galleries.
+	 * URL path for galleries matching the tag.
 	 * 
 	 * @type {string}
 	 * @readonly
@@ -73,14 +73,14 @@ export class Tag extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * The type of the tag.
+		 * Type of the tag.
 		 *
 		 * @type {'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag'}
 		 * @readonly
 		 */
 		public readonly type: 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag',
 		/**
-		 * The name of the tag.
+		 * Name of the tag.
 		 *
 		 * For `'language'` and `'type'` tags, the name is validated against known values.
 		 *
@@ -89,9 +89,9 @@ export class Tag extends Base {
 		 */
 		public readonly name: string,
 		/**
-		 * Whether the tag should be excluded from search.
+		 * Whether the tag is used for exclusion.
 		 *
-		 * @type {boolean}`
+		 * @type {boolean}
 		 * @readonly
 		 */
 		public readonly isNegative: boolean = false
@@ -140,9 +140,9 @@ export class Tag extends Base {
 	}
 
 	/**
-	 * Lists {@link Language} available for galleries matching the tag.
+	 * Lists available {@link Language} entries for galleries matching the tag.
 	 *
-	 * @returns {Promise<Language[]>} A promise that resolves to an array of {@link Language} instances.
+	 * @returns {Promise<Language[]>} Promise that resolves to an array of {@link Language} instances.
 	 */
 	public async listLanguages(): Promise<Language[]> {
 		const languages: Language[] = [];
@@ -197,12 +197,12 @@ export class Tag extends Base {
 	}
 
 	/**
-	 * Converts the tag into the string representation.
+	 * Converts the tag to its string representation.
 	 *
-	 * The output format is `[-]type:name`, where spaces in the name are replaced with underscores.
+	 * Output format is `[-]type:name`, where spaces are replaced with underscores.
 	 *
-	 * @param {boolean} [isNegative] Overrides whether the tag should be excluded from search. ({@link Tag.isNegative} if omitted)
-	 * @returns {string} The formatted tag string.
+	 * @param {boolean} [isNegative] Whether the tag is negative. (defaults to {@link Tag.isNegative})
+	 * @returns {string} Formatted tag string.
 	 */
 	public toString(isNegative: boolean = this['isNegative']): string {
 		return (isNegative ? '-' : '') + this['type'] + ':' + this['name'].replace(/ /g, '_');
@@ -210,7 +210,7 @@ export class Tag extends Base {
 }
 
 /**
- * Manages creating, parsing, searching, and listing {@link Tag} instances.
+ * Manager for creating, parsing, searching, and listing {@link Tag} instances.
  *
  * @see {@link Hitomi}
  */
@@ -221,15 +221,15 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Creates a new {@link Tag} instance with the specified type, name, and optional negation.
+	 * Creates a {@link Tag} instance from the specified type and name.
 	 *
-	 * The same restrictions on name apply as in {@link Tag.prototype.name | Tag.name}.
+	 * Name constraints are the same as {@link Tag.prototype.name | Tag.name}.
 	 *
-	 * @param {Tag['type']} type The type of the tag.
-	 * @param {Tag['name']} name The name of the tag.
-	 * @param {boolean} [isNegative=false] Whether the tag should be excluded.
-	 * @returns {Tag} A new {@link Tag} instance.
-	 * @throws {HitomiError} If `type` or `name` is invalid.
+	 * @param {Tag['type']} type Type of the tag.
+	 * @param {Tag['name']} name Name of the tag.
+	 * @param {boolean} [isNegative=false] Whether the tag is negative.
+	 * @returns {Tag} New {@link Tag} instance.
+	 * @throws {HitomiError} Thrown when `type` or `name` is invalid.
 	 */
 	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
 		if(!name['length']) {
@@ -240,14 +240,14 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Parses a space-separated string of tag expressions into an array of {@link Tag} instances.
+	 * Parses a space-separated expression into an array of {@link Tag} instances.
 	 *
 	 * Each tag expression should follow the format returned by {@link Tag.prototype.toString | Tag.toString}.
 	 *
-	 * Duplicated tags and expression without a colon separator are silently ignored.
+	 * Duplicate tags and tokens without a colon separator are ignored.
 	 *
-	 * @param {string} expression A space-separated string of tag expressions.
-	 * @returns {Tag[]} An array of parsed {@link Tag} instances.
+	 * @param {string} expression Space-separated tag expression string.
+	 * @returns {Tag[]} Array of parsed {@link Tag} instances.
 	 */
 	public parse(expression: string): Tag[] {
 		expression = expression.trim() + ' ';
@@ -282,12 +282,12 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Searches for tags matching the given term.
+	 * Searches for all {@link Tag} entries matching the given term.
 	 *
-	 * Returns an array of tuples, each containing a {@link Tag} and the number of associated galleries.
+	 * Returns tuples containing each matching {@link Tag} and its gallery count.
 	 *
-	 * @param {string} term The search term, optionally prefixed with a tag type and colon.
-	 * @returns {Promise<[Tag, number][]>} A promise that resolves to an array of `[Tag, count]` tuples.
+	 * @param {string} term Search term, optionally prefixed with a tag type and colon.
+	 * @returns {Promise<[Tag, number][]>} Promise that resolves to an array of `[Tag, count]` tuples.
 	 */
 	public async search(term: string): Promise<[Tag, number][]> {
 		const isNegative: boolean = term[0] === '-';
@@ -318,12 +318,12 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Lists all available tags of the specified type.
+	 * Lists available {@link Tag} entries for the specified type.
 	 *
-	 * @param {Tag['type']} type The category type of tags to list.
-	 * @param {NameInitial} [startsWith] The initial character to filter by (required for types other than `'language'` and `'type'`).
-	 * @returns {Promise<Tag[]>} A promise that resolves to an array of {@link Tag} instances.
-	 * @throws {HitomiError} If `startsWith` is not provided for types that require it, or if `type` is invalid.
+	 * @param {Tag['type']} type Tag type to list.
+	 * @param {NameInitial} [startsWith] Initial character filter. Required for types other than `'language'` and `'type'`.
+	 * @returns {Promise<Tag[]>} Promise that resolves to an array of {@link Tag} instances.
+	 * @throws {HitomiError} Thrown when `startsWith` is missing for required types, or when `type` is invalid.
 	 */
 	public async list(type: Tag['type'], startsWith?: NameInitial): Promise<Tag[]> {
 		const tags: Tag[] = [];

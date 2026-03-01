@@ -7,7 +7,7 @@ import { Base, IndexProvider, HitomiError } from './utilities/structures';
 import type { URL, Node } from './utilities/types';
 
 /**
- * Represents the title of a gallery.
+ * Title associated with a gallery.
  * 
  * @see {@link Gallery}
  */
@@ -15,14 +15,14 @@ export class Title {
 	// @internal
 	constructor(
 		/**
-		 * The display title of the gallery.
+		 * Display title of the gallery.
 		 * 
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly display: string,
 		/**
-		 * The Japanese title of the gallery.
+		 * Japanese title of the gallery.
 		 * 
 		 * @deprecated This field is always null.
 		 * @type {string | null}
@@ -33,7 +33,7 @@ export class Title {
 }
 
 /**
- * Represents a reference to a gallery, identified by the id.
+ * Reference to a gallery with a unique identifier.
  * 
  * @see {@link Gallery}
  * @see {@link GalleryManager}
@@ -42,7 +42,7 @@ export class GalleryReference extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * The unique identifier of the gallery.
+		 * Unique identifier of the gallery.
 		 * 
 		 * @type {number}
 		 * @readonly
@@ -53,9 +53,9 @@ export class GalleryReference extends Base {
 	}
 
 	/**
-	 * Retrieves the {@link Gallery} associated with the id.
+	 * Retrieves a full {@link Gallery} associated with the unique identifier.
 	 * 
-	 * @returns {Promise<Gallery>} A promise that resolves to the full {@link Gallery} instance.
+	 * @returns {Promise<Gallery>} Promise that resolves to a full {@link Gallery} instance.
 	 */
 	public retrieve(): Promise<Gallery> {
 		return this['hitomi']['galleries'].retrieve(this['id']);
@@ -63,7 +63,7 @@ export class GalleryReference extends Base {
 }
 
 /**
- * Represents a partial gallery associated with a specific language.
+ * Partial gallery for a specific language.
  * 
  * @see {@link Gallery}
  */
@@ -73,14 +73,14 @@ export class TranslatedGallery extends GalleryReference {
 		hitomi: Hitomi,
 		id: GalleryReference['id'],
 		/**
-		 * The language of the translated gallery. (`null` if unavailable)
+		 * Language of the gallery. (`null` if unavailable)
 		 * 
 		 * @type {Language | null}
 		 * @readonly
 		 */
 		public readonly language: Language | null,
 		/**
-		 * The URL path to the translated gallery.
+		 * URL path of the gallery.
 		 * 
 		 * @type {string}
 		 * @readonly
@@ -92,7 +92,7 @@ export class TranslatedGallery extends GalleryReference {
 }
 
 /**
- * Represents a complete gallery.
+ * Full gallery with metadata, files, and relationships.
  * 
  * @see {@link GalleryManager}
  */
@@ -104,70 +104,70 @@ export class Gallery extends TranslatedGallery {
 		language: TranslatedGallery['language'],
 		url: TranslatedGallery['url'],
 		/**
-		 * The title of the gallery.
+		 * Title of the gallery.
 		 * 
 		 * @type {Title}
 		 * @readonly
 		 */
 		public readonly title: Title,
 		/**
-		 * The type of the gallery.
+		 * Type of the gallery.
 		 * 
 		 * @type {'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'imageset' | 'anime'}
 		 * @readonly
 		 */
 		public readonly type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'imageset' | 'anime',
 		/**
-		 * The artist tags associated with the gallery.
+		 * Artist tags associated with the gallery.
 		 * 
 		 * @type {readonly Tag[]}
 		 * @readonly
 		 */
 		public readonly artists: readonly Tag[],
 		/**
-		 * The group tags associated with the gallery.
+		 * Group tags associated with the gallery.
 		 * 
 		 * @type {readonly Tag[]}
 		 * @readonly
 		 */
 		public readonly groups: readonly Tag[],
 		/**
-		 * The series (parody) tags associated with the gallery.
+		 * Series (parody) tags associated with the gallery.
 		 * 
 		 * @type {readonly Tag[]}
 		 * @readonly
 		 */
 		public readonly series: readonly Tag[],
 		/**
-		 * The character tags associated with the gallery.
+		 * Character tags associated with the gallery.
 		 * 
 		 * @type {readonly Tag[]}
 		 * @readonly
 		 */
 		public readonly characters: readonly Tag[],
 		/**
-		 * The general, male, and female tags associated with the gallery.
+		 * General, male, and female tags associated with the gallery.
 		 * 
 		 * @type {readonly Tag[]}
 		 * @readonly
 		 */
 		public readonly tags: readonly Tag[],
 		/**
-		 * The image files contained in the gallery.
+		 * Image files in the gallery.
 		 * 
 		 * @type {readonly Image[]}
 		 * @readonly
 		 */
 		public readonly files: readonly Image[],
 		/**
-		 * The translations of the gallery in other languages.
+		 * Available translations in other languages.
 		 * 
 		 * @type {readonly TranslatedGallery[]}
 		 * @readonly
 		 */
 		public readonly translations: readonly TranslatedGallery[],
 		/**
-		 * The references to related galleries.
+		 * References to related galleries.
 		 * 
 		 * @type {readonly GalleryReference[]}
 		 * @readonly
@@ -181,21 +181,21 @@ export class Gallery extends TranslatedGallery {
 		 */
 		public readonly isBlocked: boolean,
 		/**
-		 * The date when the gallery was added.
+		 * Date when the gallery was added.
 		 * 
 		 * @type {Date}
 		 * @readonly
 		 */
 		public readonly addedDate: Date,
 		/**
-		 * The date when the gallery was published. (`null` if unavailable)
+		 * Date when the original work was published. (`null` if unavailable)
 		 * 
 		 * @type {Date | null}
 		 * @readonly
 		 */
 		public readonly publishedDate: Date | null = null,
 		/**
-		 * The video associated with the gallery. (`null` if unavailable)
+		 * Video resource associated with the gallery. (`null` if unavailable)
 		 * 
 		 * @type {Video | null}
 		 * @readonly
@@ -206,9 +206,9 @@ export class Gallery extends TranslatedGallery {
 	}
 
 	/**
-	 * Returns all thumbnail images of the gallery.
+	 * Returns representative thumbnails.
 	 * 
-	 * @returns {[Image, Image]} A tuple containing the first and middle images.
+	 * @returns {[Image, Image]} Tuple containing the first and middle image.
 	 */
 	public getThumbnails(): [Image, Image] {
 		return [this['files'][0], this['files'][Math.floor(this['files']['length'] / 2)]]
@@ -216,7 +216,7 @@ export class Gallery extends TranslatedGallery {
 }
 
 /**
- * Manages retrieving and listing {@link Gallery} instances.
+ * Manager for retrieving and listing {@link Gallery} instances.
  *
  * @see {@link Hitomi}
  */
@@ -234,10 +234,10 @@ export class GalleryManager extends Base {
 	}
 
 	/**
-	 * Retrieves the {@link Gallery} with the specified id.
+	 * Retrieves a {@link Gallery} by a unique identifier.
 	 *
-	 * @param {number} id The unique identifier of the gallery.
-	 * @returns {Promise<Gallery>} A promise that resolves to the {@link Gallery} instance.
+	 * @param {number} id Unique gallery identifier.
+	 * @returns {Promise<Gallery>} Promise that resolves to a {@link Gallery} instance.
 	 */
 	public async retrieve(id: number): Promise<Gallery> {
 		const rawGallery: {
@@ -481,21 +481,21 @@ export class GalleryManager extends Base {
 	}
 
 	/**
-	 * Lists {@link GalleryReference} matching the specified search criteria.
+	 * Lists {@link GalleryReference} entries that match the specified search criteria.
 	 *
-	 * When `options.page` is provided, only one non-language tag (optionally paired with a language tag) is allowed, and negative tags are not allowed.
+	 * When `options.page` is provided, only one non-language tag (optionally combined with a language tag) is allowed, and negative tags are not supported.
 	 *
-	 * When using `Popularity{Period}` for `options.orderBy`, the total number of galleries may vary.
+	 * When using `Popularity{Period}` in `options.orderBy`, the number of galleries may vary.
 	 *
-	 * @param {object} [options] The search options.
-	 * @param {Tag[]} [options.tags] An array of {@link Tag} instances to filter by.
-	 * @param {string} [options.title] A title string to search for.
-	 * @param {SortType} [options.orderBy=SortType.DateAdded] The {@link SortType} to order by. (`SortType.DateAdded` if omitted)
-	 * @param {object} [options.page] The pagination options.
-	 * @param {number} [options.page.index=0] The zero-based page index. (`0` if omitted and `options.page` is provided)
-	 * @param {number} [options.page.size=25] The number of galleries per page. (`25` if omitted and `options.page` is provided)
-	 * @returns {Promise<GalleryReference[]>} A promise that resolves to an array of {@link GalleryReference} instances.
-	 * @throws {HitomiError} If `page` is used with multiple tags or a negative tag.
+	 * @param {object} [options] Search options.
+	 * @param {Tag[]} [options.tags] Tag filters as {@link Tag} instances.
+	 * @param {string} [options.title] Title query string.
+	 * @param {SortType} [options.orderBy=SortType.DateAdded] Sort order. (defaults to `SortType.DateAdded`)
+	 * @param {object} [options.page] Pagination options.
+	 * @param {number} [options.page.index=0] Zero-based page index. (defaults to `0` when `options.page` is provided)
+	 * @param {number} [options.page.size=25] Number of galleries per page. (defaults to `25` when `options.page` is provided)
+	 * @returns {Promise<GalleryReference[]>} Promise that resolves to an array of {@link GalleryReference} instances.
+	 * @throws {HitomiError} Thrown when `page` is used with multiple tags or any negative tag.
 	 * @see {@link SortType}
 	 */
 	public async list(options: {

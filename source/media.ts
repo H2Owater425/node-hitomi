@@ -6,7 +6,7 @@ import type { ImageContext } from './utilities/types';
 import type { Gallery } from './gallery';
 
 /**
- * Abstract media class for providing common dimensions.
+ * Abstract base class for media resources providing shared dimensions.
  *
  * @abstract
  * @see {@link Image}
@@ -17,14 +17,14 @@ abstract class Media extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * The width of the media in pixels.
+		 * Width of the media in pixels.
 		 * 
 		 * @type {number}
 		 * @readonly
 		 */
 		public readonly width: number,
 		/**
-		 * The height of the media in pixels.
+		 * Height of the media in pixels.
 		 * 
 		 * @type {number}
 		 * @readonly
@@ -43,7 +43,7 @@ abstract class Media extends Base {
 }
 
 /**
- * Represents an image associated with a gallery.
+ * Image belonging to a gallery.
  * 
  * @see {@link Gallery}
  */
@@ -54,28 +54,28 @@ export class Image extends Media {
 		width: number,
 		height: number,
 		/**
-		 * The unique hash identifying the image.
+		 * Unique hash that identifies the image.
 		 * 
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly hash: string,
 		/**
-		 * The file name of the image.
+		 * Original file name of the image.
 		 * 
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly name: string,
 		/**
-		 * Whether an AVIF extension is available.
+		 * Whether the AVIF format is available.
 		 * 
 		 * @type {boolean}
 		 * @readonly
 		 */
 		public readonly hasAvif: boolean,
 		/**
-		 * Whether a WebP extension is available.
+		 * Whether the WebP format is available.
 		 * 
 		 * @deprecated This field is always true.
 		 * @type {boolean}
@@ -83,7 +83,7 @@ export class Image extends Media {
 		 */
 		public readonly hasWebp: boolean,
 		/**
-		 * Whether a JPEG XL extension is available.
+		 * Whether the JPEG XL format is available.
 		 * 
 		 * @deprecated This field is always false.
 		 * @type {boolean}
@@ -91,7 +91,7 @@ export class Image extends Media {
 		 */
 		public readonly hasJxl: boolean,
 		/**
-		 * Whether a specific thumbnail size is available.
+		 * Whether thumbnail variants are available for the image.
 		 * 
 		 * @type {boolean}
 		 * @readonly
@@ -102,9 +102,9 @@ export class Image extends Media {
 	}
 
 	/**
-	 * Resolves a URL of the image with the specified format and optional thumbnail size.
+	 * Resolves an image URL for the specified format and optional thumbnail size.
 	 *
-	 * The allowed combinations of extension and thumbnail size are as follows:
+	 * Only the combinations listed below are valid:
 	 *
 	 * | Thumbnail Size | Extension | Requirement (must be true)       |
 	 * | :------------- | :-------- | :------------------------------- |
@@ -113,10 +113,10 @@ export class Image extends Media {
 	 * | `Medium`       | `Avif`    | `hasThumbnail && has{Extension}` |
 	 * | `Big`          | *(all)*   | `hasThumbnail && has{Extension}` |
 	 * 
-	 * @param {Extension} extension The desired image format.
-	 * @param {ThumbnailSize} [thumbnailSize] An optional thumbnail size. (the full-size image URL is returned if omitted)
-	 * @returns {Promise<string>} A promise that resolves to a fully resolved image URL.
-	 * @throws {HitomiError} If the provided combination of extension and thumbnail size violates the rules above.
+	 * @param {Extension} extension Desired image format.
+	 * @param {ThumbnailSize} [thumbnailSize] Optional thumbnail size. (a full-size image URL is returned if omitted)
+	 * @returns {Promise<string>} Promise that resolves to the final image URL.
+	 * @throws {HitomiError} Thrown when the `extension` and `thumbnailSize` combination is not valid.
 	 * @see {@link hasAvif}
 	 * @see {@link hasWebp}
 	 * @see {@link hasJxl}
@@ -172,12 +172,12 @@ export class Image extends Media {
 	/**
 	 * Fetches the image with the specified format and optional thumbnail size.
 	 *
-	 * The same restrictions on extension and thumbnail size combinations apply as in {@link resolveUrl}.
+	 * The same `extension` and `thumbnailSize` restrictions as {@link resolveUrl} apply.
 	 *
-	 * @param {Extension} extension The desired image format.
-	 * @param {ThumbnailSize} [thumbnailSize] An optional thumbnail size. (the full-size image is returned if omitted)
-	 * @returns {Promise<Buffer>} A promise that resolves to the image as a buffer.
-	 * @throws {HitomiError} If the provided combination of extension and thumbnail size is invalid.
+	 * @param {Extension} extension Desired image format.
+	 * @param {ThumbnailSize} [thumbnailSize] Optional thumbnail size. (a full-size image is returned if omitted)
+	 * @returns {Promise<Buffer>} Promise that resolves to the image as a `Buffer`.
+	 * @throws {HitomiError} Thrown when the `extension` and `thumbnailSize` combination is not valid.
 	 */
 	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Buffer> {
 		return super.request(await this.resolveUrl(extension, thumbnailSize));
@@ -185,20 +185,20 @@ export class Image extends Media {
 }
 
 /**
- * Represents a video associated with a gallery.
+ * Video belonging to a gallery.
  * 
  * @see {@link Gallery}
  */
 export class Video extends Media {
 	/**
-	 * The URL of the video.
+	 * URL of the video.
 	 * 
 	 * @type {string}
 	 * @readonly
 	 */
 	public readonly url: string;
 	/**
-	 * The URL of the poster.
+	 * URL of the poster (video thumbnail).
 	 *
 	 * @type {string}
 	 * @readonly
@@ -211,7 +211,7 @@ export class Video extends Media {
 		width: number,
 		height: number,
 		/**
-		 * The filename of the video.
+		 * File name of the video.
 		 * 
 		 * @type {string}
 		 * @readonly
@@ -228,7 +228,7 @@ export class Video extends Media {
 	/**
 	 * Fetches the video in MP4 format.
 	 *
-	 * @returns {Promise<Buffer>} A promise that resolves to the video as a buffer.
+	 * @returns {Promise<Buffer>} Promise that resolves to the video as a `Buffer`.
 	 */
 	public fetch(): Promise<Buffer> {
 		return super.request(this['url']);
@@ -237,7 +237,7 @@ export class Video extends Media {
 	/**
 	 * Fetches the poster (video thumbnail) in WebP format.
 	 *
-	 * @returns {Promise<Buffer>} A promise that resolves to the poster as a buffer.
+	 * @returns {Promise<Buffer>} Promise that resolves to the poster as a `Buffer`.
 	 */
 	public fetchPoster(): Promise<Buffer> {
 		return super.request(this['posterUrl']);

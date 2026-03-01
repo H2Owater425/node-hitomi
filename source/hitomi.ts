@@ -9,20 +9,18 @@ import { defineProperties } from './utilities/functions';
 import { HitomiError, IndexProvider, Provider } from './utilities/structures';
 
 /**
- * The client for interacting with the Hitomi API.
- * 
- * Provides access to gallery and tag management through dedicated managers.
+ * Client for interacting with Hitomi API
  */
 export class Hitomi {
 	/**
-	 * The manager for retrieving and listing galleries.
+	 * Manager for retrieving and listing galleries.
 	 *
 	 * @type {GalleryManager}
 	 * @readonly
 	 */
 	public readonly galleries: GalleryManager;
 	/**
-	 * The manager for creating, parsing, searching, and listing tags.
+	 * Manager for creating, parsing, searching, and listing tags.
 	 *
 	 * @type {TagManager}
 	 * @readonly
@@ -41,10 +39,10 @@ export class Hitomi {
 	/**
 	 * Creates a new Hitomi client.
 	 *
-	 * @param {Object} [options] Client configuration options.
-	 * @param {Agent} [options.agent] An HTTPS {@link Agent} for connection pooling. (A keep-alive agent if omitted)
-	 * @param {number} [options.indexMaximumAge=600000] The maximum acceptable age of the cached index version in milliseconds. (`600000` if omitted)
-	 * @param {number} [options.imageContextMaximumAge=3600000] The maximum acceptable age of the cached image URL context in milliseconds. (`3600000` if omitted)
+	 * @param {Object} [options] Configuration options.
+	 * @param {Agent} [options.agent] HTTPS {@link Agent} instance for connection reuse. (defaults to keep-alive agent)
+	 * @param {number} [options.indexMaximumAge=600000] Maximum age of cached index version in milliseconds. (defaults to `600000`)
+	 * @param {number} [options.imageContextMaximumAge=3600000] Maximum age of cached image URL context in milliseconds. (defaults to `3600000`)
 	 */
 	constructor(options: {
 		agent?: Agent;

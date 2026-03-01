@@ -83,7 +83,7 @@ export const GALLERY_TYPES: Set<Gallery['type']> = new Set<Gallery['type']>([
 ]);
 
 /**
- * Specifies the sorting criteria for searching galleries.
+ * Sorting options for listing galleries.
  *
  * @enum {string}
  */
@@ -98,7 +98,7 @@ export const enum SortType {
 }
 
 /**
- * Specifies the initial character used for filtering tags.
+ * Initial-character filters for listing tags.
  *
  * @enum {string}
  */
@@ -130,13 +130,13 @@ export const enum NameInitial {
 	Y = 'y',
 	Z = 'z',
 	/**
-	 * Represents all non-alphabetic characters
+	 * Represents all non-alphabetic characters.
 	 */
 	_123 = '123'
 }
 
 /**
- * Specifies the image file format to use when requesting images.
+ * Supported image formats for retrieving images.
  *
  * @enum {string}
  */
@@ -147,7 +147,7 @@ export const enum Extension {
 }
 
 /**
- * Specifies the thumbnail size for gallery image previews.
+ * Supported thumbnail sizes for retrieving images.
  *
  * @enum {string}
  */
