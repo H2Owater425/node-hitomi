@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"module": "esnext",
 		"target": "es2020",
 		"strict": true,
@@ -9,5 +9,11 @@
 		"stripInternal": true,
 		"preserveConstEnums": true
 	},
-	"include": ["./source/**/*", "rollup.config.ts"]
+	"ts-node": {
+		"compilerOptions": {
+			"moduleResolution": "nodenext",
+			"module": "nodenext"
+		}
+	},
+	"include": ["./source/**/*", "./tests/**/*", "rollup.config.ts"]
 }
