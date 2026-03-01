@@ -306,12 +306,12 @@ export class GalleryManager extends Base {
 		}
 
 		for(i = 0; i < rawGallery['tags']['length']; i++) {
-			type = 'tag';
-
 			if(Boolean(rawGallery['tags'][i]['male'])) {
 				type = 'male';
 			} else if(Boolean(rawGallery['tags'][i]['female'])) {
 				type = 'female';
+			} else {
+				type = 'tag';
 			}
 
 			tags.push(new Tag(this['hitomi'], type, rawGallery['tags'][i]['tag'], false));
