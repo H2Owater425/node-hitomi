@@ -126,6 +126,9 @@ export const enum NameInitial {
 	X = 'x',
 	Y = 'y',
 	Z = 'z',
+	/**
+	 * Represents all non-alphabetic characters
+	 */
 	_123 = '123'
 }
 
