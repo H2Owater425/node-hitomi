@@ -1,7 +1,7 @@
 import type { Hitomi } from './hitomi';
 import { Base, HitomiError } from './utilities/structures';
 import { formatOneOfState, hashTerm } from './utilities/functions';
-import { BINARY_ORDERED_LANGUAGES, NameInitial, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN } from './utilities/constants';
+import { BINARY_ORDERED_LANGUAGES, NameInitial, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN } from './utilities/constants';
 import type { Node } from './utilities/types';
 import type { Gallery } from './gallery';
 
@@ -304,7 +304,7 @@ export class TagManager extends Base {
 			path += '/' + term[i++];
 		}
 
-		const response: [string, number, Tag['type']][] = JSON.parse(String(await this['hitomi'].request(['tagindex.' + FRONT_DOMAIN, path + '.json'])));
+		const response: [string, number, Tag['type']][] = JSON.parse(String(await this['hitomi'].request([TAG_INDEX_DOMAIN, path + '.json'])));
 		const tagAndCounts: [Tag, number][] = [];
 
 		for(i = 0; i < response['length']; i++) {
