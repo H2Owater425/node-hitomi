@@ -14,7 +14,7 @@ export const DEFAULT_HEADERS = {
 	referer: 'https://' + FRONT_DOMAIN
 } as const;
 
-export const STALE_TIME_PROPERTIES = ['indexStaleTime', 'imageContextStaleTime'] as const;
+export const STALE_TIME_PROPERTIES = ['indexMaximumAge', 'imageContextMaximumAge'] as const;
 
 export const DEDICATED_TAG_PROPERTIES = ['artist', 'group', 'parody', 'character'] as const;
 

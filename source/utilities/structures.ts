@@ -44,7 +44,7 @@ export class Base {
 // @internal
 export class Provider<T> extends Base {
 	public value!: T;
-	private updatedAt: number = 0;
+	private expiresAt: number = 0;
 	private promise?: Promise<void>;
 	private update: () => Promise<T>;
 	private assign: (value: T) => void;
@@ -52,20 +52,20 @@ export class Provider<T> extends Base {
 	constructor(
 		hitomi: Hitomi,
 		update: Provider<T>['update'],
-		private age: number
+		private maximumAge: number
 	) {
 		super(hitomi);
 
 		this.update = update.bind(this);
 		this.assign = (function (this: Provider<T>, value: T): void {
 			this['value'] = value;
-			this['updatedAt'] = Date.now();
+			this['expiresAt'] = Date.now() + this['maximumAge'];
 			this['promise'] = undefined;
 		}).bind(this);
 	}
 
 	public async retrieve(): Promise<T> {
-		if(Date.now() - this['updatedAt'] > this['age']) {
+		if(Date.now() > this['expiresAt']) {
 			if(!this['promise']) {
 				this['promise'] = this.update().then(this.assign);
 			}
@@ -85,7 +85,7 @@ export class IndexProvider extends Provider<string> {
 	) {
 		super(hitomi, async function (this: IndexProvider): Promise<string> {
 			return String(await this['hitomi'].request([RESOURCE_DOMAIN, '/' + this['field'] + 'index/version']));
-		}, hitomi['indexStaleTime']);
+		}, hitomi['indexMaximumAge']);
 	}
 
 	public async getNodeAtAddress(address: Node[2][number], version: string): Promise<Node | undefined> {

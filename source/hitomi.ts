@@ -32,7 +32,7 @@ export class Hitomi {
 	// @internal
 	private readonly agent!: Agent;
 	// @internal
-	public readonly indexStaleTime!: number;
+	public readonly indexMaximumAge!: number;
 	// @internal
 	public readonly languageIndex!: IndexProvider;
 	// @internal
@@ -42,14 +42,14 @@ export class Hitomi {
 	 * Creates a new Hitomi client.
 	 *
 	 * @param {Object} [options] Client configuration options.
-	 * @param {Agent} [options.agent] A HTTPS {@link Agent} for connection pooling. (A keep-alive agent if omitted)
-	 * @param {number} [options.indexStaleTime=600000] A cache stale time for the index version in milliseconds. (`600000` if omitted)
-	 * @param {number} [options.imageContextStaleTime=3600000] A cache stale time for the image url context in milliseconds. (`3600000` if omitted)
+	 * @param {Agent} [options.agent] An HTTPS {@link Agent} for connection pooling. (A keep-alive agent if omitted)
+	 * @param {number} [options.indexMaximumAge=600000] The maximum acceptable age of the cached index version in milliseconds. (`600000` if omitted)
+	 * @param {number} [options.imageContextMaximumAge=3600000] The maximum acceptable age of the cached image URL context in milliseconds. (`3600000` if omitted)
 	 */
 	constructor(options: {
 		agent?: Agent;
-		indexStaleTime?: number;
-		imageContextStaleTime?: number;
+		indexMaximumAge?: number;
+		imageContextMaximumAge?: number;
 	} = {}) {
 		for(let i: number = 0; i < STALE_TIME_PROPERTIES['length']; i++) {
 			if(options[STALE_TIME_PROPERTIES[i]] && !Number.isInteger(options[STALE_TIME_PROPERTIES[i]]) || options[STALE_TIME_PROPERTIES[i]] as number < 1) {
@@ -61,7 +61,7 @@ export class Hitomi {
 			agent: options['agent'] || new Agent({
 				keepAlive: true
 			}),
-			indexStaleTime: options['indexStaleTime'] || 600000
+			indexMaximumAge: options['indexMaximumAge'] || 600000
 		});
 
 		this['galleries'] = new GalleryManager(this);
@@ -119,7 +119,7 @@ export class Hitomi {
 				}
 
 				return context;
-			}, options['imageContextStaleTime'] || 3600000)
+			}, options['imageContextMaximumAge'] || 3600000)
 		});
 	}
 
