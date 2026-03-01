@@ -53,8 +53,8 @@ const agent = new Agent({
 
 const hitomi = new Hitomi({
 	agent: agent,
-	indexStaleTime: 300000,
-	imageContextStaleTime: 1800000
+	indexMaximumAge: 300000,
+	imageContextMaximumAge: 1800000
 });
 ```
 
