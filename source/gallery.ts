@@ -491,7 +491,7 @@ export class GalleryManager extends Base {
 	 * @param {Tag[]} [options.tags] An array of {@link Tag} instances to filter by.
 	 * @param {string} [options.title] A title string to search for.
 	 * @param {SortType} [options.orderBy=SortType.DateAdded] The {@link SortType} to order by. (`SortType.DateAdded` if omitted)
-	 * @param {object} [options.page] Pagination options.
+	 * @param {object} [options.page] The pagination options.
 	 * @param {number} [options.page.index=0] The zero-based page index. (`0` if omitted and `options.page` is provided)
 	 * @param {number} [options.page.size=25] The number of galleries per page. (`25` if omitted and `options.page` is provided)
 	 * @returns {Promise<GalleryReference[]>} A promise that resolves to an array of {@link GalleryReference} instances.
