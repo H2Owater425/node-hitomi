@@ -6,6 +6,7 @@ import { Extension, ThumbnailSize } from '../source/utilities/constants';
 import { Hitomi } from '../source/hitomi';
 import type { ImageContext, URL } from '../source/utilities/types';
 import { createMock } from './utilities/functions';
+import { Provider } from '../source/utilities/structures';
 
 describe('Image', function (): void {
 	test('resolveUrl rejects unsupported extension', async function (): Promise<void> {
@@ -34,13 +35,13 @@ describe('Image', function (): void {
 		let retrieveCalls: number = 0;
 		const context: ImageContext = [new Set<number>([hashCode]), true, 'galleries/'];
 		const hitomi: Hitomi = createMock<Hitomi>({
-			imageContext: {
+			imageContext: createMock<Provider<ImageContext>>({
 				retrieve: async function (): Promise<ImageContext> {
 					retrieveCalls++;
 
 					return context;
 				}
-			}
+			})
 		});
 		const image: Image = new Image(hitomi, 1000, 1500, hash, '1.jpg', false, true, false, true);
 

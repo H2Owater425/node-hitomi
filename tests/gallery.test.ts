@@ -28,13 +28,13 @@ describe('GalleryReference', function (): void {
 			id: id
 		});
 		const hitomi: Hitomi = createMock<Hitomi>({
-			galleries: {
+			galleries: createMock<GalleryManager>({
 				retrieve: async function (id: number): Promise<Gallery> {
 					calls.push(id);
 
 					return gallery;
 				}
-			}
+			})
 		});
 		const reference: GalleryReference = new GalleryReference(hitomi, id);
 		const retrievedGallery: Gallery = await reference.retrieve();
@@ -152,7 +152,7 @@ describe('GalleryManager', function (): void {
 			range: string | undefined;
 		}[] = [];
 		const hitomi: Hitomi = createMock<Hitomi>({
-			indexStaleTime: 600000,
+			indexMaximumAge: 600000,
 			request: function (url: URL, range?: string): Promise<Buffer> {
 				calls.push({
 					url: url,
@@ -255,7 +255,7 @@ describe('GalleryManager', function (): void {
 
 	test('list rejects page with multiple non-language tags', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
-			indexStaleTime: 600000,
+			indexMaximumAge: 600000,
 			request: async function (): Promise<Buffer> {
 				return Buffer.alloc(0);
 			}
@@ -280,7 +280,7 @@ describe('GalleryManager', function (): void {
 			range: string | undefined;
 		}[] = [];
 		const hitomi: Hitomi = createMock<Hitomi>({
-			indexStaleTime: 600000,
+			indexMaximumAge: 600000,
 			request: async function (url: URL, range?: string): Promise<Buffer> {
 				calls.push({
 					url: url,

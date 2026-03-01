@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-export function createMock<T>(value: Partial<Record<keyof T, unknown>> & Record<string, unknown>): T {
+export function createMock<T>(value: Partial<T>): T {
 	return value as T;
 }
 

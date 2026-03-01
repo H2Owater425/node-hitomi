@@ -8,6 +8,7 @@ import type { Node, URL } from '../source/utilities/types';
 import { assertInstanceOf, createMock } from './utilities/functions';
 import { createHash } from 'crypto';
 import { TAG_TYPES } from './utilities/constants';
+import { IndexProvider } from '../source/utilities/structures';
 
 describe('Language', function (): void {
 	test('constructor exposes url and toTag converts to language tag', function (): void {
@@ -123,7 +124,7 @@ describe('Tag', function (): void {
 
 	test('listLanguages returns direct mapping for language tag without index access', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
-			languageIndex: {
+			languageIndex: createMock<IndexProvider>({
 				retrieve: async function (): Promise<string> {
 					throw new Error('retrieve should not be called');
 				},
@@ -133,7 +134,7 @@ describe('Tag', function (): void {
 				binarySearch: async function (): Promise<Node[1][number] | undefined> {
 					throw new Error('binarySearch should not be called');
 				}
-			}
+			})
 		});
 		const tag: Tag = new Tag(hitomi, 'language', 'japanese');
 
@@ -155,7 +156,7 @@ describe('Tag', function (): void {
 			root?: Node;
 		}[] = []; 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			languageIndex: {
+			languageIndex: createMock<IndexProvider>({
 				retrieve: async function (): Promise<string> {
 					calls.push({
 						function: 'retrieve'
@@ -182,7 +183,7 @@ describe('Tag', function (): void {
 
 					return [13n, 0];
 				}
-			}
+			})
 		});
 		const tag: Tag = new Tag(hitomi, 'female', 'glasses');
 
@@ -288,7 +289,7 @@ describe('TagManager', function (): void {
 
 	test('list returns language and type tags without network request', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (): Promise<string> {
+			request: async function (): Promise<Buffer> {
 				throw new Error('request should not be called');
 			}
 		});
