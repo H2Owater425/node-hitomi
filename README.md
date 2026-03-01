@@ -17,7 +17,7 @@
 > [!IMPORTANT]
 > Due to frequent changes on Hitomi, it is highly recommended to use the latest version.
 
-**Node.js 10.4 or newer is required.**
+**Node.js 10.20 or newer is required.**
 
 ```sh
 npm install node-hitomi
