@@ -1,0 +1,1 @@
+export const TAG_TYPES = ['artist', 'group', 'series', 'character', 'male', 'female', 'tag'] as const;
