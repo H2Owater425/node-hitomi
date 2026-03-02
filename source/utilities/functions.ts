@@ -17,6 +17,6 @@ export function defineProperties<T>(target: T, properties: Record<string, unknow
 }
 
 // @internal
-export function formatOneOfState(object: object): string {
-	return 'one of ' + Object.values(object).join(', ');
+export function formatOneOfState<T>(object: Iterable<T>): string {
+	return 'one of ' + (object[Symbol['iterator']] ? Array.from(object) : Object.values(object)).join(', ');
 }
