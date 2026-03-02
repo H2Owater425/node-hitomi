@@ -1,7 +1,7 @@
 {
 	"name": "node-hitomi",
 	"version": "8.1.2",
-	"description": "Hitomi.la api for Node.js",
+	"description": "Hitomi.la API for Node.js",
 	"keywords": [
 		"hitomi",
 		"e-hentai",

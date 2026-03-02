@@ -15,7 +15,7 @@
 ## Installation
 
 > [!IMPORTANT]
-> Due to frequent changes on Hitomi, it is highly recommended to use the latest version.
+> Due to frequent changes on Hitomi.la, it is highly recommended to use the latest version.
 
 **Node.js 10.20 or newer is required.**
 
