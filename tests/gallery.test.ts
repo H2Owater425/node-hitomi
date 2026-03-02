@@ -308,7 +308,7 @@ describe('GalleryManager', function (): void {
 
 		assert.deepStrictEqual(calls, [{
 			url: ['ltn.gold-usergeneratedcontent.net', '/n/artist/john%20doe-all.nozomi'],
-			range: '2-3'
+			range: '8-15'
 		}]);
 		assert.deepStrictEqual(references.map(function (reference: GalleryReference): number {
 			return reference['id'];
