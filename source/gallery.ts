@@ -595,11 +595,10 @@ export class GalleryManager extends Base {
 
 			i /* currentIndex */ = 0;
 			let j /* nextIndex */: number = title.indexOf(' ');
-			let data: Node[1][number] | undefined;
 
 			while(j !== -1) {
 				if(j - i) {
-					data = await this['index'].binarySearch(hashTerm(title.slice(i, j)), rootNode, version);
+					const data: Node[1][number] | undefined = await this['index'].binarySearch(hashTerm(title.slice(i, j)), rootNode, version);
 
 					if(!data) {
 						return [];
@@ -613,15 +612,13 @@ export class GalleryManager extends Base {
 			}
 		}
 
-		let isNegative: boolean;
-
 		if(idSets['length']) {
 			for(i = 1; i < idSets['length']; i++) {
 				if(!idSets[0]['size']) {
 					return [];
 				}
 
-				isNegative = idSets[i].has(0);
+				const isNegative: boolean = idSets[i].has(0);
 
 				for(const id of idSets[0]) {
 					if(isNegative === idSets[i].has(id)) {
