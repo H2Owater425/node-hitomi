@@ -1,7 +1,7 @@
 import type { Hitomi } from './hitomi';
 import { Base, HitomiError } from './utilities/structures';
 import { formatOneOfState, hashTerm } from './utilities/functions';
-import { BINARY_ORDERED_LANGUAGES, NameInitial, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN } from './utilities/constants';
+import { BINARY_ORDERED_LANGUAGES, NameInitial, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './utilities/constants';
 import type { Node } from './utilities/types';
 import type { Gallery } from './gallery';
 
@@ -289,6 +289,7 @@ export class TagManager extends Base {
 	 *
 	 * @param {string} term Search term, optionally prefixed with a tag type and colon.
 	 * @returns {Promise<[Tag, number][]>} Promise that resolves to an array of `[Tag, count]` tuples.
+	 * @throws {HitomiError} Thrown when type is invalid.
 	 */
 	public async search(term: string): Promise<[Tag, number][]> {
 		const isNegative: boolean = term[0] === '-';
@@ -296,7 +297,13 @@ export class TagManager extends Base {
 		let path: string;
 
 		if(i) {
-			path = '/' + term.slice(isNegative as unknown as number, i - 1);
+			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
+
+			if(!TAG_TYPES.has(type)) {
+				throw HitomiError['TAG_TYPE'];
+			}
+
+			path = '/' + type;
 		} else {
 			if(isNegative) {
 				i++;
