@@ -121,12 +121,14 @@ if(references.length > 0) {
 > // List matching gallery references with pagination
 > const pagedReferences = await hitomi.galleries.list({
 > 	tags: simpleTags,
-> 	orderBy: SortType.DateAdded,
+> 	orderBy: SortType.DatePublished,
 > 	page: {
 > 		index: 0,
 > 		size: 25
 > 	}
 > });
+> 
+> console.log(pagedReferences, `(${pagedReferences['length']} galleries)`);
 > ```
 
 ---
