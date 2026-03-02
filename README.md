@@ -216,15 +216,16 @@ Resolves an image URL in the requested format and optional thumbnail size.
 ```typescript
 import hitomi, { Extension, ThumbnailSize } from 'node-hitomi';
 
-const gallery = await hitomi.galleries.retrieve(1234567);
-const firstImage = gallery.files[0];
+// Retrieve a gallery by id and get thumbnail available images
+const gallery = await hitomi.galleries.retrieve(123456);
+const thumbnails = gallery.getThumbnails();
 
 // Full-size WebP URL
-const imageUrl = await firstImage.resolveUrl(Extension.Webp);
+const imageUrl = await thumbnails[0].resolveUrl(Extension.Webp);
 console.log(`Image URL: ${imageUrl}`);
 
-// AVIF medium thumbnail URL (valid only when thumbnail is available)
-const thumbnailUrl = await firstImage.resolveUrl(Extension.Avif, ThumbnailSize.Medium);
+// AVIF medium thumbnail URL
+const thumbnailUrl = await thumbnails[1].resolveUrl(Extension.Avif, ThumbnailSize.Medium);
 console.log(`Thumbnail URL: ${thumbnailUrl}`);
 ```
 
@@ -236,12 +237,17 @@ Fetches an image as a `Buffer`. The same extension and thumbnail constraints as 
 import hitomi, { Extension, ThumbnailSize } from 'node-hitomi';
 import { writeFileSync } from 'fs';
 
-const gallery = await hitomi.galleries.retrieve(1234567);
-const firstImage = gallery.files[0];
+// Retrieve a gallery by id and get thumbnail available images
+const gallery = await hitomi.galleries.retrieve(123456);
+const thumbnails = gallery.getThumbnails();
 
-// Fetch and save a thumbnail image buffer
-const imageBuffer = await firstImage.fetch(Extension.Webp, ThumbnailSize.Small);
+// Fetch and save a full-size image
+const imageBuffer = await thumbnails[0].fetch(Extension.Webp);
 writeFileSync('image.webp', imageBuffer);
+
+// Fetch and save a small thumbnail
+const thumbnailBuffer = await thumbnails[1].fetch(Extension.Avif, ThumbnailSize.Medium);
+writeFileSync('thumbnail.avif', thumbnailBuffer);
 ```
 
 #### `Video.fetch()`
