@@ -47,7 +47,7 @@ const agent = new Agent({
 	keepAlive: true,
 	// Bypass server name indication field blocking
 	servername: '',
-	rejectUnauthorized: true
+	rejectUnauthorized: false
 });
 
 const hitomi = new Hitomi({
@@ -161,9 +161,7 @@ import hitomi from 'node-hitomi';
 // Parse a string expression into Tag instances
 const parsedTags = hitomi.tags.parse('female:yandere male:sole_male -tag:group');
 
-for(const tag of parsedTags) {
-	console.log(tag);
-}
+console.log(parsedTags);
 ```
 
 #### `TagManager.search(term)`
