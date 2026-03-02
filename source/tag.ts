@@ -266,9 +266,10 @@ export class TagManager extends Base {
 				const isNegative: Tag['isNegative'] = expression[currentIndex] === '-';
 
 				if(!rawTags.has(rawTag)) {
-					tags.push(this.create(
+					tags.push(new Tag(
+						this['hitomi'],
 						expression.slice(currentIndex + (isNegative as unknown as number), colonIndex) as Tag['type'],
-						expression.slice(colonIndex + 1, nextIndex),
+						expression.slice(colonIndex + 1, nextIndex).replace(/_/g, ' '),
 						isNegative
 					));
 					rawTags.add(rawTag);
