@@ -1,12 +1,12 @@
-import { RESOURCE_DOMAIN } from './constants';
+import { RESOURCE_DOMAIN, TAG_TYPES } from './constants';
 import type { Hitomi } from '../hitomi';
 import type { Node } from './types';
-import { defineProperties } from './functions';
+import { defineProperties, formatOneOfState } from './functions';
 
 export class HitomiError extends Error {
 	// @internal
 	public static get TAG_TYPE(): HitomiError {
-		return new HitomiError('Type', 'one of artist, group, type, language, series, character, male, female, tag');
+		return new HitomiError('Type', formatOneOfState(TAG_TYPES));
 	}
 	// @internal
 	public static get ROOT_NODE_EMPTY(): HitomiError {

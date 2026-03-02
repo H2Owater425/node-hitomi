@@ -1,5 +1,5 @@
 import type { Gallery } from '../gallery';
-import type { Language } from '../tag';
+import type { Language, Tag } from '../tag';
 
 export const BASE_DOMAIN = 'gold-usergeneratedcontent.net' as const;
 
@@ -79,6 +79,18 @@ export const GALLERY_TYPES: Set<Gallery['type']> = new Set<Gallery['type']>([
 	'gamecg',
 	'imageset',
 	'anime'
+]);
+
+export const TAG_TYPES: Set<Tag['type']> = new Set<Tag['type']>([
+	'artist',
+	'group',
+	'type',
+	'language',
+	'series',
+	'character',
+	'male',
+	'female',
+	'tag'
 ]);
 
 /**
