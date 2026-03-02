@@ -77,7 +77,7 @@ Retrieves a full gallery by id and returns a `Gallery` instance.
 import hitomi from 'node-hitomi';
 
 // Retrieve a gallery by id
-const gallery = await hitomi.galleries.retrieve(1234567);
+const gallery = await hitomi.galleries.retrieve(123456);
 
 console.log(`Title: ${gallery.title.display}`);
 console.log(`Type: ${gallery.type}`);
@@ -245,7 +245,7 @@ const thumbnails = gallery.getThumbnails();
 const imageBuffer = await thumbnails[0].fetch(Extension.Webp);
 writeFileSync('image.webp', imageBuffer);
 
-// Fetch and save a small thumbnail
+// Fetch and save a medium thumbnail
 const thumbnailBuffer = await thumbnails[1].fetch(Extension.Avif, ThumbnailSize.Medium);
 writeFileSync('thumbnail.avif', thumbnailBuffer);
 ```
@@ -258,7 +258,7 @@ Fetches a gallery video as an MP4 `Buffer`.
 import hitomi from 'node-hitomi';
 import { writeFileSync } from 'fs';
 
-const gallery = await hitomi.galleries.retrieve(1234567);
+const gallery = await hitomi.galleries.retrieve(123456);
 
 if(gallery.video) {
 	// Fetch and store the MP4 video
@@ -275,7 +275,7 @@ Fetches the video poster as a WebP `Buffer`.
 import hitomi from 'node-hitomi';
 import { writeFileSync } from 'fs';
 
-const gallery = await hitomi.galleries.retrieve(1234567);
+const gallery = await hitomi.galleries.retrieve(123456);
 
 if(gallery.video) {
 	// Fetch and store the WebP poster image
