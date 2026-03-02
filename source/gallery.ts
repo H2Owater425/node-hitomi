@@ -514,7 +514,7 @@ export class GalleryManager extends Base {
 		let range: string | undefined;
 
 		if(options['page']) {
-			const size: number = options['page']['size'] || 25;
+			const size: number = options['page']['size'] ? options['page']['size'] * 4 : 100;
 			const start: number = options['page']['index'] ? options['page']['index'] * size : 0;
 
 			range = start + '-' + (start + size - 1);

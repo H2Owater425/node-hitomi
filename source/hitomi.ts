@@ -130,9 +130,11 @@ export class Hitomi {
 				path: url[1],
 				method: 'GET',
 				port: 443,
-				headers: range ? Object.assign({
+				headers: Object.assign(range ? {
 					range: 'bytes=' + range
-				}, DEFAULT_HEADERS) : DEFAULT_HEADERS
+				} : {
+					'accept-encoding': 'gzip'
+				}, DEFAULT_HEADERS)
 			}, function (response: IncomingMessage): void {
 				switch(response['statusCode']) {
 					case 200:

@@ -12,7 +12,6 @@ export const FRONT_DOMAIN = 'hitomi.la' as const;
 export const TAG_INDEX_DOMAIN: `tagindex.${typeof FRONT_DOMAIN}` = 'tagindex.' + FRONT_DOMAIN;
 
 export const DEFAULT_HEADERS = {
-	'accept-encoding': 'gzip',
 	connection: 'keep-alive',
 	referer: 'https://' + FRONT_DOMAIN
 } as const;
