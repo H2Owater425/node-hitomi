@@ -15,6 +15,7 @@
 ## Installation
 
 > [!IMPORTANT]
+> 
 > Due to frequent changes on Hitomi.la, it is highly recommended to use the latest version.
 
 **Node.js 10.20 or newer is required.**
@@ -95,13 +96,9 @@ const tags = hitomi.tags.parse('male:sole_male -female:netorare series:blue_arch
 
 // List matching gallery references
 const references = await hitomi.galleries.list({
-	tags,
+	tags: tags,
 	title: 'serina',
-	orderBy: SortType.PopularityMonth,
-	page: {
-		index: 0,
-		size: 25
-	}
+	orderBy: SortType.PopularityMonth
 });
 
 // Resolve the first reference to a full gallery
@@ -110,6 +107,27 @@ if(references.length > 0) {
 	console.log(firstGallery.title.display);
 }
 ```
+
+> [!WARNING]
+> 
+> Not every `options.page` usage is valid. It must meet the restrictions below.
+> 
+> - Only one non-language tag is allowed (optionally combined with a language tag).
+> - Negative tags and title are not supported.
+> 
+> ```typescript
+> const simpleTags = hitomi.tags.parse('type:manga language:english');
+> 
+> // List matching gallery references with pagination
+> const pagedReferences = await hitomi.galleries.list({
+> 	tags: simpleTags,
+> 	orderBy: SortType.DateAdded,
+> 	page: {
+> 		index: 0,
+> 		size: 25
+> 	}
+> });
+> ```
 
 ---
 
@@ -185,7 +203,9 @@ for(const tag of femaleATags) {
 Resolves an image URL in the requested format and optional thumbnail size.
 
 > [!WARNING]
-> Not every `extension` and `thumbnailSize` combination is valid. See the table below.
+> 
+> Not every `extension` and `thumbnailSize` combination is valid. It must meet the restrictions below.
+> 
 > | Thumbnail Size | Extension | Requirement (must be true)       |
 > | :------------- | :-------- | :------------------------------- |
 > | *(none)*       | *(all)*   | `has{Extension}`                 |
