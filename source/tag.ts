@@ -293,12 +293,16 @@ export class TagManager extends Base {
 	public async search(term: string): Promise<[Tag, number][]> {
 		const isNegative: boolean = term[0] === '-';
 		let i: number = term.indexOf(':') + 1;
-		let path: string = '';
+		let path: string;
 
 		if(i) {
-			path = term.slice(isNegative as unknown as number, i - 1);
-		} else if(isNegative) {
-			i++;
+			path = '/' + term.slice(isNegative as unknown as number, i - 1);
+		} else {
+			if(isNegative) {
+				i++;
+			}
+
+			path = '/global';
 		}
 
 		while(i < term['length'] && term[i] !== ':') {
