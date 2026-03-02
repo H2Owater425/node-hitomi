@@ -1,1 +1,6 @@
-export const TAG_TYPES = ['artist', 'group', 'series', 'character', 'male', 'female', 'tag'] as const;
+import { TAG_TYPES } from '../../source/utilities/constants';
+
+export const PARTIAL_TAG_TYPES: typeof TAG_TYPES = TAG_TYPES;
+
+PARTIAL_TAG_TYPES.delete('language');
+PARTIAL_TAG_TYPES.delete('type');

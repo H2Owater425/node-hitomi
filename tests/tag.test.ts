@@ -7,7 +7,7 @@ import { Hitomi } from '../source/hitomi';
 import type { Node, URL } from '../source/utilities/types';
 import { assertInstanceOf, createMock } from './utilities/functions';
 import { createHash } from 'crypto';
-import { TAG_TYPES } from './utilities/constants';
+import { PARTIAL_TAG_TYPES } from './utilities/constants';
 import { IndexProvider } from '../source/utilities/structures';
 
 describe('Language', function (): void {
@@ -66,25 +66,25 @@ describe('Tag', function (): void {
 	test('constructor accepts known non-language and non-type tags', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 
-		for(let i: number = 0; i < TAG_TYPES['length']; i++) {
-			const name: string = TAG_TYPES[i] + ' tag';
-			const tag: Tag = new Tag(hitomi, TAG_TYPES[i], name);
+		for(const type of PARTIAL_TAG_TYPES) {
+			const name: string = type + ' tag';
+			const tag: Tag = new Tag(hitomi, type, name);
 			let url: string;
 
-			switch(TAG_TYPES[i]) {
+			switch(type) {
 				case 'male':
 				case 'female': {
-					url = '/tag/' + TAG_TYPES[i] + '%3A';
+					url = '/tag/' + type + '%3A';
 	
 					break;
 				}
 
 				default: {
-					url = '/' + TAG_TYPES[i] + '/'; 
+					url = '/' + type + '/'; 
 				}
 			}
 
-			assert.strictEqual(tag['type'], TAG_TYPES[i]);
+			assert.strictEqual(tag['type'], type);
 			assert.strictEqual(tag['name'], name);
 			assert.strictEqual(tag['url'], url + encodeURIComponent(name) + '-all.html');
 		}
@@ -253,7 +253,7 @@ describe('TagManager', function (): void {
 			url: URL,
 			range: string | undefined
 		}[] = [];
-		const rawResults: [string, number, string][] = [
+		const rawTagAndCounts: [string, number, string][] = [
 			['swimsuit', 70000, 'female'],
 			['sweating', 50000, 'female']
 		];
@@ -264,27 +264,54 @@ describe('TagManager', function (): void {
 					range: range
 				});
 
-				return Buffer.from(JSON.stringify(rawResults));
+				return Buffer.from(JSON.stringify(rawTagAndCounts));
 			}
 		});
 		const manager: TagManager = new TagManager(hitomi);
 
-		const results: [Tag, number][] = await manager.search('-female:sw::');
+		const tagAndCounts: [Tag, number][] = await manager.search('-sw');
+		const femaleTagAndCounts: [Tag, number][] = await manager.search('-female:sw:::unreachable:');
 
 		assert.deepStrictEqual(calls, [{
-			url: ['tagindex.hitomi.la', 'female/s/w.json'],
+			url: ['tagindex.hitomi.la', '/global/s/w.json'],
+			range: undefined
+		}, {
+			url: ['tagindex.hitomi.la', '/female/s/w.json'],
 			range: undefined
 		}]);
 
-		assert.strictEqual(results['length'], rawResults['length']);
+		assert.strictEqual(tagAndCounts['length'], rawTagAndCounts['length']);
 
-		for(let i: number = 0; i < results['length']; i++) {
-			assertInstanceOf(results[i][0], Tag);
-			assert.strictEqual(results[i][0]['type'], rawResults[i][2]);
-			assert.strictEqual(results[i][0]['name'], rawResults[i][0]);
-			assert.strictEqual(results[i][0]['isNegative'], false);
-			assert.strictEqual(results[i][1], rawResults[i][1]);
+		for(let i: number = 0; i < tagAndCounts['length']; i++) {
+			assertInstanceOf(tagAndCounts[i][0], Tag);
+			assert.strictEqual(tagAndCounts[i][0]['type'], rawTagAndCounts[i][2]);
+			assert.strictEqual(tagAndCounts[i][0]['name'], rawTagAndCounts[i][0]);
+			assert.strictEqual(tagAndCounts[i][0]['isNegative'], false);
+			assert.strictEqual(tagAndCounts[i][1], rawTagAndCounts[i][1]);
 		}
+
+		assert.strictEqual(femaleTagAndCounts['length'], rawTagAndCounts['length']);
+
+		for(let i: number = 0; i < femaleTagAndCounts['length']; i++) {
+			assertInstanceOf(femaleTagAndCounts[i][0], Tag);
+			assert.strictEqual(femaleTagAndCounts[i][0]['type'], rawTagAndCounts[i][2]);
+			assert.strictEqual(femaleTagAndCounts[i][0]['name'], rawTagAndCounts[i][0]);
+			assert.strictEqual(femaleTagAndCounts[i][0]['isNegative'], false);
+			assert.strictEqual(femaleTagAndCounts[i][1], rawTagAndCounts[i][1]);
+		}
+	});
+
+	test('search rejects invalid type', async function (): Promise<void> {
+		const hitomi: Hitomi = createMock<Hitomi>({
+			request: async function (): Promise<Buffer> {
+				throw new Error('request should not be called');
+			}
+		});
+		const manager: TagManager = new TagManager(hitomi);
+
+		await assert.rejects(function (): Promise<[Tag, number][]> {
+			return manager.search('-company:frost_nova::');
+		}, /Type must be one of/);
 	});
 
 	test('list returns language and type tags without network request', async function (): Promise<void> {
@@ -365,9 +392,9 @@ describe('TagManager', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 		const manager: TagManager = new TagManager(hitomi);
 
-		for(let i: number = 0; i < TAG_TYPES['length']; i++) {
+		for(const type of PARTIAL_TAG_TYPES) {
 			await assert.rejects(async function (): Promise<Tag[]> {
-				return manager.list(TAG_TYPES[i]);
+				return manager.list(type);
 			}, /StartsWith must be provided except for language and type/);
 		}
 	});
