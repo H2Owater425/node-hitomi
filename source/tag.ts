@@ -160,8 +160,7 @@ export class Tag extends Base {
 			case 'language': {
 				for(; i < BINARY_ORDERED_LANGUAGES['length']; i++) {
 					if(this['name'] === BINARY_ORDERED_LANGUAGES[i][0]) {
-						// @ts-expect-error
-						return [new Language(this['hitomi'], ...BINARY_ORDERED_LANGUAGES[i])];
+						return [new Language(this['hitomi'], BINARY_ORDERED_LANGUAGES[i][0], BINARY_ORDERED_LANGUAGES[i][1])];
 					}
 				}
 
