@@ -7,18 +7,6 @@ import type { Plugin, RollupOptions } from "rollup";
 import type { SourceFile, TransformationContext, Node, PropertyAssignment, Expression } from 'typescript';
 import { isEnumDeclaration, visitEachChild, NodeFlags, visitNode } from 'typescript';
 
-function rmdir(type: 'cjs' | 'esm' | 'types'): Plugin {
-	return {
-		name: 'rmdir',
-		load: function (): void {
-			rmSync('distribution/' + type, {
-				recursive: true,
-				force: true
-			});
-		}
-	};
-}
-
 function indent(): Plugin {
 	return {
 		name: 'indent',
@@ -50,7 +38,6 @@ function configuration(type: 'cjs' | 'esm'): RollupOptions {
 			}
 		},
 		plugins: [
-			rmdir(type),
 			resolve(),
 			commonjs(),
 			typescript({
@@ -109,6 +96,11 @@ function configuration(type: 'cjs' | 'esm'): RollupOptions {
 	} satisfies RollupOptions;
 }
 
+rmSync('distribution', {
+	recursive: true,
+	force: true
+});
+
 export default [
 	configuration('cjs'),
 	configuration('esm'),
@@ -120,7 +112,6 @@ export default [
       preserveModulesRoot: 'source',
 		},
 		plugins: [
-			rmdir('types'),
 			resolve(),
 			dts({
 				compilerOptions: {
