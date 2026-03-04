@@ -408,11 +408,11 @@ export class GalleryManager extends Base {
 		if(options['orderBy']) {
 			switch(options['orderBy']) {
 				case SortType['DatePublished']: {
-					orderBy = 'date/published/';
+					orderBy = 'date/published';
 				}
 				case SortType['DateAdded']:
 				// shuffle array later
-				case 'random': {
+				case SortType['Random']: {
 					break;
 				}
 
@@ -420,7 +420,7 @@ export class GalleryManager extends Base {
 				case SortType['PopularityWeek']:
 				case SortType['PopularityMonth']:
 				case SortType['PopularityYear']: {
-					orderBy = 'popular/' + options['orderBy'] + '/';
+					orderBy = 'popular/' + options['orderBy'];
 
 					break;
 				}
@@ -433,7 +433,15 @@ export class GalleryManager extends Base {
 		}
 
 		if(!options['tag'] || options['tag']['type'] === 'language') {
-			return [RESOURCE_DOMAIN, '/n/' + orderBy + 'index-' + language + '.nozomi'];
+			if(!orderBy) {
+				orderBy = 'index';
+			}
+
+			return [RESOURCE_DOMAIN, '/n/' + orderBy + '-' + language + '.nozomi'];
+		}
+
+		if(orderBy) {
+			orderBy += '/';
 		}
 
 		let area: string;
