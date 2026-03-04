@@ -1,6 +1,6 @@
 import type { Hitomi } from './hitomi';
 import { BASE_DOMAIN, Extension, ThumbnailSize } from './utilities/constants';
-import { formatOneOfState } from './utilities/functions';
+import { capitalize, formatOneOfState } from './utilities/functions';
 import { Base, HitomiError } from './utilities/structures';
 import type { ImageContext } from './utilities/types';
 import type { Gallery } from './gallery';
@@ -123,7 +123,8 @@ export class Image extends Media {
 	 * @see {@link hasThumbnail}
 	 */
 	public async resolveUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
-		if(!extension || !this['has' + String.fromCharCode(extension.charCodeAt(0) - 32) + extension.slice(1) as `has${'Webp' | 'Avif' | 'Jxl'}`]) {
+		// @ts-expect-error - typescript internal error
+		if(!extension || !this['has' + capitalize(extension)]) {
 			throw new HitomiError('Extension', 'supported');
 		}
 

@@ -5,7 +5,7 @@ import type { ImageContext, URL } from './utilities/types';
 import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './utilities/constants';
-import { defineProperties } from './utilities/functions';
+import { defineProperties, capitalize } from './utilities/functions';
 import { HitomiError, IndexProvider, Provider } from './utilities/structures';
 
 /**
@@ -51,7 +51,7 @@ export class Hitomi {
 	} = {}) {
 		for(let i: number = 0; i < STALE_TIME_PROPERTIES['length']; i++) {
 			if(options[STALE_TIME_PROPERTIES[i]] && !Number.isInteger(options[STALE_TIME_PROPERTIES[i]]) || options[STALE_TIME_PROPERTIES[i]] as number < 1) {
-				throw new HitomiError('Options.' + STALE_TIME_PROPERTIES[i], 'a positive integer');
+				throw new HitomiError(capitalize(STALE_TIME_PROPERTIES[i]), 'a positive integer');
 			}
 		}
 
