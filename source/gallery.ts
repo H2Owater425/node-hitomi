@@ -433,11 +433,7 @@ export class GalleryManager extends Base {
 		}
 
 		if(!options['tag'] || options['tag']['type'] === 'language') {
-			if(!orderBy) {
-				orderBy = 'index';
-			}
-
-			return [RESOURCE_DOMAIN, '/n/' + orderBy + '-' + language + '.nozomi'];
+			return [RESOURCE_DOMAIN, '/n/' + (orderBy || 'index') + '-' + language + '.nozomi'];
 		}
 
 		if(orderBy) {
