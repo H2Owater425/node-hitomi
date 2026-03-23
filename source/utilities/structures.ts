@@ -46,17 +46,15 @@ export class Provider<T> extends Base {
 	public value!: T;
 	private expiresAt: number = 0;
 	private promise?: Promise<void>;
-	private update: () => Promise<T>;
 	private assign: (value: T) => void;
 
 	constructor(
 		hitomi: Hitomi,
-		update: Provider<T>['update'],
+		private update: () => Promise<T>,
 		private maximumAge: number
 	) {
 		super(hitomi);
 
-		this.update = update.bind(this);
 		this.assign = (function (this: Provider<T>, value: T): void {
 			this['value'] = value;
 			this['expiresAt'] = Date.now() + this['maximumAge'];
