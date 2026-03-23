@@ -1,0 +1,51 @@
+name: Continuous integration
+
+on: 
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    branches:
+      - main
+      - develop
+    paths-ignore:
+      - '**/*.md'
+      - '.github/assets/**/*'
+      - '.gitignore'
+      - '.npmignore'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x, 20.x, 22.x, 24.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - name: Install dependencies
+        if: matrix.node-version == '14.x'
+        run: npm install
+      - name: Install dependencies
+        if: matrix.node-version != '14.x'
+        run: npm ci
+      - name: Build project
+        run: npm run build
+      - name: Run unit tests
+        run: npm run test
