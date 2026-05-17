@@ -2,7 +2,8 @@ import { describe, test } from 'mocha';
 import assert from 'assert';
 
 import { Image, Video } from '../source/media';
-import { Extension, ThumbnailSize } from '../source/utilities/constants';
+import { ThumbnailSize } from '../source/enums';
+import { Extension } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
 import type { ImageContext, URL } from '../source/utilities/types';
 import { createMock } from './utilities/functions';

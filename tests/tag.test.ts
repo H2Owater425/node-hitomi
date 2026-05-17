@@ -2,7 +2,8 @@ import { describe, test } from 'mocha';
 import assert from 'assert';
 
 import { Language, Tag, TagManager } from '../source/tag';
-import { NameInitial, BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../source/utilities/constants';
+import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../source/utilities/constants';
+import { NameInitial } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
 import type { Node, URL } from '../source/utilities/types';
 import { assertInstanceOf, createMock } from './utilities/functions';

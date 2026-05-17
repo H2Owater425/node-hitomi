@@ -1,5 +1,7 @@
 import type { Hitomi } from './hitomi';
-import { BASE_DOMAIN, Extension, ThumbnailSize } from './utilities/constants';
+import { BASE_DOMAIN } from './utilities/constants';
+import { ThumbnailSize } from './enums';
+import { Extension } from './enums';
 import { capitalize, formatOneOfState } from './utilities/functions';
 import { Base, HitomiError } from './utilities/structures';
 import type { ImageContext } from './utilities/types';
