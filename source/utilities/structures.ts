@@ -1,7 +1,7 @@
 import { RESOURCE_DOMAIN, TAG_TYPES } from './constants';
 import type { Hitomi } from '../hitomi';
 import type { Node } from './types';
-import { defineProperties, formatOneOfState } from './functions';
+import { compare, defineProperties, formatOneOfState, toString } from './functions';
 
 export class HitomiError extends Error {
 	// @internal
@@ -82,25 +82,27 @@ export class IndexProvider extends Provider<string> {
 		private field: 'galleries' | 'languages'
 	) {
 		super(hitomi, async function (this: IndexProvider): Promise<string> {
-			return String(await this['hitomi'].request([RESOURCE_DOMAIN, '/' + this['field'] + 'index/version']));
+			return toString(await this['hitomi'].request([RESOURCE_DOMAIN, '/' + this['field'] + 'index/version']));
 		}, hitomi['indexMaximumAge']);
 	}
 
 	public async getNodeAtAddress(address: Node[2][number], version: string): Promise<Node | undefined> {
-		const response: Buffer = await this['hitomi'].request([RESOURCE_DOMAIN, '/' + this['field'] + 'index/' + this['field'] + '.' + version + '.index'], address + '-' + (address + 463n));
+		const response: Uint8Array = await this['hitomi'].request([RESOURCE_DOMAIN, '/' + this['field'] + 'index/' + this['field'] + '.' + version + '.index'], address + '-' + (address + 463n));
 
 		if(!response['length']) {
 			return;
 		}
 
+		const view: DataView = new DataView(response['buffer']);
+
 		// decode_node
 		const node: Node = [[], [], []];
-		const keyCount: number = response.readInt32BE(0);
+		const keyCount: number = view.getInt32(0);
 		let offset: number = 4;
 		let i: number;
 
 		for(i = 0; i < keyCount; i++) {
-			const keySize: number = response.readInt32BE(offset);
+			const keySize: number = view.getInt32(offset);
 
 			if(keySize < 1 || keySize > 31) {
 				throw new HitomiError('KeySize', 'between 1 and 31');
@@ -109,18 +111,18 @@ export class IndexProvider extends Provider<string> {
 			node[0].push(response.subarray(offset += 4, offset += keySize));
 		}
 
-		const dataCount: number = response.readInt32BE(offset);
+		const dataCount: number = view.getInt32(offset);
 
 		offset += 4;
 
 		for(i = 0; i < dataCount; i++) {
-			node[1].push([response.readBigUInt64BE(offset), response.readInt32BE(offset + 8)]);
+			node[1].push([view.getBigUint64(offset), view.getInt32(offset + 8)]);
 
 			offset += 12;
 		}
 
 		for(i = 0; i < 17; i++) {
-			node[2].push(response.readBigUInt64BE(offset));
+			node[2].push(view.getBigUint64(offset));
 
 			offset += 8;
 		}
@@ -128,7 +130,7 @@ export class IndexProvider extends Provider<string> {
 		return node;
 	}
 
-	public async binarySearch(key: Buffer, node: Node, version: string): Promise<Node[1][number] | undefined> {
+	public async binarySearch(key: Uint8Array, node: Node, version: string): Promise<Node[1][number] | undefined> {
 		if(!node[0]['length']) {
 			return;
 		}
@@ -138,7 +140,7 @@ export class IndexProvider extends Provider<string> {
 
 		while(
 			index < node[0]['length'] &&
-			(compareResult = key.compare(node[0][index])) === 1
+			(compareResult = compare(key, node[0][index])) === 1
 		) {
 			index++;
 		}

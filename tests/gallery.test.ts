@@ -8,6 +8,7 @@ import { BASE_DOMAIN, SortType } from '../source/utilities/constants';
 import { Hitomi } from '../source/hitomi';
 import type { URL } from '../source/utilities/types';
 import { createMock, assertInstanceOf } from './utilities/functions';
+import { encoder } from './utilities/constants';
 
 describe('Title', function (): void {
 	test('constructor stores display and japanese fields', function (): void {
@@ -153,13 +154,13 @@ describe('GalleryManager', function (): void {
 		}[] = [];
 		const hitomi: Hitomi = createMock<Hitomi>({
 			indexMaximumAge: 600000,
-			request: function (url: URL, range?: string): Promise<Buffer> {
+			request: function (url: URL, range?: string): Promise<Uint8Array> {
 				calls.push({
 					url: url,
 					range: range
 				});
 
-				return Promise.resolve(Buffer.from('var galleryinfo = ' + JSON.stringify(rawGallery)));
+				return Promise.resolve(encoder.encode('var galleryinfo = ' + JSON.stringify(rawGallery)));
 			}
 		});
 		const manager: GalleryManager = new GalleryManager(hitomi);
@@ -256,8 +257,8 @@ describe('GalleryManager', function (): void {
 	test('list rejects page with multiple non-language tags', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
 			indexMaximumAge: 600000,
-			request: async function (): Promise<Buffer> {
-				return Buffer.alloc(0);
+			request: async function (): Promise<Uint8Array> {
+				return new Uint8Array(0);
 			}
 		});
 		const manager: GalleryManager = new GalleryManager(hitomi);
@@ -281,16 +282,17 @@ describe('GalleryManager', function (): void {
 		}[] = [];
 		const hitomi: Hitomi = createMock<Hitomi>({
 			indexMaximumAge: 600000,
-			request: async function (url: URL, range?: string): Promise<Buffer> {
+			request: async function (url: URL, range?: string): Promise<Uint8Array> {
 				calls.push({
 					url: url,
 					range: range
 				});
 
-				const response: Buffer = Buffer.allocUnsafe(8);
+				const response: Uint8Array = new Uint8Array(8);
+				const view: DataView = new DataView(response.buffer);
 
-				response.writeInt32BE(11);
-				response.writeInt32BE(22, 4)
+				view.setInt32(0, 11);
+				view.setInt32(4, 22);
 
 				return response;
 			}

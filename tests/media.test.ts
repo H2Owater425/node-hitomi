@@ -56,9 +56,9 @@ describe('Image', function (): void {
 			url: URL;
 			range: string | undefined;
 		}[] = [];
-		const response: Buffer = Buffer.alloc(0);
+		const response: Uint8Array = new Uint8Array(0);
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Buffer> {
+			request: async function (url: URL, range?: string): Promise<Uint8Array> {
 				calls.push({
 					url: url,
 					range: range
@@ -69,7 +69,7 @@ describe('Image', function (): void {
 		});
 		const image: Image = new Image(hitomi, 1000, 1500, 'abcdef012345', '1.webp', false, true, false, true);
 
-		const imageBuffer: Buffer = await image.fetch(Extension['Webp'], ThumbnailSize['Small']);
+		const imageBuffer: Uint8Array = await image.fetch(Extension['Webp'], ThumbnailSize['Small']);
 
 		assert.strictEqual(imageBuffer, response);
 		assert.deepStrictEqual(calls, [{
@@ -94,11 +94,11 @@ describe('Video', function (): void {
 			range: string | undefined;
 		}[] = [];
 
-		const videoResponse: Buffer = Buffer.alloc(0);
-		const posterResponse: Buffer = Buffer.alloc(0);
+		const videoResponse: Uint8Array = new Uint8Array(0);
+		const posterResponse: Uint8Array = new Uint8Array(0);
 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Buffer> {
+			request: async function (url: URL, range?: string): Promise<Uint8Array> {
 				calls.push({
 					url: url,
 					range: range
@@ -113,8 +113,8 @@ describe('Video', function (): void {
 		});
 		const video: Video = new Video(hitomi, 1280, 720, 'video-123456.mp4', '0123456789abcdef');
 
-		const videoBuffer: Buffer = await video.fetch();
-		const posterBuffer: Buffer = await video.fetchPoster();
+		const videoBuffer: Uint8Array = await video.fetch();
+		const posterBuffer: Uint8Array = await video.fetchPoster();
 
 		assert.strictEqual(videoBuffer, videoResponse);
 		assert.strictEqual(posterBuffer, posterResponse);

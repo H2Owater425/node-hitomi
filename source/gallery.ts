@@ -2,7 +2,7 @@ import type { Hitomi } from './hitomi';
 import { Image, Video } from './media';
 import { Language, Tag } from './tag';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES, SortType } from './utilities/constants';
-import { defineProperties, hashTerm, formatOneOfState } from './utilities/functions';
+import { defineProperties, hashTerm, formatOneOfState, toString } from './utilities/functions';
 import { Base, IndexProvider, HitomiError } from './utilities/structures';
 import type { URL, Node } from './utilities/types';
 
@@ -283,7 +283,7 @@ export class GalleryManager extends Base {
 			date: string;
 			datepublished: string | null;
 			videofilename: string | null;
-		} = JSON.parse(String(await this['hitomi'].request([RESOURCE_DOMAIN, '/galleries/' + id + '.js'])).slice(18));
+		} = JSON.parse(toString(await this['hitomi'].request([RESOURCE_DOMAIN, '/galleries/' + id + '.js'])).slice(18));
 		const dedicatedTags: [Tag[], Tag[], Tag[], Tag[]] = [[] /* artists */, [] /* groups */, [] /* series */, [] /* characters */];
 		const tags: Tag[] = [];
 		const files: Image[] = [];
@@ -381,11 +381,12 @@ export class GalleryManager extends Base {
 
 	// nozomi uses jspack
 	// @internal
-	private static unpackIds(response: Buffer, isNegative: boolean = false): Set<Gallery['id']> {
+	private static unpackIds(response: Uint8Array, isNegative: boolean = false): Set<Gallery['id']> {
+		const view: DataView = new DataView(response['buffer'], response['byteOffset'], response['byteLength']);
 		const ids: Set<Gallery['id']> = new Set<Gallery['id']>();
 
 		for(let i: number = 0; i < response['byteLength']; i += 4) {
-			ids.add(response.readInt32BE(i));
+			ids.add(view.getInt32(i));
 		}
 
 		if(isNegative) {

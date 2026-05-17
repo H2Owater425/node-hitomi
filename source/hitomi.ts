@@ -5,7 +5,7 @@ import type { ImageContext, URL } from './utilities/types';
 import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './utilities/constants';
-import { defineProperties, capitalize } from './utilities/functions';
+import { defineProperties, capitalize, toString } from './utilities/functions';
 import { HitomiError, IndexProvider, Provider } from './utilities/structures';
 
 /**
@@ -68,7 +68,7 @@ export class Hitomi {
 		defineProperties(this, {
 			languageIndex: new IndexProvider(this, 'languages'),
 			imageContext: new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
-				const response: string = String(await this['hitomi'].request([RESOURCE_DOMAIN, '/gg.js']));
+				const response: string = toString(await this['hitomi'].request([RESOURCE_DOMAIN, '/gg.js']));
 				const context: ImageContext = [new Set<number>(), false, ''];
 
 				let currentIndex: number = 0;
@@ -122,8 +122,8 @@ export class Hitomi {
 	}
 
 	// @internal
-	public request(url: URL, range?: string): Promise<Buffer> {
-		return new Promise<Buffer>(function (this: Hitomi, resolve: (value: Buffer) => void, reject: (error?: unknown) => void): void {
+	public request(url: URL, range?: string): Promise<Uint8Array> {
+		return new Promise<Uint8Array>(function (this: Hitomi, resolve: (value: Uint8Array) => void, reject: (error?: unknown) => void): void {
 			request({
 				agent: this['agent'],
 				hostname: url[0],
@@ -139,16 +139,16 @@ export class Hitomi {
 				switch(response['statusCode']) {
 					case 200:
 					case 206: {
-						const buffer: Buffer = Buffer.allocUnsafe(+(response['headers']['content-length'] as string));
+						const buffer: Uint8Array = new Uint8Array(+(response['headers']['content-length'] as string));
 						let length: number = 0;
 
-						response.on('data', function (chunk: Buffer): void {
-							chunk.copy(buffer, length);
+						response.on('data', function (chunk: Uint8Array): void {
+							buffer.set(chunk, length);
 							length += chunk['byteLength'];
 						})
 						.once('end', function (): void {
 							if(response['headers']['content-encoding']) {
-								return gunzip(buffer, function (error: Error | null, decompressedBuffer: Buffer): void {
+								return gunzip(buffer, function (error: Error | null, decompressedBuffer: Uint8Array): void {
 									if(error) {
 										return reject(error);
 									}

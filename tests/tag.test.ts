@@ -7,7 +7,7 @@ import { Hitomi } from '../source/hitomi';
 import type { Node, URL } from '../source/utilities/types';
 import { assertInstanceOf, createMock } from './utilities/functions';
 import { createHash } from 'crypto';
-import { PARTIAL_TAG_TYPES } from './utilities/constants';
+import { encoder, PARTIAL_TAG_TYPES } from './utilities/constants';
 import { IndexProvider } from '../source/utilities/structures';
 
 describe('Language', function (): void {
@@ -146,13 +146,13 @@ describe('Tag', function (): void {
 	});
 
 	test('listLanguages uses language index for non-language tags', async function (): Promise<void> {
-		const rootNode: Node = [[Buffer.alloc(0)], [[1n, 2]], [3n]];
+		const rootNode: Node = [[new Uint8Array(0)], [[1n, 2]], [3n]];
 		const version: string = '12345678';
 		const calls: {
 			function: string;
 			address?: bigint;
 			version?: string;
-			key?: Buffer;
+			key?: Uint8Array;
 			root?: Node;
 		}[] = []; 
 		const hitomi: Hitomi = createMock<Hitomi>({
@@ -173,7 +173,7 @@ describe('Tag', function (): void {
 
 					return rootNode;
 				},
-				binarySearch: async function (key: Buffer, root: Node, version: string): Promise<Node[1][number]> {
+				binarySearch: async function (key: Uint8Array, root: Node, version: string): Promise<Node[1][number]> {
 					calls.push({
 						function: 'binarySearch',
 						key: key,
@@ -258,13 +258,13 @@ describe('TagManager', function (): void {
 			['sweating', 50000, 'female']
 		];
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Buffer> {
+			request: async function (url: URL, range?: string): Promise<Uint8Array> {
 				calls.push({
 					url: url,
 					range: range
 				});
 
-				return Buffer.from(JSON.stringify(rawTagAndCounts));
+				return encoder.encode(JSON.stringify(rawTagAndCounts));
 			}
 		});
 		const manager: TagManager = new TagManager(hitomi);
@@ -303,7 +303,7 @@ describe('TagManager', function (): void {
 
 	test('search rejects invalid type', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (): Promise<Buffer> {
+			request: async function (): Promise<Uint8Array> {
 				throw new Error('request should not be called');
 			}
 		});
@@ -316,7 +316,7 @@ describe('TagManager', function (): void {
 
 	test('list returns language and type tags without network request', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (): Promise<Buffer> {
+			request: async function (): Promise<Uint8Array> {
 				throw new Error('request should not be called');
 			}
 		});
@@ -341,13 +341,13 @@ describe('TagManager', function (): void {
 		<a href="/tag/female%3A4%20female%20tag-all.html">4 female tag ♀</a>`;
 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Buffer> {
+			request: async function (url: URL, range?: string): Promise<Uint8Array> {
 				calls.push({
 					url: url,
 					range: range
 				});
 
-				return Buffer.from(response);
+				return encoder.encode(response);
 			}
 		});
 		const manager: TagManager = new TagManager(hitomi);

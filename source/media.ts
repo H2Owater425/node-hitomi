@@ -35,7 +35,7 @@ abstract class Media extends Base {
 	}
 
 	// @internal
-	protected request(url: string): Promise<Buffer> {
+	protected request(url: string): Promise<Uint8Array> {
 		const index: number = url.indexOf('/', 2);
 
 		return this['hitomi'].request([url.slice(2, index), url.slice(index)]);
@@ -177,10 +177,10 @@ export class Image extends Media {
 	 *
 	 * @param {Extension} extension Desired image format.
 	 * @param {ThumbnailSize} [thumbnailSize] Optional thumbnail size. (a full-size image is returned if omitted)
-	 * @returns {Promise<Buffer>} Promise that resolves to the image as a `Buffer`.
+	 * @returns {Promise<Uint8Array>} Promise that resolves to the image as a `Uint8Array`.
 	 * @throws {HitomiError} Thrown when the `extension` and `thumbnailSize` combination is not valid.
 	 */
-	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Buffer> {
+	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Uint8Array> {
 		return super.request(await this.resolveUrl(extension, thumbnailSize));
 	}
 }
@@ -229,18 +229,18 @@ export class Video extends Media {
 	/**
 	 * Fetches the video in MP4 format.
 	 *
-	 * @returns {Promise<Buffer>} Promise that resolves to the video as a `Buffer`.
+	 * @returns {Promise<Uint8Array>} Promise that resolves to the video as a `Uint8Array`.
 	 */
-	public fetch(): Promise<Buffer> {
+	public fetch(): Promise<Uint8Array> {
 		return super.request(this['url']);
 	}
 
 	/**
 	 * Fetches the poster (video thumbnail) in WebP format.
 	 *
-	 * @returns {Promise<Buffer>} Promise that resolves to the poster as a `Buffer`.
+	 * @returns {Promise<Uint8Array>} Promise that resolves to the poster as a `Uint8Array`.
 	 */
-	public fetchPoster(): Promise<Buffer> {
+	public fetchPoster(): Promise<Uint8Array> {
 		return super.request(this['posterUrl']);
 	}
 }

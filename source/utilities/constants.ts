@@ -1,3 +1,4 @@
+import { TextDecoder } from 'util';
 import type { Gallery } from '../gallery';
 import type { Language, Tag } from '../tag';
 

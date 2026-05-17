@@ -1,8 +1,32 @@
 import { createHash } from 'crypto';
 
 // @internal
-export function hashTerm(term: string): Buffer {
+// compare_arraybuffers
+export function compare(a: Uint8Array, b: Uint8Array): 0 | 1 | -1 {
+	const length: number = a['byteLength'] > b['byteLength'] ? a['byteLength'] : b['byteLength'];
+
+	for(let i: number = 0; i < length; i++) {
+		if(a[i] < b[i]) {
+			return -1;
+		}
+		
+		if(a[i] > b[i]) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+// @internal
+export function hashTerm(term: string): Uint8Array {
 	return createHash('sha256').update(term).digest().subarray(0, 4);
+}
+
+const decoder: TextDecoder = new TextDecoder();
+
+export function toString(buffer: Uint8Array): string {
+	return decoder.decode(buffer);
 }
 
 // @internal
