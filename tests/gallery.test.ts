@@ -4,10 +4,10 @@ import assert from 'assert';
 import { Title, GalleryReference, TranslatedGallery, Gallery, GalleryManager } from '../source/gallery';
 import { Tag, Language } from '../source/tag';
 import { Image, Video } from '../source/media';
-import { BASE_DOMAIN } from '../source/utilities/constants';
+import { BASE_DOMAIN } from '../source/internal/constants';
 import { SortType } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
-import type { URL } from '../source/utilities/types';
+import type { URL } from '../source/internal/types';
 import { createMock, assertInstanceOf } from './utilities/functions';
 import { encoder } from './utilities/constants';
 

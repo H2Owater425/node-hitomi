@@ -1,10 +1,10 @@
 import type { Hitomi } from './hitomi';
-import { Base } from './utilities/structures';
+import { Base } from './internal/structures';
 import { HitomiError } from './error';
-import { formatOneOfState, hashTerm, toString } from './utilities/functions';
-import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './utilities/constants';
+import { formatOneOfState, hashTerm, toString } from './internal/functions';
+import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './internal/constants';
 import { NameInitial } from './enums';
-import type { Node } from './utilities/types';
+import type { Node } from './internal/types';
 import type { Gallery } from './gallery';
 
 // Moved from gallery to avoid circular dependency

@@ -2,14 +2,14 @@ import { describe, test } from 'mocha';
 import assert from 'assert';
 
 import { Language, Tag, TagManager } from '../source/tag';
-import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../source/utilities/constants';
+import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../source/internal/constants';
 import { NameInitial } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
-import type { Node, URL } from '../source/utilities/types';
+import type { Node, URL } from '../source/internal/types';
 import { assertInstanceOf, createMock } from './utilities/functions';
 import { createHash } from 'crypto';
 import { encoder, PARTIAL_TAG_TYPES } from './utilities/constants';
-import { IndexProvider } from '../source/utilities/structures';
+import { IndexProvider } from '../source/internal/structures';
 
 describe('Language', function (): void {
 	test('constructor exposes url and toTag converts to language tag', function (): void {

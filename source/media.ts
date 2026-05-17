@@ -1,11 +1,11 @@
 import type { Hitomi } from './hitomi';
-import { BASE_DOMAIN } from './utilities/constants';
+import { BASE_DOMAIN } from './internal/constants';
 import { ThumbnailSize } from './enums';
 import { Extension } from './enums';
-import { capitalize, formatOneOfState } from './utilities/functions';
-import { Base } from './utilities/structures';
+import { capitalize, formatOneOfState } from './internal/functions';
+import { Base } from './internal/structures';
 import { HitomiError } from './error';
-import type { ImageContext } from './utilities/types';
+import type { ImageContext } from './internal/types';
 import type { Gallery } from './gallery';
 
 /**

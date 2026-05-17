@@ -1,12 +1,12 @@
 import { Agent, request } from 'https';
 import type { IncomingMessage } from 'http';
 import { gunzip } from 'zlib';
-import type { ImageContext, URL } from './utilities/types';
+import type { ImageContext, URL } from './internal/types';
 import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
-import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './utilities/constants';
-import { defineProperties, capitalize, toString } from './utilities/functions';
-import { IndexProvider, Provider } from './utilities/structures';
+import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './internal/constants';
+import { defineProperties, capitalize, toString } from './internal/functions';
+import { IndexProvider, Provider } from './internal/structures';
 import { HitomiError } from './error';
 
 /**

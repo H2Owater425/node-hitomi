@@ -1,5 +1,5 @@
-import { TAG_TYPES } from './utilities/constants';
-import { formatOneOfState } from './utilities/functions';
+import { TAG_TYPES } from './internal/constants';
+import { formatOneOfState } from './internal/functions';
 
 
 export class HitomiError extends Error {

@@ -5,9 +5,9 @@ import { Image, Video } from '../source/media';
 import { ThumbnailSize } from '../source/enums';
 import { Extension } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
-import type { ImageContext, URL } from '../source/utilities/types';
+import type { ImageContext, URL } from '../source/internal/types';
 import { createMock } from './utilities/functions';
-import { Provider } from '../source/utilities/structures';
+import { Provider } from '../source/internal/structures';
 
 describe('Image', function (): void {
 	test('resolveUrl rejects unsupported extension', async function (): Promise<void> {
