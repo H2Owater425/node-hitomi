@@ -7,7 +7,6 @@ import { Image, Video } from '../source/media';
 import { BASE_DOMAIN } from '../source/internal/constants';
 import { SortType } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
-import type { URL } from '../source/internal/types';
 import { createMock, assertInstanceOf } from './utilities/functions';
 import { encoder } from './utilities/constants';
 
@@ -150,14 +149,16 @@ describe('GalleryManager', function (): void {
 		} as const;
 
 		const calls: {
-			url: URL;
+			host: string;
+			path: string;
 			range: string | undefined;
 		}[] = [];
 		const hitomi: Hitomi = createMock<Hitomi>({
 			indexMaximumAge: 600000,
-			request: function (url: URL, range?: string): Promise<Uint8Array> {
+			request: function (host: string, path: string, range?: string): Promise<Uint8Array> {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
 					range: range
 				});
 
@@ -169,7 +170,8 @@ describe('GalleryManager', function (): void {
 		const gallery: Gallery = await manager.retrieve(id);
 
 		assert.deepStrictEqual(calls, [{
-			url: ['ltn.gold-usergeneratedcontent.net', '/galleries/' + id + '.js'],
+			host: 'ltn.gold-usergeneratedcontent.net',
+			path: '/galleries/' + id + '.js',
 			range: undefined
 		}]);
 
@@ -278,14 +280,16 @@ describe('GalleryManager', function (): void {
 
 	test('list returns paginated references for tag query', async function (): Promise<void> {
 		const calls: {
-			url: URL;
+			host: string;
+			path: string;
 			range: string | undefined;
 		}[] = [];
 		const hitomi: Hitomi = createMock<Hitomi>({
 			indexMaximumAge: 600000,
-			request: async function (url: URL, range?: string): Promise<Uint8Array> {
+			request: async function (host: string, path: string, range?: string): Promise<Uint8Array> {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
 					range: range
 				});
 
@@ -310,7 +314,8 @@ describe('GalleryManager', function (): void {
 		});
 
 		assert.deepStrictEqual(calls, [{
-			url: ['ltn.gold-usergeneratedcontent.net', '/n/artist/john%20doe-all.nozomi'],
+			host: 'ltn.gold-usergeneratedcontent.net',
+			path: '/n/artist/john%20doe-all.nozomi',
 			range: '8-15'
 		}]);
 		assert.deepStrictEqual(references.map(function (reference: GalleryReference): number {

@@ -41,7 +41,7 @@ abstract class Media extends Base {
 	protected request(url: string): Promise<Uint8Array> {
 		const index: number = url.indexOf('/', 2);
 
-		return this['hitomi'].request([url.slice(2, index), url.slice(index)]);
+		return this['hitomi'].request(url.slice(2, index), url.slice(index));
 	}
 }
 

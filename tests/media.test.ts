@@ -5,7 +5,7 @@ import { Image, Video } from '../source/media';
 import { ThumbnailSize } from '../source/enums';
 import { Extension } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
-import type { ImageContext, URL } from '../source/internal/types';
+import type { ImageContext } from '../source/internal/types';
 import { createMock } from './utilities/functions';
 import { Provider } from '../source/internal/structures';
 
@@ -54,14 +54,16 @@ describe('Image', function (): void {
 
 	test('fetch requests resolved url through client.request', async function (): Promise<void> {
 		const calls: {
-			url: URL;
+			host: string;
+			path: string;
 			range: string | undefined;
 		}[] = [];
 		const response: Uint8Array = new Uint8Array(0);
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Uint8Array> {
+			request: async function (host: string, path: string, range?: string): Promise<Uint8Array> {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
 					range: range
 				});
 
@@ -74,7 +76,8 @@ describe('Image', function (): void {
 
 		assert.strictEqual(imageBuffer, response);
 		assert.deepStrictEqual(calls, [{
-			url: ['tn.gold-usergeneratedcontent.net', '/webpsmalltn/5/34/abcdef012345.webp'],
+			host: 'tn.gold-usergeneratedcontent.net',
+			path: '/webpsmalltn/5/34/abcdef012345.webp',
 			range: undefined
 		}]);
 	});
@@ -91,7 +94,8 @@ describe('Video', function (): void {
 
 	test('fetch and fetchPoster request resolved urls through client.request', async function (): Promise<void> {
 		const calls: {
-			url: URL;
+			host: string;
+			path: string;
 			range: string | undefined;
 		}[] = [];
 
@@ -99,13 +103,14 @@ describe('Video', function (): void {
 		const posterResponse: Uint8Array = new Uint8Array(0);
 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Uint8Array> {
+			request: async function (host: string, path: string, range?: string): Promise<Uint8Array> {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
 					range: range
 				});
 
-				if(url[0].startsWith('streaming.')) {
+				if(host.startsWith('streaming.')) {
 					return videoResponse;
 				}
 
@@ -120,11 +125,13 @@ describe('Video', function (): void {
 		assert.strictEqual(videoBuffer, videoResponse);
 		assert.strictEqual(posterBuffer, posterResponse);
 		assert.deepStrictEqual(calls, [{
-			url: ['streaming.gold-usergeneratedcontent.net', '/videos/video-123456.mp4'],
+			host: 'streaming.gold-usergeneratedcontent.net',
+			path: '/videos/video-123456.mp4',
 			range: undefined
 		},
 		{
-			url: ['a.gold-usergeneratedcontent.net', '/videos/posters/f/de/0123456789abcdef.webp'],
+			host: 'a.gold-usergeneratedcontent.net',
+			path: '/videos/posters/f/de/0123456789abcdef.webp',
 			range: undefined
 		}]);
 	})

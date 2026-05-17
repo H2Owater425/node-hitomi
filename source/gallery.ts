@@ -6,7 +6,7 @@ import { SortType } from './enums';
 import { defineProperties, hashTerm, toString } from './internal/functions';
 import { Base, IndexProvider } from './internal/structures';
 import { HitomiError } from './error';
-import type { URL, Node } from './internal/types';
+import type { Node } from './internal/types';
 
 /**
  * Title associated with a gallery.
@@ -285,7 +285,7 @@ export class GalleryManager extends Base {
 			date: string;
 			datepublished: string | null;
 			videofilename: string | null;
-		} = JSON.parse(toString(await this['hitomi'].request([RESOURCE_DOMAIN, '/galleries/' + id + '.js'])).slice(18));
+		} = JSON.parse(toString(await this['hitomi'].request(RESOURCE_DOMAIN, '/galleries/' + id + '.js')).slice(18));
 		const dedicatedTags: [Tag[], Tag[], Tag[], Tag[]] = [[] /* artists */, [] /* groups */, [] /* series */, [] /* characters */];
 		const tags: Tag[] = [];
 		const files: Image[] = [];
@@ -383,7 +383,7 @@ export class GalleryManager extends Base {
 
 	// @internal
 	private async requestIds(url: [string, string], range?: string, isNegative: boolean = false): Promise<Set<Gallery['id']>> {
-		const response: Uint8Array = await this['hitomi'].request(url, range);
+		const response: Uint8Array = await this['hitomi'].request(url[0], url[1], range);
 		const view: DataView = new DataView(response['buffer'], response['byteOffset'], response['byteLength']);
 		const ids: Set<Gallery['id']> = new Set<Gallery['id']>();
 
@@ -404,7 +404,7 @@ export class GalleryManager extends Base {
 		tag?: Tag;
 		language?: string;
 		orderBy?: SortType;
-	} = {}): URL {
+	} = {}): [string, string] {
 		const language: string = options['language'] || 'all';
 		let orderBy: string = '';
 
@@ -578,16 +578,16 @@ export class GalleryManager extends Base {
 				}
 			}
 		} else {
-			const urn: URL = GalleryManager.createNozomiUrl({
+			const url: [string, string] = GalleryManager.createNozomiUrl({
 				orderBy: options['orderBy']
 			});
 
 			if(range) {
-				return this.createReferences(await this.requestIds(urn, range), isRandom);
+				return this.createReferences(await this.requestIds(url, range), isRandom);
 			}
 
 			if(options['orderBy']) {
-				idSets.push(await this.requestIds(urn));
+				idSets.push(await this.requestIds(url));
 			}
 		}
 

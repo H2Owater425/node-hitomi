@@ -317,7 +317,7 @@ export class TagManager extends Base {
 			path += '/' + term[i++];
 		}
 
-		const response: [string, number, Tag['type']][] = JSON.parse(toString(await this['hitomi'].request([TAG_INDEX_DOMAIN, path + '.json'])));
+		const response: [string, number, Tag['type']][] = JSON.parse(toString(await this['hitomi'].request(TAG_INDEX_DOMAIN, path + '.json')));
 		const tagAndCounts: [Tag, number][] = [];
 
 		for(i = 0; i < response['length']; i++) {
@@ -397,7 +397,7 @@ export class TagManager extends Base {
 					}
 				}
 
-				const response: string = toString(await this['hitomi'].request([FRONT_DOMAIN, '/all' + area + '-' + startsWith + '.html']));
+				const response: string = toString(await this['hitomi'].request(FRONT_DOMAIN, '/all' + area + '-' + startsWith + '.html'));
 				const endIndex: number = target['length'] - 1;
 
 				let currentIndex: number;

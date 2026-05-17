@@ -57,12 +57,12 @@ export class IndexProvider extends Provider<string> {
 		private field: 'galleries' | 'languages'
 	) {
 		super(hitomi, async function (this: IndexProvider): Promise<string> {
-			return toString(await this['hitomi'].request([RESOURCE_DOMAIN, '/' + this['field'] + 'index/version']));
+			return toString(await this['hitomi'].request(RESOURCE_DOMAIN, '/' + this['field'] + 'index/version'));
 		}, hitomi['indexMaximumAge']);
 	}
 
 	public async getNodeAtAddress(address: Node[2][number], version: string): Promise<Node | undefined> {
-		const response: Uint8Array = await this['hitomi'].request([RESOURCE_DOMAIN, '/' + this['field'] + 'index/' + this['field'] + '.' + version + '.index'], address + '-' + (address + 463n));
+		const response: Uint8Array = await this['hitomi'].request(RESOURCE_DOMAIN, '/' + this['field'] + 'index/' + this['field'] + '.' + version + '.index', address + '-' + (address + 463n));
 
 		if(!response['length']) {
 			return;

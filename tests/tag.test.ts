@@ -5,7 +5,7 @@ import { Language, Tag, TagManager } from '../source/tag';
 import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../source/internal/constants';
 import { NameInitial } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
-import type { Node, URL } from '../source/internal/types';
+import type { Node } from '../source/internal/types';
 import { assertInstanceOf, createMock } from './utilities/functions';
 import { createHash } from 'crypto';
 import { encoder, PARTIAL_TAG_TYPES } from './utilities/constants';
@@ -251,7 +251,8 @@ describe('TagManager', function (): void {
 
 	test('search builds request path and maps response pairs', async function (): Promise<void> {
 		const calls: {
-			url: URL,
+			host: string;
+			path: string;
 			range: string | undefined
 		}[] = [];
 		const rawTagAndCounts: [string, number, string][] = [
@@ -259,9 +260,10 @@ describe('TagManager', function (): void {
 			['sweating', 50000, 'female']
 		];
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Uint8Array> {
+			request: async function (host: string, path: string, range?: string): Promise<Uint8Array> {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
 					range: range
 				});
 
@@ -274,10 +276,12 @@ describe('TagManager', function (): void {
 		const femaleTagAndCounts: [Tag, number][] = await manager.search('-female:sw:::unreachable:');
 
 		assert.deepStrictEqual(calls, [{
-			url: ['tagindex.hitomi.la', '/global/s/w.json'],
+			host: 'tagindex.hitomi.la',
+			path: '/global/s/w.json',
 			range: undefined
 		}, {
-			url: ['tagindex.hitomi.la', '/female/s/w.json'],
+			host: 'tagindex.hitomi.la',
+			path: '/female/s/w.json',
 			range: undefined
 		}]);
 
@@ -333,7 +337,8 @@ describe('TagManager', function (): void {
 
 	test('list requests and parses browsable tags', async function (): Promise<void> {
 		const calls: {
-			url: URL;
+			host: string;
+			path: string;
 			range: string | undefined;
 		}[] = [];
 		const response: string = `<a href="/tag/1%20general%20tag-all.html">1 general tag</a>
@@ -342,9 +347,10 @@ describe('TagManager', function (): void {
 		<a href="/tag/female%3A4%20female%20tag-all.html">4 female tag ♀</a>`;
 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Uint8Array> {
+			request: async function (host: string, path: string, range?: string): Promise<Uint8Array> {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
 					range: range
 				});
 
@@ -358,15 +364,18 @@ describe('TagManager', function (): void {
 		const femaleTags: Tag[] = await manager.list('female', NameInitial._123);
 
 		assert.deepStrictEqual(calls, [{
-			url: ['hitomi.la', '/alltags-123.html'],
+			host: 'hitomi.la',
+			path: '/alltags-123.html',
 			range: undefined
 		},
 		{
-			url: ['hitomi.la', '/alltags-123.html'],
+			host: 'hitomi.la',
+			path: '/alltags-123.html',
 			range: undefined
 		},
 		{
-			url: ['hitomi.la', '/alltags-123.html'],
+			host: 'hitomi.la',
+			path: '/alltags-123.html',
 			range: undefined
 		}]);
 

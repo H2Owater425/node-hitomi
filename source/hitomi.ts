@@ -1,7 +1,7 @@
 import { Agent, request } from 'https';
 import type { IncomingMessage } from 'http';
 import { gunzip } from 'zlib';
-import type { ImageContext, URL } from './internal/types';
+import type { ImageContext } from './internal/types';
 import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './internal/constants';
@@ -69,7 +69,7 @@ export class Hitomi {
 		defineProperties(this, {
 			languageIndex: new IndexProvider(this, 'languages'),
 			imageContext: new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
-				const response: string = toString(await this['hitomi'].request([RESOURCE_DOMAIN, '/gg.js']));
+				const response: string = toString(await this['hitomi'].request(RESOURCE_DOMAIN, '/gg.js'));
 				const context: ImageContext = [new Set<number>(), false, ''];
 
 				let currentIndex: number = 0;
@@ -123,12 +123,12 @@ export class Hitomi {
 	}
 
 	// @internal
-	public request(url: URL, range?: string): Promise<Uint8Array> {
+	public request(host: string, path: string, range?: string): Promise<Uint8Array> {
 		return new Promise<Uint8Array>(function (this: Hitomi, resolve: (value: Uint8Array) => void, reject: (error?: unknown) => void): void {
 			request({
 				agent: this['agent'],
-				hostname: url[0],
-				path: url[1],
+				hostname: host,
+				path: path,
 				method: 'GET',
 				port: 443,
 				headers: Object.assign(range ? {
@@ -166,7 +166,7 @@ export class Hitomi {
 					}
 
 					default: {
-						throw new HitomiError('Request to https://' + url[0] + url[1] + ' must succeed');
+						throw new HitomiError('Request to https://' + host + path + ' must succeed');
 					}
 				}
 			})
