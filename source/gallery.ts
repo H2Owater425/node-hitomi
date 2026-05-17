@@ -381,9 +381,9 @@ export class GalleryManager extends Base {
 		);
 	}
 
-	// nozomi uses jspack
 	// @internal
-	private static unpackIds(response: Uint8Array, isNegative: boolean = false): Set<Gallery['id']> {
+	private async requestIds(url: [string, string], range?: string, isNegative: boolean = false): Promise<Set<Gallery['id']>> {
+		const response: Uint8Array = await this['hitomi'].request(url, range);
 		const view: DataView = new DataView(response['buffer'], response['byteOffset'], response['byteLength']);
 		const ids: Set<Gallery['id']> = new Set<Gallery['id']>();
 
@@ -556,25 +556,25 @@ export class GalleryManager extends Base {
 					throw new HitomiError('Page', 'used with negative tag', false);
 				}
 
-				return this.createReferences(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+				return this.createReferences(await this.requestIds(GalleryManager.createNozomiUrl({
 					tag: tags[+(tags[0]['type'] === 'language') /* selects non-language tag */],
 					orderBy: options['orderBy'],
 					language: language
-				}), range)), isRandom);
+				}), range), isRandom);
 			}
 
-			idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+			idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
 				tag: tags[i++] /* if first tag is negative i becomes -1, therefore tags give undefined  */,
 				orderBy: options['orderBy'],
 				language: language
-			}))));
+			})));
 
 			for(; i < tags['length']; i++) {
 				if(tags[i]['type'] !== 'language' || !language && tags[i]['isNegative']) {
-					idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+					idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
 						tag: tags[i],
 						language: language
-					})), tags[i]['isNegative']));
+					}), undefined, tags[i]['isNegative']));
 				}
 			}
 		} else {
@@ -583,11 +583,11 @@ export class GalleryManager extends Base {
 			});
 
 			if(range) {
-				return this.createReferences(GalleryManager.unpackIds(await this['hitomi'].request(urn, range)), isRandom);
+				return this.createReferences(await this.requestIds(urn, range), isRandom);
 			}
 
 			if(options['orderBy']) {
-				idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(urn)));
+				idSets.push(await this.requestIds(urn));
 			}
 		}
 
@@ -611,7 +611,7 @@ export class GalleryManager extends Base {
 						return [];
 					}
 
-					idSets.push(GalleryManager.unpackIds(await this['hitomi'].request([RESOURCE_DOMAIN, '/galleriesindex/galleries.' + version + '.data'], (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n))));
+					idSets.push(await this.requestIds([RESOURCE_DOMAIN, '/galleriesindex/galleries.' + version + '.data'], (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n)));
 				}
 
 				i = j + 1;
@@ -634,7 +634,7 @@ export class GalleryManager extends Base {
 				}
 			}
 		} else {
-			idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl())));
+			idSets.push(await this.requestIds(GalleryManager.createNozomiUrl()));
 		}
 
 		return this.createReferences(idSets[0], isRandom);
