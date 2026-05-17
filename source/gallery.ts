@@ -3,7 +3,7 @@ import { Image, Video } from './media';
 import { Language, Tag } from './tag';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from './internal/constants';
 import { SortType } from './enums';
-import { defineProperties, hashTerm, formatOneOfState, toString } from './internal/functions';
+import { defineProperties, hashTerm, toString } from './internal/functions';
 import { Base, IndexProvider } from './internal/structures';
 import { HitomiError } from './error';
 import type { URL, Node } from './internal/types';
@@ -430,7 +430,7 @@ export class GalleryManager extends Base {
 
 				default: {
 					// @ts-expect-error
-					throw new HitomiError('OrderBy', formatOneOfState(SortType));
+					throw HitomiError.OneOfState('OrderBy', SortType);
 				}
 			}
 		}

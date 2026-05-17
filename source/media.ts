@@ -2,7 +2,7 @@ import type { Hitomi } from './hitomi';
 import { BASE_DOMAIN } from './internal/constants';
 import { ThumbnailSize } from './enums';
 import { Extension } from './enums';
-import { capitalize, formatOneOfState } from './internal/functions';
+import { capitalize } from './internal/functions';
 import { Base } from './internal/structures';
 import { HitomiError } from './error';
 import type { ImageContext } from './internal/types';
@@ -156,7 +156,7 @@ export class Image extends Media {
 
 				default: {
 					// @ts-expect-error
-					throw new HitomiError('ThumbnailSize', formatOneOfState(ThumbnailSize));
+					throw HitomiError.OneOfState('ThumbnailSize', ThumbnailSize);
 				}
 			}
 

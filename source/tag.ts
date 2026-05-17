@@ -1,7 +1,7 @@
 import type { Hitomi } from './hitomi';
 import { Base } from './internal/structures';
 import { HitomiError } from './error';
-import { formatOneOfState, hashTerm, toString } from './internal/functions';
+import { hashTerm, toString } from './internal/functions';
 import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './internal/constants';
 import { NameInitial } from './enums';
 import type { Node } from './internal/types';
@@ -110,7 +110,7 @@ export class Tag extends Base {
 
 			case 'type': {
 				if(!GALLERY_TYPES.has(name as Gallery['type'])) {
-					throw new HitomiError('Name', formatOneOfState(GALLERY_TYPES));
+					throw HitomiError['OneOfGalleryType'];
 				}
 			}
 			case 'artist':
@@ -125,7 +125,7 @@ export class Tag extends Base {
 
 			case 'language': {
 				if(!LANGUAGE_NAMES.has(name)) {
-					throw new HitomiError('Name', formatOneOfState(GALLERY_TYPES));
+					throw HitomiError['OneOfGalleryType'];
 				}
 
 				this['url'] = '/index-' + name + '.html';
