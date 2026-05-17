@@ -1,18 +1,17 @@
 import { TAG_TYPES } from './internal/constants';
 import { formatOneOfState } from './internal/functions';
 
-
 export class HitomiError extends Error {
 	// @internal
-	public static get TAG_TYPE(): HitomiError {
+	public static get OneOfTagType(): HitomiError {
 		return new HitomiError('Type', formatOneOfState(TAG_TYPES));
 	}
 	// @internal
-	public static get ROOT_NODE_EMPTY(): HitomiError {
+	public static get RootNodeEmpty(): HitomiError {
 		return new HitomiError('Root node', 'empty', false);
 	}
 	// @internal
-	public static get IMAGE_CONTEXT_RESOLVER(): HitomiError {
+	public static get ImageContextResolverFail(): HitomiError {
 		return new HitomiError('ImageContextResolver must succeed');
 	}
 

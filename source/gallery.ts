@@ -597,7 +597,7 @@ export class GalleryManager extends Base {
 			const rootNode: Node | undefined = await this['index'].getNodeAtAddress(0n, version);
 
 			if(!rootNode) {
-				throw HitomiError['ROOT_NODE_EMPTY'];
+				throw HitomiError['RootNodeEmpty'];
 			}
 
 			i /* currentIndex */ = 0;

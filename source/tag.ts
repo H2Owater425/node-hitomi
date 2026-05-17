@@ -134,7 +134,7 @@ export class Tag extends Base {
 			}
 
 			default: {
-				throw HitomiError['TAG_TYPE'];
+				throw HitomiError['OneOfTagType'];
 			}
 		}
 
@@ -178,7 +178,7 @@ export class Tag extends Base {
 		const rootNode: Node | undefined = await this['hitomi']['languageIndex'].getNodeAtAddress(0n, version);
 
 		if(!rootNode) {
-			throw HitomiError['ROOT_NODE_EMPTY'];
+			throw HitomiError['RootNodeEmpty'];
 		}
 
 		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(hashTerm(term), rootNode, version);
@@ -301,7 +301,7 @@ export class TagManager extends Base {
 			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
 
 			if(!TAG_TYPES.has(type)) {
-				throw HitomiError['TAG_TYPE'];
+				throw HitomiError['OneOfTagType'];
 			}
 
 			path = '/' + type;
@@ -393,7 +393,7 @@ export class TagManager extends Base {
 					}
 
 					default: {
-						throw HitomiError['TAG_TYPE'];
+						throw HitomiError['OneOfTagType'];
 					}
 				}
 
