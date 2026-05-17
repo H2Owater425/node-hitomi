@@ -3,7 +3,8 @@ import { BASE_DOMAIN } from './utilities/constants';
 import { ThumbnailSize } from './enums';
 import { Extension } from './enums';
 import { capitalize, formatOneOfState } from './utilities/functions';
-import { Base, HitomiError } from './utilities/structures';
+import { Base } from './utilities/structures';
+import { HitomiError } from './error';
 import type { ImageContext } from './utilities/types';
 import type { Gallery } from './gallery';
 

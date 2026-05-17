@@ -4,7 +4,8 @@ import { Language, Tag } from './tag';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from './utilities/constants';
 import { SortType } from './enums';
 import { defineProperties, hashTerm, formatOneOfState, toString } from './utilities/functions';
-import { Base, IndexProvider, HitomiError } from './utilities/structures';
+import { Base, IndexProvider } from './utilities/structures';
+import { HitomiError } from './error';
 import type { URL, Node } from './utilities/types';
 
 /**

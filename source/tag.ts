@@ -1,5 +1,6 @@
 import type { Hitomi } from './hitomi';
-import { Base, HitomiError } from './utilities/structures';
+import { Base } from './utilities/structures';
+import { HitomiError } from './error';
 import { formatOneOfState, hashTerm, toString } from './utilities/functions';
 import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './utilities/constants';
 import { NameInitial } from './enums';

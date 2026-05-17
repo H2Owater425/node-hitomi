@@ -1,33 +1,8 @@
-import { RESOURCE_DOMAIN, TAG_TYPES } from './constants';
+import { RESOURCE_DOMAIN } from './constants';
 import type { Hitomi } from '../hitomi';
 import type { Node } from './types';
-import { compare, defineProperties, formatOneOfState, toString } from './functions';
-
-export class HitomiError extends Error {
-	// @internal
-	public static get TAG_TYPE(): HitomiError {
-		return new HitomiError('Type', formatOneOfState(TAG_TYPES));
-	}
-	// @internal
-	public static get ROOT_NODE_EMPTY(): HitomiError {
-		return new HitomiError('Root node', 'empty', false);
-	}
-	// @internal
-	public static get IMAGE_CONTEXT_RESOLVER(): HitomiError {
-		return new HitomiError('ImageContextResolver must succeed');
-	}
-
-	// @internal
-	constructor(messageOrTarget: string, state?: string, isAffirmative: boolean = true) {
-		if(arguments['length'] === 1) {
-			super(messageOrTarget);
-
-			return;
-		}
-
-		super(messageOrTarget + ' must ' + (isAffirmative ? '' : 'not ') + 'be ' + state);
-	}
-}
+import { compare, defineProperties, toString } from './functions';
+import { HitomiError } from '../error';
 
 export class Base {
 	// @internal

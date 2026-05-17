@@ -6,7 +6,8 @@ import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './utilities/constants';
 import { defineProperties, capitalize, toString } from './utilities/functions';
-import { HitomiError, IndexProvider, Provider } from './utilities/structures';
+import { IndexProvider, Provider } from './utilities/structures';
+import { HitomiError } from './error';
 
 /**
  * Client for interacting with Hitomi API
