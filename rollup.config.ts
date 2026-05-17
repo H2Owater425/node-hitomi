@@ -1,6 +1,4 @@
 import typescript from '@rollup/plugin-typescript';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
 import { dts } from 'rollup-plugin-dts';
 import { rmSync } from 'fs';
 import type { Plugin, RollupOptions } from "rollup";
@@ -38,8 +36,6 @@ function configuration(type: 'cjs' | 'esm'): RollupOptions {
 			}
 		},
 		plugins: [
-			resolve(),
-			commonjs(),
 			typescript({
 				tsconfig: './tsconfig.json',
 				transformers: {
@@ -112,7 +108,6 @@ export default [
       preserveModulesRoot: 'source',
 		},
 		plugins: [
-			resolve(),
 			dts({
 				compilerOptions: {
 					removeComments: false

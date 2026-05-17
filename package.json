@@ -35,8 +35,6 @@
 		"test": "mocha --require=ts-node/register tests/*.test.ts"
 	},
 	"devDependencies": {
-		"@rollup/plugin-commonjs": "^29.0.0",
-		"@rollup/plugin-node-resolve": "^16.0.3",
 		"@rollup/plugin-typescript": "^12.3.0",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "~24",
