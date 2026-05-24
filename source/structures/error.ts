@@ -1,4 +1,4 @@
-import { GALLERY_TYPES, TAG_TYPES } from './internal/constants';
+import { GALLERY_TYPES, TAG_TYPES } from '../internal/constants';
 
 export class HitomiError extends Error {
 	// @internal

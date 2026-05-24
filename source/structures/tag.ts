@@ -1,8 +1,8 @@
-import type { Hitomi } from './hitomi';
-import { Base } from './internal/structures';
+import type { Hitomi } from '../hitomi';
+import { Base } from '../internal/structures';
 import { HitomiError } from './error';
-import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from './internal/constants';
-import type { Node } from './internal/types';
+import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../internal/constants';
+import type { Node } from '../internal/types';
 import type { Gallery } from './gallery';
 
 // Moved from gallery to avoid circular dependency

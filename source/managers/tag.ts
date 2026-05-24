@@ -1,9 +1,9 @@
 import { ResponseType } from '@platform';
-import { HitomiError } from '../error';
+import { HitomiError } from '../structures/error';
 import type { Hitomi } from '../hitomi';
 import { TAG_TYPES, TAG_INDEX_DOMAIN, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN } from '../internal/constants';
 import { Base } from '../internal/structures';
-import { Tag } from '../tag';
+import { Tag } from '../structures/tag';
 
 /**
  * Initial-character filters for listing tags.

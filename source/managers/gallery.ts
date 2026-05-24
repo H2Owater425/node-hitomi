@@ -1,13 +1,13 @@
 import { ResponseType } from '@platform';
-import { HitomiError } from '../error';
-import { Gallery, TranslatedGallery, GalleryReference, Title } from '../gallery';
+import { HitomiError } from '../structures/error';
+import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structures/gallery';
 import type { Hitomi } from '../hitomi';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from '../internal/constants';
 import { defineProperties } from '../internal/functions';
 import { Base, IndexProvider } from '../internal/structures';
 import type { Node } from '../internal/types';
-import { Image, Video } from '../media';
-import { Tag, Language } from '../tag';
+import { Image, Video } from '../structures/media';
+import { Tag, Language } from '../structures/tag';
 
 /**
  * Sorting options for listing galleries.

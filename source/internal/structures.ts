@@ -2,7 +2,7 @@ import { RESOURCE_DOMAIN } from './constants';
 import type { Hitomi } from '../hitomi';
 import type { Node } from './types';
 import { compare, defineProperties } from './functions';
-import { HitomiError } from '../error';
+import { HitomiError } from '../structures/error';
 import { ResponseType } from '@platform';
 
 export class Base {

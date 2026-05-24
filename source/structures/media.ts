@@ -1,9 +1,9 @@
-import type { Hitomi } from './hitomi';
-import { BASE_DOMAIN } from './internal/constants';
-import { capitalize } from './internal/functions';
-import { Base } from './internal/structures';
+import type { Hitomi } from '../hitomi';
+import { BASE_DOMAIN } from '../internal/constants';
+import { capitalize } from '../internal/functions';
+import { Base } from '../internal/structures';
 import { HitomiError } from './error';
-import type { ImageContext } from './internal/types';
+import type { ImageContext } from '../internal/types';
 import type { Gallery } from './gallery';
 import { ResponseType } from '@platform';
 

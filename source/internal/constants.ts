@@ -1,5 +1,5 @@
-import type { Gallery } from '../gallery';
-import type { Language, Tag } from '../tag';
+import type { Gallery } from '../structures/gallery';
+import type { Language, Tag } from '../structures/tag';
 
 export const BASE_DOMAIN = 'gold-usergeneratedcontent.net' as const;
 

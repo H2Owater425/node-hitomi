@@ -1,7 +1,7 @@
-import type { Hitomi } from './hitomi';
+import type { Hitomi } from '../hitomi';
 import { Image, Video } from './media';
 import { Language, Tag } from './tag';
-import { Base } from './internal/structures';
+import { Base } from '../internal/structures';
 
 /**
  * Title associated with a gallery.
