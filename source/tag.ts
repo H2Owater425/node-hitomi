@@ -2,10 +2,47 @@ import type { Hitomi } from './hitomi';
 import { Base } from './internal/structures';
 import { HitomiError } from './error';
 import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './internal/constants';
-import { NameInitial } from './enums';
 import type { Node } from './internal/types';
 import type { Gallery } from './gallery';
 import { ResponseType } from '@platform';
+
+/**
+ * Initial-character filters for listing tags.
+ *
+ * @enum {string}
+ */
+export const enum NameInitial {
+	A = 'a',
+	B = 'b',
+	C = 'c',
+	D = 'd',
+	E = 'e',
+	F = 'f',
+	G = 'g',
+	H = 'h',
+	I = 'i',
+	J = 'j',
+	K = 'k',
+	L = 'l',
+	M = 'm',
+	N = 'n',
+	O = 'o',
+	P = 'p',
+	Q = 'q',
+	R = 'r',
+	S = 's',
+	T = 't',
+	U = 'u',
+	V = 'v',
+	W = 'w',
+	X = 'x',
+	Y = 'y',
+	Z = 'z',
+	/**
+	 * Represents all non-alphabetic characters.
+	 */
+	_123 = '123'
+}
 
 // Moved from gallery to avoid circular dependency
 /**

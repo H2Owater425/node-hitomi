@@ -2,12 +2,26 @@ import type { Hitomi } from './hitomi';
 import { Image, Video } from './media';
 import { Language, Tag } from './tag';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from './internal/constants';
-import { SortType } from './enums';
 import { defineProperties } from './internal/functions';
 import { Base, IndexProvider } from './internal/structures';
 import { HitomiError } from './error';
 import type { Node } from './internal/types';
 import { ResponseType } from '@platform';
+
+/**
+ * Sorting options for listing galleries.
+ *
+ * @enum {string}
+ */
+export const enum SortType {
+	DateAdded = 'added',
+	DatePublished = 'published',
+	Random = 'random',
+	PopularityDay = 'today',
+	PopularityWeek = 'week',
+	PopularityMonth = 'month',
+	PopularityYear = 'year'
+}
 
 /**
  * Pagination options for listing galleries.

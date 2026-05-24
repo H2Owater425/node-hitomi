@@ -1,13 +1,33 @@
 import type { Hitomi } from './hitomi';
 import { BASE_DOMAIN } from './internal/constants';
-import { ThumbnailSize } from './enums';
-import { Extension } from './enums';
 import { capitalize } from './internal/functions';
 import { Base } from './internal/structures';
 import { HitomiError } from './error';
 import type { ImageContext } from './internal/types';
 import type { Gallery } from './gallery';
 import { ResponseType } from '@platform';
+
+/**
+ * Supported image formats for retrieving images.
+ *
+ * @enum {string}
+ */
+export const enum Extension {
+	Avif = 'avif',
+	Webp = 'webp',
+	Jxl = 'jxl'
+}
+
+/**
+ * Supported thumbnail sizes for retrieving images.
+ *
+ * @enum {string}
+ */
+export const enum ThumbnailSize {
+	Small = 'small',
+	Medium = 'smallbig',
+	Big = 'big'
+}
 
 /**
  * Abstract base class for media resources providing shared dimensions.
