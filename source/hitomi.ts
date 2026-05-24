@@ -1,7 +1,7 @@
 import type { ImageContext } from './internal/types';
 import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
-import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './internal/constants';
+import { DEFAULT_HEADERS, RESOURCE_DOMAIN, MAXIMUM_AGE_PROPERTIES } from './internal/constants';
 import { defineProperties, capitalize } from './internal/functions';
 import { IndexProvider, Provider } from './internal/structures';
 import { HitomiError } from './error';
@@ -87,9 +87,9 @@ export class Hitomi {
 	 * @param {HitomiOptions} [options] Configuration options.
 	 */
 	constructor(options: HitomiOptions = {}) {
-		for(let i: number = 0; i < STALE_TIME_PROPERTIES['length']; i++) {
-			if(options[STALE_TIME_PROPERTIES[i]] && !Number.isInteger(options[STALE_TIME_PROPERTIES[i]]) || options[STALE_TIME_PROPERTIES[i]] as number < 1) {
-				throw new HitomiError(capitalize(STALE_TIME_PROPERTIES[i]), 'a positive integer');
+		for(let i: number = 0; i < MAXIMUM_AGE_PROPERTIES['length']; i++) {
+			if(options[MAXIMUM_AGE_PROPERTIES[i]] && !Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 1) {
+				throw new HitomiError(capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a positive integer');
 			}
 		}
 
