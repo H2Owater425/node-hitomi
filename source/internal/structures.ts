@@ -18,10 +18,9 @@ export class Base {
 
 // @internal
 export class Provider<T> extends Base {
-	public value!: T;
+	private value!: T;
 	private expiresAt: number = 0;
-	private promise?: Promise<void>;
-	private assign: (value: T) => void;
+	private promise?: Promise<T>;
 
 	constructor(
 		hitomi: Hitomi,
@@ -29,21 +28,20 @@ export class Provider<T> extends Base {
 		private maximumAge: number
 	) {
 		super(hitomi);
-
-		this.assign = (function (this: Provider<T>, value: T): void {
-			this['value'] = value;
-			this['expiresAt'] = Date.now() + this['maximumAge'];
-			this['promise'] = undefined;
-		}).bind(this);
 	}
 
 	public async retrieve(): Promise<T> {
 		if(Date.now() > this['expiresAt']) {
-			if(!this['promise']) {
-				this['promise'] = this.update().then(this.assign);
+			if(this['promise']) {
+				return this['promise'];
 			}
 
-			await this['promise'];
+			try {
+				this['value'] = await (this['promise'] = this.update());
+				this['expiresAt'] = Date.now() + this['maximumAge'];
+			} finally {
+				this['promise'] = undefined;
+			}
 		}
 
 		return this['value'];
