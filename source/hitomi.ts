@@ -88,8 +88,8 @@ export class Hitomi {
 	 */
 	constructor(options: HitomiOptions = {}) {
 		for(let i: number = 0; i < MAXIMUM_AGE_PROPERTIES['length']; i++) {
-			if(options[MAXIMUM_AGE_PROPERTIES[i]] && !Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 1) {
-				throw new HitomiError(capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a positive integer');
+			if(options[MAXIMUM_AGE_PROPERTIES[i]] && (!Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 0)) {
+				throw new HitomiError(capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'an integer greater than 0');
 			}
 		}
 
