@@ -29,5 +29,5 @@ export function defineProperties<T>(target: T, properties: Record<string, unknow
 
 // @internal
 export function capitalize<T extends string>(word: T): Capitalize<T> {
-	return String.fromCharCode(word.charCodeAt(0) - 32) + word.slice(1) as Capitalize<T>;
+	return String.fromCharCode(word.charCodeAt(0) & 223) + word.slice(1) as Capitalize<T>;
 }
