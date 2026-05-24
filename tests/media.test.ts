@@ -2,16 +2,15 @@ import { describe, test } from 'mocha';
 import assert from 'assert';
 
 import { Image, Video } from '../source/media';
-import { ThumbnailSize } from '../source/enums';
-import { Extension } from '../source/enums';
+import { Extension, ThumbnailSize } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
 import type { ImageContext } from '../source/internal/types';
-import { createMock } from './utilities/functions';
-import { Provider } from '../source/internal/structures';
+import { createMock } from './shared/functions';
+import { ResponseType, RequestCall } from './shared/types';
 
 describe('Image', function (): void {
 	test('resolveUrl rejects unsupported extension', async function (): Promise<void> {
-		const image: Image = new Image(createMock({}), 1000, 1500, '0123456789abcdef', '1.jpg', false, true, false, true);
+		const image: Image = new Image(createMock<Hitomi>({}), 1000, 1500, '0123456789abcdef', '1.jpg', false, true, false, true);
 
 		await assert.rejects(function (): Promise<string> {
 			return image.resolveUrl(Extension['Avif']);
@@ -19,13 +18,13 @@ describe('Image', function (): void {
 	});
 
 	test('resolveUrl rejects invalid thumbnail and extension combinations', async function (): Promise<void> {
-		const image: Image = new Image(createMock({}), 1000, 1500, '0123456789abcdef', '1.jpg', false, true, false, false);
-		const imageWithThumbnail: Image = new Image(createMock({}), 1000, 1500, '123456789abcdef0', '2.jpg', true, true, false, true);
+		const image: Image = new Image(createMock<Hitomi>({}), 1000, 1500, '0123456789abcdef', '1.jpg', false, true, false, false);
+		const imageWithThumbnail: Image = new Image(createMock<Hitomi>({}), 1000, 1500, '123456789abcdef0', '2.jpg', true, true, false, true);
 
-		await assert.rejects(async function (): Promise<string> {
+		await assert.rejects(function (): Promise<string> {
 			return imageWithThumbnail.resolveUrl(Extension['Webp'], ThumbnailSize['Medium']);
 		}, /ThumbnailSize.Medium must be used only with avif/);
-		await assert.rejects(async function (): Promise<string> {
+		await assert.rejects(function (): Promise<string> {
 			return image.resolveUrl(Extension['Webp'], ThumbnailSize['Big']);
 		}, /ThumbnailSize.Big must be used only with image that has thumbnail/);
 	});
@@ -36,11 +35,11 @@ describe('Image', function (): void {
 		let retrieveCalls: number = 0;
 		const context: ImageContext = [new Set<number>([hashCode]), true, 'galleries/'];
 		const hitomi: Hitomi = createMock<Hitomi>({
-			imageContext: createMock<Provider<ImageContext>>({
-				retrieve: async function (): Promise<ImageContext> {
+			imageContext: createMock<Hitomi['imageContext']>({
+				retrieve: function (): Promise<ImageContext> {
 					retrieveCalls++;
 
-					return context;
+					return Promise.resolve(context);
 				}
 			})
 		});
@@ -53,22 +52,19 @@ describe('Image', function (): void {
 	});
 
 	test('fetch requests resolved url through client.request', async function (): Promise<void> {
-		const calls: {
-			host: string;
-			path: string;
-			range: string | undefined;
-		}[] = [];
-		const response: Uint8Array = new Uint8Array(0);
+		const calls: RequestCall[] = [];
+		const response: Uint8Array = Buffer.alloc(0);
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (host: string, path: string, range?: string): Promise<Uint8Array> {
+			request: createMock<Hitomi['request']>(function (host: string, path: string, type: ResponseType, range?: string): Uint8Array {
 				calls.push({
 					host: host,
 					path: path,
+					type: type,
 					range: range
 				});
 
 				return response;
-			}
+			})
 		});
 		const image: Image = new Image(hitomi, 1000, 1500, 'abcdef012345', '1.webp', false, true, false, true);
 
@@ -78,13 +74,14 @@ describe('Image', function (): void {
 		assert.deepStrictEqual(calls, [{
 			host: 'tn.gold-usergeneratedcontent.net',
 			path: '/webpsmalltn/5/34/abcdef012345.webp',
+			type: ResponseType['BYTE'],
 			range: undefined
 		}]);
 	});
 });
 
 describe('Video', function (): void {
-	test('constructor exposes generated urls', async function (): Promise<void> {
+	test('constructor exposes generated urls', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 		const video: Video = new Video(hitomi, 1280, 720, 'video-123456.mp4', '0123456789abcdef');
 
@@ -93,20 +90,17 @@ describe('Video', function (): void {
 	});
 
 	test('fetch and fetchPoster request resolved urls through client.request', async function (): Promise<void> {
-		const calls: {
-			host: string;
-			path: string;
-			range: string | undefined;
-		}[] = [];
+		const calls: RequestCall[] = [];
 
-		const videoResponse: Uint8Array = new Uint8Array(0);
-		const posterResponse: Uint8Array = new Uint8Array(0);
+		const videoResponse: Uint8Array = Buffer.alloc(0);
+		const posterResponse: Uint8Array = Buffer.alloc(0);
 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (host: string, path: string, range?: string): Promise<Uint8Array> {
+			request: createMock<Hitomi['request']>(function (host: string, path: string, type: ResponseType, range?: string): Uint8Array {
 				calls.push({
 					host: host,
 					path: path,
+					type: type,
 					range: range
 				});
 
@@ -115,7 +109,7 @@ describe('Video', function (): void {
 				}
 
 				return posterResponse;
-			}
+			})
 		});
 		const video: Video = new Video(hitomi, 1280, 720, 'video-123456.mp4', '0123456789abcdef');
 
@@ -127,11 +121,13 @@ describe('Video', function (): void {
 		assert.deepStrictEqual(calls, [{
 			host: 'streaming.gold-usergeneratedcontent.net',
 			path: '/videos/video-123456.mp4',
+			type: ResponseType['BYTE'],
 			range: undefined
 		},
 		{
 			host: 'a.gold-usergeneratedcontent.net',
 			path: '/videos/posters/f/de/0123456789abcdef.webp',
+			type: ResponseType['BYTE'],
 			range: undefined
 		}]);
 	})

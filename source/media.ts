@@ -7,6 +7,7 @@ import { Base } from './internal/structures';
 import { HitomiError } from './error';
 import type { ImageContext } from './internal/types';
 import type { Gallery } from './gallery';
+import { ResponseType } from '@platform';
 
 /**
  * Abstract base class for media resources providing shared dimensions.
@@ -41,7 +42,7 @@ abstract class Media extends Base {
 	protected request(url: string): Promise<Uint8Array> {
 		const index: number = url.indexOf('/', 2);
 
-		return this['hitomi'].request(url.slice(2, index), url.slice(index));
+		return this['hitomi'].request(url.slice(2, index), url.slice(index), ResponseType['BYTE']);
 	}
 }
 
@@ -126,7 +127,7 @@ export class Image extends Media {
 	 * @see {@link hasThumbnail}
 	 */
 	public async resolveUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
-		// @ts-expect-error - typescript internal error
+		// @ts-expect-error - Typescript internal error
 		if(!extension || !this['has' + capitalize(extension)]) {
 			throw new HitomiError('Extension', 'supported');
 		}

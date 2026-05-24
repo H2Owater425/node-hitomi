@@ -1,8 +1,9 @@
 import { RESOURCE_DOMAIN } from './constants';
 import type { Hitomi } from '../hitomi';
 import type { Node } from './types';
-import { compare, defineProperties, toString } from './functions';
+import { compare, defineProperties } from './functions';
 import { HitomiError } from '../error';
+import { ResponseType } from '@platform';
 
 export class Base {
 	// @internal
@@ -54,21 +55,19 @@ export class IndexProvider extends Provider<string> {
 		hitomi: Hitomi,
 		private field: 'galleries' | 'languages'
 	) {
-		super(hitomi, async function (this: IndexProvider): Promise<string> {
-			return toString(await this['hitomi'].request(RESOURCE_DOMAIN, '/' + this['field'] + 'index/version'));
+		super(hitomi, function (this: IndexProvider): Promise<string> {
+			return this['hitomi'].request(RESOURCE_DOMAIN, '/' + this['field'] + 'index/version', ResponseType['TEXT']);
 		}, hitomi['indexMaximumAge']);
 	}
 
 	public async getNodeAtAddress(address: Node[2][number], version: string): Promise<Node | undefined> {
-		const response: Uint8Array = await this['hitomi'].request(RESOURCE_DOMAIN, '/' + this['field'] + 'index/' + this['field'] + '.' + version + '.index', address + '-' + (address + 463n));
+		const view: DataView = await this['hitomi'].request(RESOURCE_DOMAIN, '/' + this['field'] + 'index/' + this['field'] + '.' + version + '.index', ResponseType['VIEW'], address + '-' + (address + 463n));
 
-		if(!response['length']) {
+		if(!view['byteLength']) {
 			return;
 		}
 
-		const view: DataView = new DataView(response['buffer']);
-
-		// decode_node
+		// decode_node in search.js
 		const node: Node = [[], [], []];
 		const keyCount: number = view.getInt32(0);
 		let offset: number = 4;
@@ -81,7 +80,9 @@ export class IndexProvider extends Provider<string> {
 				throw new HitomiError('KeySize', 'between 1 and 31');
 			}
 
-			node[0].push(response.subarray(offset += 4, offset += keySize));
+			node[0].push(new Uint8Array(view['buffer'], view['byteOffset'] + (offset += 4), keySize));
+
+			offset += keySize;
 		}
 
 		const dataCount: number = view.getInt32(offset);

@@ -72,4 +72,3 @@ export const enum ThumbnailSize {
 	Medium = 'smallbig',
 	Big = 'big'
 }
-

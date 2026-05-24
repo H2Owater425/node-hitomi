@@ -1,11 +1,11 @@
 import type { Hitomi } from './hitomi';
 import { Base } from './internal/structures';
 import { HitomiError } from './error';
-import { hashTerm, toString } from './internal/functions';
 import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './internal/constants';
 import { NameInitial } from './enums';
 import type { Node } from './internal/types';
 import type { Gallery } from './gallery';
+import { ResponseType } from '@platform';
 
 // Moved from gallery to avoid circular dependency
 /**
@@ -181,7 +181,7 @@ export class Tag extends Base {
 			throw HitomiError['RootNodeEmpty'];
 		}
 
-		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(hashTerm(term), rootNode, version);
+		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(await this['hitomi'].hash(term), rootNode, version);
 
 		if(!data) {
 			throw new HitomiError('Name', 'valid');
@@ -317,7 +317,7 @@ export class TagManager extends Base {
 			path += '/' + term[i++];
 		}
 
-		const response: [string, number, Tag['type']][] = JSON.parse(toString(await this['hitomi'].request(TAG_INDEX_DOMAIN, path + '.json')));
+		const response: [string, number, Tag['type']][] = await this['hitomi'].request(TAG_INDEX_DOMAIN, path + '.json', ResponseType['JSON']) as [string, number, Tag['type']][];
 		const tagAndCounts: [Tag, number][] = [];
 
 		for(i = 0; i < response['length']; i++) {
@@ -397,7 +397,7 @@ export class TagManager extends Base {
 					}
 				}
 
-				const response: string = toString(await this['hitomi'].request(FRONT_DOMAIN, '/all' + area + '-' + startsWith + '.html'));
+				const response: string = await this['hitomi'].request(FRONT_DOMAIN, '/all' + area + '-' + startsWith + '.html', ResponseType['TEXT']);
 				const endIndex: number = target['length'] - 1;
 
 				let currentIndex: number;

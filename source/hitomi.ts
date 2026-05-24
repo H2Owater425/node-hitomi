@@ -1,13 +1,50 @@
-import { Agent, request } from 'https';
-import type { IncomingMessage } from 'http';
-import { gunzip } from 'zlib';
 import type { ImageContext } from './internal/types';
 import { GalleryManager } from './gallery';
 import { TagManager } from './tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, STALE_TIME_PROPERTIES } from './internal/constants';
-import { defineProperties, capitalize, toString } from './internal/functions';
+import { defineProperties, capitalize } from './internal/functions';
 import { IndexProvider, Provider } from './internal/structures';
 import { HitomiError } from './error';
+import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
+
+/**
+ * Configuration options for creating a Hitomi client.
+ * 
+ * @see {@link Hitomi}
+ */
+export interface HitomiOptions<T = unknown> {
+	/**
+	 * HTTPS Agent instance for connection reuse.
+	 * 
+	 * @default new Agent({ keepAlive: true })
+	 * @deprecated Use {@link onRequest} instead (overrides it if set). Will be removed in v10.
+	 */
+	agent?: unknown;
+	/**
+	 * HTTPS request function.
+	 */
+	request?: RequestFunction;
+	/**
+	 * Request hook function.
+	 */
+	onRequest?: OnRequestFunction<T>;
+	/**
+	 * SHA-256 hash function.
+	 */
+	hash?: HashFunction;
+	/**
+	 * Maximum age of cached index version in milliseconds.
+	 *
+	 * @default 600000
+	 */
+	indexMaximumAge?: number;
+	/**
+	 * Maximum age of cached image URL context in milliseconds.
+	 *
+	 * @default 3600000
+	 */
+	imageContextMaximumAge?: number;
+}
 
 /**
  * Client for interacting with Hitomi API
@@ -29,7 +66,14 @@ export class Hitomi {
 	public readonly tags: TagManager;
 
 	// @internal
-	private readonly agent!: Agent;
+	public onRequest!: OnRequestFunction;
+	// @internal
+	public request!: ((host: string, path: string, type: ResponseType.BYTE, range?: string) => Promise<Uint8Array>) &
+		((host: string, path: string, type: ResponseType.VIEW, range?: string) => Promise<DataView>) &
+		((host: string, path: string, type: ResponseType.TEXT, range?: string) => Promise<string>) &
+		((host: string, path: string, type: ResponseType.JSON, range?: string) => Promise<unknown>);
+	// @internal
+	public hash!: HashFunction;
 	// @internal
 	public readonly indexMaximumAge!: number;
 	// @internal
@@ -40,26 +84,55 @@ export class Hitomi {
 	/**
 	 * Creates a new Hitomi client.
 	 *
-	 * @param {Object} [options] Configuration options.
-	 * @param {Agent} [options.agent] HTTPS {@link Agent} instance for connection reuse. (defaults to keep-alive agent)
-	 * @param {number} [options.indexMaximumAge=600000] Maximum age of cached index version in milliseconds. (defaults to `600000`)
-	 * @param {number} [options.imageContextMaximumAge=3600000] Maximum age of cached image URL context in milliseconds. (defaults to `3600000`)
+	 * @param {HitomiOptions} [options] Configuration options.
 	 */
-	constructor(options: {
-		agent?: Agent;
-		indexMaximumAge?: number;
-		imageContextMaximumAge?: number;
-	} = {}) {
+	constructor(options: HitomiOptions = {}) {
 		for(let i: number = 0; i < STALE_TIME_PROPERTIES['length']; i++) {
 			if(options[STALE_TIME_PROPERTIES[i]] && !Number.isInteger(options[STALE_TIME_PROPERTIES[i]]) || options[STALE_TIME_PROPERTIES[i]] as number < 1) {
 				throw new HitomiError(capitalize(STALE_TIME_PROPERTIES[i]), 'a positive integer');
 			}
 		}
 
+		// Options object might be modified
+		const optionsRequest: RequestFunction | undefined = options['request'];
+		const optionsOnRequest: OnRequestFunction | undefined = options['agent'] ? function (context: RequestContext): RequestContext {
+			// @ts-ignore
+			context['options']['agent'] = options['agent'];
+
+			return context;
+		} : options['onRequest'];
+		const optionsHash: HashFunction | undefined = options['hash'];
+
 		defineProperties(this, {
-			agent: options['agent'] || new Agent({
-				keepAlive: true
-			}),
+			request: optionsRequest ? async function (host: string, path: string, type: ResponseType, range?: string): Promise<Uint8Array | DataView | string | unknown> {
+				const buffer: Uint8Array = await optionsRequest(host, path, Object.assign<Record<string, string>, Record<string, string>>(range ? {
+					range: 'bytes=' + range
+				} : {
+					'accept-encoding': 'gzip'
+				}, DEFAULT_HEADERS));
+
+				switch(type) {
+					case ResponseType['BYTE']: {
+						return buffer;
+					}
+
+					case ResponseType['VIEW']: {
+						return new DataView(buffer['buffer'], buffer['byteOffset'], buffer['byteLength']);
+					}
+
+					case ResponseType['TEXT']: {
+						return toString(buffer);
+					}
+
+					case ResponseType['JSON']: {
+						return JSON.parse(toString(buffer));
+					}
+				}
+			} : request.bind(this),
+			onRequest: optionsOnRequest || function (): void {},
+			hash: optionsHash ? async function (data: string): Promise<Uint8Array> {
+				return (await optionsHash(data)).subarray(0, 4);
+			} : hash,
 			indexMaximumAge: options['indexMaximumAge'] || 600000
 		});
 
@@ -69,7 +142,7 @@ export class Hitomi {
 		defineProperties(this, {
 			languageIndex: new IndexProvider(this, 'languages'),
 			imageContext: new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
-				const response: string = toString(await this['hitomi'].request(RESOURCE_DOMAIN, '/gg.js'));
+				const response: string = await this['hitomi'].request(RESOURCE_DOMAIN, '/gg.js', ResponseType['TEXT']);
 				const context: ImageContext = [new Set<number>(), false, ''];
 
 				let currentIndex: number = 0;
@@ -120,58 +193,5 @@ export class Hitomi {
 				return context;
 			}, options['imageContextMaximumAge'] || 3600000)
 		});
-	}
-
-	// @internal
-	public request(host: string, path: string, range?: string): Promise<Uint8Array> {
-		return new Promise<Uint8Array>(function (this: Hitomi, resolve: (value: Uint8Array) => void, reject: (error?: unknown) => void): void {
-			request({
-				agent: this['agent'],
-				hostname: host,
-				path: path,
-				method: 'GET',
-				port: 443,
-				headers: Object.assign(range ? {
-					range: 'bytes=' + range
-				} : {
-					'accept-encoding': 'gzip'
-				}, DEFAULT_HEADERS)
-			}, function (response: IncomingMessage): void {
-				switch(response['statusCode']) {
-					case 200:
-					case 206: {
-						const buffer: Uint8Array = new Uint8Array(+(response['headers']['content-length'] as string));
-						let length: number = 0;
-
-						response.on('data', function (chunk: Uint8Array): void {
-							buffer.set(chunk, length);
-							length += chunk['byteLength'];
-						})
-						.once('end', function (): void {
-							if(response['headers']['content-encoding']) {
-								return gunzip(buffer, function (error: Error | null, decompressedBuffer: Uint8Array): void {
-									if(error) {
-										return reject(error);
-									}
-
-									resolve(decompressedBuffer);
-								});
-							}
-
-							resolve(buffer);
-						})
-						.once('error', reject);
-
-						break;
-					}
-
-					default: {
-						throw new HitomiError('Request to https://' + host + path + ' must succeed');
-					}
-				}
-			})
-			.once('error', reject)
-			.end();
-		}.bind(this));
 	}
 }
