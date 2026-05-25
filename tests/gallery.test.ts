@@ -4,10 +4,11 @@ import assert from 'assert';
 import { Title, GalleryReference, TranslatedGallery, Gallery, GalleryManager } from '../source/gallery';
 import { Tag, Language } from '../source/tag';
 import { Image, Video } from '../source/media';
-import { BASE_DOMAIN, SortType } from '../source/utilities/constants';
+import { BASE_DOMAIN } from '../source/internal/constants';
+import { SortType } from '../source/enums';
 import { Hitomi } from '../source/hitomi';
-import type { URL } from '../source/utilities/types';
-import { createMock, assertInstanceOf } from './utilities/functions';
+import { createMock, assertInstanceOf } from './shared/functions';
+import { ResponseType, RequestCall } from './shared/types';
 
 describe('Title', function (): void {
 	test('constructor stores display and japanese fields', function (): void {
@@ -28,11 +29,11 @@ describe('GalleryReference', function (): void {
 			id: id
 		});
 		const hitomi: Hitomi = createMock<Hitomi>({
-			galleries: createMock<GalleryManager>({
-				retrieve: async function (id: number): Promise<Gallery> {
+			galleries: createMock<Hitomi['galleries']>({
+				retrieve: function (id: number): Promise<Gallery> {
 					calls.push(id);
 
-					return gallery;
+					return Promise.resolve(gallery);
 				}
 			})
 		});
@@ -147,27 +148,28 @@ describe('GalleryManager', function (): void {
 			videofilename: 'video-' + id + '.mp4'
 		} as const;
 
-		const calls: {
-			url: URL;
-			range: string | undefined;
-		}[] = [];
+		const calls: RequestCall[] = [];
 		const hitomi: Hitomi = createMock<Hitomi>({
 			indexMaximumAge: 600000,
-			request: function (url: URL, range?: string): Promise<Buffer> {
+			request: createMock<Hitomi['request']>(function (host: string, path: string, type: ResponseType, range?: string): Promise<string> {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
+					type: type,
 					range: range
 				});
 
-				return Promise.resolve(Buffer.from('var galleryinfo = ' + JSON.stringify(rawGallery)));
-			}
+				return Promise.resolve('var galleryinfo = ' + JSON.stringify(rawGallery));
+			})
 		});
 		const manager: GalleryManager = new GalleryManager(hitomi);
 
 		const gallery: Gallery = await manager.retrieve(id);
 
 		assert.deepStrictEqual(calls, [{
-			url: ['ltn.gold-usergeneratedcontent.net', '/galleries/' + id + '.js'],
+			host: 'ltn.gold-usergeneratedcontent.net',
+			path: '/galleries/' + id + '.js',
+			type: ResponseType['TEXT'],
 			range: undefined
 		}]);
 
@@ -256,9 +258,9 @@ describe('GalleryManager', function (): void {
 	test('list rejects page with multiple non-language tags', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
 			indexMaximumAge: 600000,
-			request: async function (): Promise<Buffer> {
-				return Buffer.alloc(0);
-			}
+			request: createMock<Hitomi['request']>(function (): never {
+				throw new Error('request should not be called');
+			})
 		});
 		const manager: GalleryManager = new GalleryManager(hitomi);
 		const tags: Tag[] = [new Tag(hitomi, 'artist', 'artist tag'), new Tag(hitomi, 'group', 'group tag')];
@@ -275,25 +277,24 @@ describe('GalleryManager', function (): void {
 	});
 
 	test('list returns paginated references for tag query', async function (): Promise<void> {
-		const calls: {
-			url: URL;
-			range: string | undefined;
-		}[] = [];
+		const calls: RequestCall[] = [];
 		const hitomi: Hitomi = createMock<Hitomi>({
 			indexMaximumAge: 600000,
-			request: async function (url: URL, range?: string): Promise<Buffer> {
+			request: createMock<Hitomi['request']>(function (host: string, path: string, type: ResponseType, range?: string): DataView {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
+					type: type,
 					range: range
 				});
 
-				const response: Buffer = Buffer.allocUnsafe(8);
+				const response: DataView = new DataView(new ArrayBuffer(8));
 
-				response.writeInt32BE(11);
-				response.writeInt32BE(22, 4)
+				response.setInt32(0, 11);
+				response.setInt32(4, 22);
 
 				return response;
-			}
+			})
 		});
 		const manager: GalleryManager = new GalleryManager(hitomi);
 
@@ -307,7 +308,9 @@ describe('GalleryManager', function (): void {
 		});
 
 		assert.deepStrictEqual(calls, [{
-			url: ['ltn.gold-usergeneratedcontent.net', '/n/artist/john%20doe-all.nozomi'],
+			host: 'ltn.gold-usergeneratedcontent.net',
+			path: '/n/artist/john%20doe-all.nozomi',
+			type: ResponseType['VIEW'],
 			range: '8-15'
 		}]);
 		assert.deepStrictEqual(references.map(function (reference: GalleryReference): number {

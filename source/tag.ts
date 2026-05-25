@@ -1,9 +1,11 @@
 import type { Hitomi } from './hitomi';
-import { Base, HitomiError } from './utilities/structures';
-import { formatOneOfState, hashTerm } from './utilities/functions';
-import { BINARY_ORDERED_LANGUAGES, NameInitial, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './utilities/constants';
-import type { Node } from './utilities/types';
+import { Base } from './internal/structures';
+import { HitomiError } from './error';
+import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN, TAG_INDEX_DOMAIN, TAG_TYPES } from './internal/constants';
+import { NameInitial } from './enums';
+import type { Node } from './internal/types';
 import type { Gallery } from './gallery';
+import { ResponseType } from '@platform';
 
 // Moved from gallery to avoid circular dependency
 /**
@@ -108,7 +110,7 @@ export class Tag extends Base {
 
 			case 'type': {
 				if(!GALLERY_TYPES.has(name as Gallery['type'])) {
-					throw new HitomiError('Name', formatOneOfState(GALLERY_TYPES));
+					throw HitomiError['OneOfGalleryType'];
 				}
 			}
 			case 'artist':
@@ -123,7 +125,7 @@ export class Tag extends Base {
 
 			case 'language': {
 				if(!LANGUAGE_NAMES.has(name)) {
-					throw new HitomiError('Name', formatOneOfState(GALLERY_TYPES));
+					throw HitomiError['OneOfGalleryType'];
 				}
 
 				this['url'] = '/index-' + name + '.html';
@@ -132,7 +134,7 @@ export class Tag extends Base {
 			}
 
 			default: {
-				throw HitomiError['TAG_TYPE'];
+				throw HitomiError['OneOfTagType'];
 			}
 		}
 
@@ -176,10 +178,10 @@ export class Tag extends Base {
 		const rootNode: Node | undefined = await this['hitomi']['languageIndex'].getNodeAtAddress(0n, version);
 
 		if(!rootNode) {
-			throw HitomiError['ROOT_NODE_EMPTY'];
+			throw HitomiError['RootNodeEmpty'];
 		}
 
-		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(hashTerm(term), rootNode, version);
+		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(await this['hitomi'].hash(term), rootNode, version);
 
 		if(!data) {
 			throw new HitomiError('Name', 'valid');
@@ -299,7 +301,7 @@ export class TagManager extends Base {
 			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
 
 			if(!TAG_TYPES.has(type)) {
-				throw HitomiError['TAG_TYPE'];
+				throw HitomiError['OneOfTagType'];
 			}
 
 			path = '/' + type;
@@ -315,7 +317,7 @@ export class TagManager extends Base {
 			path += '/' + term[i++];
 		}
 
-		const response: [string, number, Tag['type']][] = JSON.parse(String(await this['hitomi'].request([TAG_INDEX_DOMAIN, path + '.json'])));
+		const response: [string, number, Tag['type']][] = await this['hitomi'].request(TAG_INDEX_DOMAIN, path + '.json', ResponseType['JSON']) as [string, number, Tag['type']][];
 		const tagAndCounts: [Tag, number][] = [];
 
 		for(i = 0; i < response['length']; i++) {
@@ -391,11 +393,11 @@ export class TagManager extends Base {
 					}
 
 					default: {
-						throw HitomiError['TAG_TYPE'];
+						throw HitomiError['OneOfTagType'];
 					}
 				}
 
-				const response: string = String(await this['hitomi'].request([FRONT_DOMAIN, '/all' + area + '-' + startsWith + '.html']));
+				const response: string = await this['hitomi'].request(FRONT_DOMAIN, '/all' + area + '-' + startsWith + '.html', ResponseType['TEXT']);
 				const endIndex: number = target['length'] - 1;
 
 				let currentIndex: number;

@@ -1,10 +1,59 @@
 import type { Hitomi } from './hitomi';
 import { Image, Video } from './media';
 import { Language, Tag } from './tag';
-import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES, SortType } from './utilities/constants';
-import { defineProperties, hashTerm, formatOneOfState } from './utilities/functions';
-import { Base, IndexProvider, HitomiError } from './utilities/structures';
-import type { URL, Node } from './utilities/types';
+import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from './internal/constants';
+import { SortType } from './enums';
+import { defineProperties } from './internal/functions';
+import { Base, IndexProvider } from './internal/structures';
+import { HitomiError } from './error';
+import type { Node } from './internal/types';
+import { ResponseType } from '@platform';
+
+/**
+ * Pagination options for listing galleries.
+ * 
+ * @see {@link GalleryOptions}
+ */
+export interface PageOptions {
+	/**
+	 * Zero-based page index.
+	 * 
+	 * @default 0
+	 */
+	index?: number;
+	/**
+	 * Number of galleries per page.
+	 * 
+	 * @default 25
+	 */
+	size?: number;
+}
+
+/**
+ * Filter options for listing galleries.
+ * 
+ * @see {@link GalleryManager.list}
+ */
+export interface GalleryOptions {
+	/**
+	 * {@link Tag} instances to filter.
+	 */
+	tags?: Tag[];
+	/**
+	 * Title keyword to search for.
+	 */
+	title?: string;
+	/**
+	 * Sort type to order by.
+	 *
+	 * @default SortType.DateAdded
+	 */
+	orderBy?: SortType;
+	/**
+	 * Pagination options.
+	 */
+	page?: PageOptions;
+}
 
 /**
  * Title associated with a gallery.
@@ -283,7 +332,7 @@ export class GalleryManager extends Base {
 			date: string;
 			datepublished: string | null;
 			videofilename: string | null;
-		} = JSON.parse(String(await this['hitomi'].request([RESOURCE_DOMAIN, '/galleries/' + id + '.js'])).slice(18));
+		} = JSON.parse((await this['hitomi'].request(RESOURCE_DOMAIN, '/galleries/' + id + '.js', ResponseType['TEXT'])).slice(18));
 		const dedicatedTags: [Tag[], Tag[], Tag[], Tag[]] = [[] /* artists */, [] /* groups */, [] /* series */, [] /* characters */];
 		const tags: Tag[] = [];
 		const files: Image[] = [];
@@ -293,14 +342,14 @@ export class GalleryManager extends Base {
 		let type: Tag['type'];
 
 		for(; i < DEDICATED_TAG_PROPERTIES['length']; i++) {
-			// @ts-expect-error - typescript internal error
+			// @ts-expect-error - Typescript internal error
 			const dedicatedTagProperty: `${(typeof DEDICATED_TAG_PROPERTIES)[number]}s` = DEDICATED_TAG_PROPERTIES[i] + 's';
 
 			type = i !== 2 ? DEDICATED_TAG_PROPERTIES[i] as Tag['type'] : 'series';
 
 			if(rawGallery[dedicatedTagProperty]) {
 				for(let j: number = 0; j < rawGallery[dedicatedTagProperty]['length']; j++)
-					// @ts-expect-error - typescript internal error
+					// @ts-expect-error - Typescript internal error
 					dedicatedTags[i].push(new Tag(this['hitomi'], type, rawGallery[dedicatedTagProperty][j][DEDICATED_TAG_PROPERTIES[i]]));
 			}
 		}
@@ -379,13 +428,13 @@ export class GalleryManager extends Base {
 		);
 	}
 
-	// nozomi uses jspack
 	// @internal
-	private static unpackIds(response: Buffer, isNegative: boolean = false): Set<Gallery['id']> {
+	private async requestIds(url: [string, string], range?: string, isNegative: boolean = false): Promise<Set<Gallery['id']>> {
+		const view: DataView = await this['hitomi'].request(url[0], url[1], ResponseType['VIEW'], range);
 		const ids: Set<Gallery['id']> = new Set<Gallery['id']>();
 
-		for(let i: number = 0; i < response['byteLength']; i += 4) {
-			ids.add(response.readInt32BE(i));
+		for(let i: number = 0; i < view['byteLength']; i += 4) {
+			ids.add(view.getInt32(i));
 		}
 
 		if(isNegative) {
@@ -401,7 +450,7 @@ export class GalleryManager extends Base {
 		tag?: Tag;
 		language?: string;
 		orderBy?: SortType;
-	} = {}): URL {
+	} = {}): [string, string] {
 		const language: string = options['language'] || 'all';
 		let orderBy: string = '';
 
@@ -427,7 +476,7 @@ export class GalleryManager extends Base {
 
 				default: {
 					// @ts-expect-error
-					throw new HitomiError('OrderBy', formatOneOfState(SortType));
+					throw HitomiError.OneOfState('OrderBy', SortType);
 				}
 			}
 		}
@@ -491,26 +540,12 @@ export class GalleryManager extends Base {
 	 *
 	 * When using `Popularity{Period}` in `options.orderBy`, the number of galleries may vary.
 	 *
-	 * @param {object} [options] Search options.
-	 * @param {Tag[]} [options.tags] Tag filters as {@link Tag} instances.
-	 * @param {string} [options.title] Title query string.
-	 * @param {SortType} [options.orderBy=SortType.DateAdded] Sort order. (defaults to `SortType.DateAdded`)
-	 * @param {object} [options.page] Pagination options.
-	 * @param {number} [options.page.index=0] Zero-based page index. (defaults to `0` when `options.page` is provided)
-	 * @param {number} [options.page.size=25] Number of galleries per page. (defaults to `25` when `options.page` is provided)
+	 * @param {GalleryOptions} [options] Search options.
 	 * @returns {Promise<GalleryReference[]>} Promise that resolves to an array of {@link GalleryReference} instances.
 	 * @throws {HitomiError} Thrown when `page` is used with multiple tags or any negative tag.
 	 * @see {@link SortType}
 	 */
-	public async list(options: {
-		tags?: Tag[];
-		title?: string;
-		orderBy?: SortType;
-		page?: {
-			index?: number;
-			size?: number;
-		};
-	} = {}): Promise<GalleryReference[]> {
+	public async list(options: GalleryOptions = {}): Promise<GalleryReference[]> {
 		const idSets: Set<Gallery['id']>[] = [];
 		const isRandom: boolean = options['orderBy'] === 'random';
 		let language: string | undefined;
@@ -553,38 +588,38 @@ export class GalleryManager extends Base {
 					throw new HitomiError('Page', 'used with negative tag', false);
 				}
 
-				return this.createReferences(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+				return this.createReferences(await this.requestIds(GalleryManager.createNozomiUrl({
 					tag: tags[+(tags[0]['type'] === 'language') /* selects non-language tag */],
 					orderBy: options['orderBy'],
 					language: language
-				}), range)), isRandom);
+				}), range), isRandom);
 			}
 
-			idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+			idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
 				tag: tags[i++] /* if first tag is negative i becomes -1, therefore tags give undefined  */,
 				orderBy: options['orderBy'],
 				language: language
-			}))));
+			})));
 
 			for(; i < tags['length']; i++) {
 				if(tags[i]['type'] !== 'language' || !language && tags[i]['isNegative']) {
-					idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+					idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
 						tag: tags[i],
 						language: language
-					})), tags[i]['isNegative']));
+					}), undefined, tags[i]['isNegative']));
 				}
 			}
 		} else {
-			const urn: URL = GalleryManager.createNozomiUrl({
+			const url: [string, string] = GalleryManager.createNozomiUrl({
 				orderBy: options['orderBy']
 			});
 
 			if(range) {
-				return this.createReferences(GalleryManager.unpackIds(await this['hitomi'].request(urn, range)), isRandom);
+				return this.createReferences(await this.requestIds(url, range), isRandom);
 			}
 
 			if(options['orderBy']) {
-				idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(urn)));
+				idSets.push(await this.requestIds(url));
 			}
 		}
 
@@ -594,7 +629,7 @@ export class GalleryManager extends Base {
 			const rootNode: Node | undefined = await this['index'].getNodeAtAddress(0n, version);
 
 			if(!rootNode) {
-				throw HitomiError['ROOT_NODE_EMPTY'];
+				throw HitomiError['RootNodeEmpty'];
 			}
 
 			i /* currentIndex */ = 0;
@@ -602,13 +637,13 @@ export class GalleryManager extends Base {
 
 			while(j !== -1) {
 				if(j - i) {
-					const data: Node[1][number] | undefined = await this['index'].binarySearch(hashTerm(title.slice(i, j)), rootNode, version);
+					const data: Node[1][number] | undefined = await this['index'].binarySearch(await this['hitomi'].hash(title.slice(i, j)), rootNode, version);
 
 					if(!data) {
 						return [];
 					}
 
-					idSets.push(GalleryManager.unpackIds(await this['hitomi'].request([RESOURCE_DOMAIN, '/galleriesindex/galleries.' + version + '.data'], (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n))));
+					idSets.push(await this.requestIds([RESOURCE_DOMAIN, '/galleriesindex/galleries.' + version + '.data'], (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n)));
 				}
 
 				i = j + 1;
@@ -631,7 +666,7 @@ export class GalleryManager extends Base {
 				}
 			}
 		} else {
-			idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl())));
+			idSets.push(await this.requestIds(GalleryManager.createNozomiUrl()));
 		}
 
 		return this.createReferences(idSets[0], isRandom);
