@@ -1,5 +1,5 @@
 import type { Hitomi } from '../hitomi';
-import { Base } from '../internal/structures';
+import { Base } from '../internal/base';
 import { HitomiError } from './error';
 import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../internal/constants';
 import type { Node } from '../internal/types';

@@ -1,11 +1,12 @@
 import { describe, test } from 'mocha';
 import assert from 'assert';
 
-import { Language, Tag, TagManager } from '../source/tag';
-import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../source/internal/constants';
-import { NameInitial } from '../source/enums';
-import { Hitomi } from '../source/hitomi';
-import type { Node } from '../source/internal/types';
+import { Tag } from '@/structures/tag';
+import { Language } from '@/structures/tag';
+import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '@/internal/constants';
+import { TagManager, NameInitial } from '@/managers/tag';
+import { Hitomi } from '@/hitomi';
+import type { Node } from '@/internal/types';
 import { assertInstanceOf, createMock } from './shared/functions';
 import { createHash } from 'crypto';
 import { PARTIAL_TAG_TYPES } from './shared/constants';

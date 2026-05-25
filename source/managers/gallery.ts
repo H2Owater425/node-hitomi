@@ -4,7 +4,8 @@ import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structur
 import type { Hitomi } from '../hitomi';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from '../internal/constants';
 import { defineProperties } from '../internal/functions';
-import { Base, IndexProvider } from '../internal/structures';
+import { IndexProvider } from '../internal/provider';
+import { Base } from '../internal/base';
 import type { Node } from '../internal/types';
 import { Image, Video } from '../structures/media';
 import { Tag, Language } from '../structures/tag';

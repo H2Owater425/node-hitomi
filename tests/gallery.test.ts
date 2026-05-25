@@ -1,12 +1,13 @@
 import { describe, test } from 'mocha';
 import assert from 'assert';
 
-import { Title, GalleryReference, TranslatedGallery, Gallery, GalleryManager } from '../source/gallery';
-import { Tag, Language } from '../source/tag';
-import { Image, Video } from '../source/media';
-import { BASE_DOMAIN } from '../source/internal/constants';
-import { SortType } from '../source/enums';
-import { Hitomi } from '../source/hitomi';
+import { Title, GalleryReference, TranslatedGallery, Gallery } from '@/structures/gallery';
+import { Tag } from '@/structures/tag';
+import { Language } from '@/structures/tag';
+import { Image, Video } from '@/structures/media';
+import { BASE_DOMAIN } from '@/internal/constants';
+import { GalleryManager, SortType } from '@/managers/gallery';
+import { Hitomi } from '@/hitomi';
 import { createMock, assertInstanceOf } from './shared/functions';
 import { ResponseType, RequestCall } from './shared/types';
 

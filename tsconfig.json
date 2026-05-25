@@ -8,8 +8,10 @@
 		"removeComments": true,
 		"stripInternal": true,
 		"preserveConstEnums": true,
+		"baseUrl": ".",
 		"paths": {
-			"@platform": ["./source/platform/node.ts", "./source/platform/browser.ts"]
+			"@/*": ["source/*"],
+			"@platform": ["source/platform/node.ts", "source/platform/browser.ts"]
 		}
 	},
 	"ts-node": {

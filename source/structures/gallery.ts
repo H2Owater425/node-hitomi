@@ -1,7 +1,7 @@
 import type { Hitomi } from '../hitomi';
 import { Image, Video } from './media';
 import { Language, Tag } from './tag';
-import { Base } from '../internal/structures';
+import { Base } from '../internal/base';
 
 /**
  * Title associated with a gallery.
@@ -36,6 +36,7 @@ export class Title {
  * @see {@link GalleryManager}
  */
 export class GalleryReference extends Base {
+	// @internal
 	constructor(
 		hitomi: Hitomi,
 		/**

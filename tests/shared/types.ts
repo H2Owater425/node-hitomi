@@ -1,4 +1,4 @@
-import { ResponseType } from '../../source/platform/shared';
+import { ResponseType } from '@/platform/shared';
 
 export type RequestCall = {
 	host: string;
@@ -7,4 +7,4 @@ export type RequestCall = {
 	range: string | undefined;
 };
 
-export { ResponseType, RequestFunction } from '../../source/platform/shared';
+export { ResponseType, RequestFunction } from '@/platform/shared';
