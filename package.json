@@ -33,8 +33,8 @@
 	"browser": "./distribution/browser/index.js",
 	"scripts": {
 		"build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
-		"dev": "node -r tsconfig-paths/register --require=ts-node/register debug.ts",
-		"test": "mocha --require=ts-node/register tests/*.test.ts"
+		"dev": "node --require=tsconfig-paths/register --require=ts-node/register debug.ts",
+		"test": "mocha --require=tsconfig-paths/register --require=ts-node/register tests/*.test.ts"
 	},
 	"devDependencies": {
 		"@rollup/plugin-typescript": "^12.3.0",

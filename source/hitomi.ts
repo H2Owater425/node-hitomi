@@ -1,10 +1,10 @@
 import type { ImageContext } from './internal/types';
-import { GalleryManager } from './gallery';
-import { TagManager } from './tag';
+import { GalleryManager } from './managers/gallery';
+import { TagManager } from './managers/tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, MAXIMUM_AGE_PROPERTIES } from './internal/constants';
 import { defineProperties, capitalize } from './internal/functions';
-import { IndexProvider, Provider } from './internal/structures';
-import { HitomiError } from './error';
+import { Provider, IndexProvider } from './internal/provider';
+import { HitomiError } from './structures/error';
 import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
 
 /**

@@ -1,4 +1,4 @@
-import { GALLERY_TYPES, TAG_TYPES } from './internal/constants';
+import { GALLERY_TYPES, TAG_TYPES } from '../internal/constants';
 
 export class HitomiError extends Error {
 	// @internal
@@ -6,6 +6,7 @@ export class HitomiError extends Error {
 		return new HitomiError(name, 'one of ' + (iteratable[Symbol['iterator']] ? Array.from(iteratable) : Object.values(iteratable)).join(', '));
 	}
 
+	// @internal
 	public static get OneOfGalleryType(): HitomiError {
 		throw HitomiError.OneOfState('Name', GALLERY_TYPES);
 	}

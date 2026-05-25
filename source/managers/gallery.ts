@@ -1,29 +1,45 @@
-import type { Hitomi } from './hitomi';
-import { Image, Video } from './media';
-import { Language, Tag } from './tag';
-import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from './internal/constants';
-import { SortType } from './enums';
-import { defineProperties } from './internal/functions';
-import { Base, IndexProvider } from './internal/structures';
-import { HitomiError } from './error';
-import type { Node } from './internal/types';
 import { ResponseType } from '@platform';
+import { HitomiError } from '../structures/error';
+import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structures/gallery';
+import type { Hitomi } from '../hitomi';
+import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from '../internal/constants';
+import { defineProperties } from '../internal/functions';
+import { IndexProvider } from '../internal/provider';
+import { Base } from '../internal/base';
+import type { Node } from '../internal/types';
+import { Image, Video } from '../structures/media';
+import { Tag, Language } from '../structures/tag';
+
+/**
+ * Sorting options for listing galleries.
+ *
+ * @enum {string}
+ */
+export const enum SortType {
+	DateAdded = 'added',
+	DatePublished = 'published',
+	Random = 'random',
+	PopularityDay = 'today',
+	PopularityWeek = 'week',
+	PopularityMonth = 'month',
+	PopularityYear = 'year'
+}
 
 /**
  * Pagination options for listing galleries.
- * 
+ *
  * @see {@link GalleryOptions}
  */
 export interface PageOptions {
 	/**
 	 * Zero-based page index.
-	 * 
+	 *
 	 * @default 0
 	 */
 	index?: number;
 	/**
 	 * Number of galleries per page.
-	 * 
+	 *
 	 * @default 25
 	 */
 	size?: number;
@@ -31,7 +47,7 @@ export interface PageOptions {
 
 /**
  * Filter options for listing galleries.
- * 
+ *
  * @see {@link GalleryManager.list}
  */
 export interface GalleryOptions {
@@ -53,215 +69,6 @@ export interface GalleryOptions {
 	 * Pagination options.
 	 */
 	page?: PageOptions;
-}
-
-/**
- * Title associated with a gallery.
- * 
- * @see {@link Gallery}
- */
-export class Title {
-	// @internal
-	constructor(
-		/**
-		 * Display title of the gallery.
-		 * 
-		 * @type {string}
-		 * @readonly
-		 */
-		public readonly display: string,
-		/**
-		 * Japanese title of the gallery.
-		 * 
-		 * @deprecated This field is always null.
-		 * @type {string | null}
-		 * @readonly
-		 */
-		public readonly japanese: string | null = null
-	) {}
-}
-
-/**
- * Reference to a gallery with a unique identifier.
- * 
- * @see {@link Gallery}
- * @see {@link GalleryManager}
- */
-export class GalleryReference extends Base {
-	constructor(
-		hitomi: Hitomi,
-		/**
-		 * Unique identifier of the gallery.
-		 * 
-		 * @type {number}
-		 * @readonly
-		 */
-		public readonly id: number
-	) {
-		super(hitomi);
-	}
-
-	/**
-	 * Retrieves a full {@link Gallery} associated with the unique identifier.
-	 * 
-	 * @returns {Promise<Gallery>} Promise that resolves to a full {@link Gallery} instance.
-	 */
-	public retrieve(): Promise<Gallery> {
-		return this['hitomi']['galleries'].retrieve(this['id']);
-	}
-}
-
-/**
- * Partial gallery for a specific language.
- * 
- * @see {@link Gallery}
- */
-export class TranslatedGallery extends GalleryReference {
-	// @internal
-	constructor(
-		hitomi: Hitomi,
-		id: GalleryReference['id'],
-		/**
-		 * Language of the gallery. (`null` if unavailable)
-		 * 
-		 * @type {Language | null}
-		 * @readonly
-		 */
-		public readonly language: Language | null,
-		/**
-		 * URL path of the gallery.
-		 * 
-		 * @type {string}
-		 * @readonly
-		 */
-		public readonly url: string
-	) {
-		super(hitomi, id);
-	}
-}
-
-/**
- * Full gallery with metadata, files, and relationships.
- * 
- * @see {@link GalleryManager}
- */
-export class Gallery extends TranslatedGallery {
-	// @internal
-	constructor(
-		hitomi: Hitomi,
-		id: TranslatedGallery['id'],
-		language: TranslatedGallery['language'],
-		url: TranslatedGallery['url'],
-		/**
-		 * Title of the gallery.
-		 * 
-		 * @type {Title}
-		 * @readonly
-		 */
-		public readonly title: Title,
-		/**
-		 * Type of the gallery.
-		 * 
-		 * @type {'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'imageset' | 'anime'}
-		 * @readonly
-		 */
-		public readonly type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'imageset' | 'anime',
-		/**
-		 * Artist tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly artists: readonly Tag[],
-		/**
-		 * Group tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly groups: readonly Tag[],
-		/**
-		 * Series (parody) tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly series: readonly Tag[],
-		/**
-		 * Character tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly characters: readonly Tag[],
-		/**
-		 * General, male, and female tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly tags: readonly Tag[],
-		/**
-		 * Image files in the gallery.
-		 * 
-		 * @type {readonly Image[]}
-		 * @readonly
-		 */
-		public readonly files: readonly Image[],
-		/**
-		 * Available translations in other languages.
-		 * 
-		 * @type {readonly TranslatedGallery[]}
-		 * @readonly
-		 */
-		public readonly translations: readonly TranslatedGallery[],
-		/**
-		 * References to related galleries.
-		 * 
-		 * @type {readonly GalleryReference[]}
-		 * @readonly
-		 */
-		public readonly relations: readonly GalleryReference[],
-		/**
-		 * Whether the gallery is blocked.
-		 * 
-		 * @type {boolean}
-		 * @readonly
-		 */
-		public readonly isBlocked: boolean,
-		/**
-		 * Date when the gallery was added.
-		 * 
-		 * @type {Date}
-		 * @readonly
-		 */
-		public readonly addedDate: Date,
-		/**
-		 * Date when the original work was published. (`null` if unavailable)
-		 * 
-		 * @type {Date | null}
-		 * @readonly
-		 */
-		public readonly publishedDate: Date | null = null,
-		/**
-		 * Video resource associated with the gallery. (`null` if unavailable)
-		 * 
-		 * @type {Video | null}
-		 * @readonly
-		 */
-		public readonly video: Video | null = null
-	) {
-		super(hitomi, id, language, url);
-	}
-
-	/**
-	 * Returns representative thumbnails.
-	 * 
-	 * @returns {[Image, Image]} Tuple containing the first and middle image.
-	 */
-	public getThumbnails(): [Image, Image] {
-		return [this['files'][0], this['files'][Math.floor(this['files']['length'] / 2)]]
-	}
 }
 
 /**
@@ -341,23 +148,23 @@ export class GalleryManager extends Base {
 		let i: number = 0;
 		let type: Tag['type'];
 
-		for(; i < DEDICATED_TAG_PROPERTIES['length']; i++) {
+		for (; i < DEDICATED_TAG_PROPERTIES['length']; i++) {
 			// @ts-expect-error - Typescript internal error
 			const dedicatedTagProperty: `${(typeof DEDICATED_TAG_PROPERTIES)[number]}s` = DEDICATED_TAG_PROPERTIES[i] + 's';
 
 			type = i !== 2 ? DEDICATED_TAG_PROPERTIES[i] as Tag['type'] : 'series';
 
-			if(rawGallery[dedicatedTagProperty]) {
-				for(let j: number = 0; j < rawGallery[dedicatedTagProperty]['length']; j++)
+			if (rawGallery[dedicatedTagProperty]) {
+				for (let j: number = 0; j < rawGallery[dedicatedTagProperty]['length']; j++)
 					// @ts-expect-error - Typescript internal error
 					dedicatedTags[i].push(new Tag(this['hitomi'], type, rawGallery[dedicatedTagProperty][j][DEDICATED_TAG_PROPERTIES[i]]));
 			}
 		}
 
-		for(i = 0; i < rawGallery['tags']['length']; i++) {
-			if(Boolean(rawGallery['tags'][i]['male'])) {
+		for (i = 0; i < rawGallery['tags']['length']; i++) {
+			if (Boolean(rawGallery['tags'][i]['male'])) {
 				type = 'male';
-			} else if(Boolean(rawGallery['tags'][i]['female'])) {
+			} else if (Boolean(rawGallery['tags'][i]['female'])) {
 				type = 'female';
 			} else {
 				type = 'tag';
@@ -368,7 +175,7 @@ export class GalleryManager extends Base {
 
 		const thumbnailIndex: number = Math.floor(rawGallery['files']['length'] / 2);
 
-		for(i = 0; i < rawGallery['files']['length']; i++) {
+		for (i = 0; i < rawGallery['files']['length']; i++) {
 			files.push(new Image(
 				this['hitomi'],
 				rawGallery['files'][i]['width'],
@@ -382,7 +189,7 @@ export class GalleryManager extends Base {
 			));
 		}
 
-		for(i = 0; i < rawGallery['languages']['length']; i++) {
+		for (i = 0; i < rawGallery['languages']['length']; i++) {
 			translations.push(new TranslatedGallery(
 				this['hitomi'],
 				rawGallery['languages'][i]['galleryid'],
@@ -397,7 +204,7 @@ export class GalleryManager extends Base {
 
 		const relations: GalleryReference[] = [];
 
-		for(i = 0; i < rawGallery['related']['length']; i++) {
+		for (i = 0; i < rawGallery['related']['length']; i++) {
 			relations.push(new GalleryReference(this['hitomi'], rawGallery['related'][i]));
 		}
 
@@ -433,11 +240,11 @@ export class GalleryManager extends Base {
 		const view: DataView = await this['hitomi'].request(url[0], url[1], ResponseType['VIEW'], range);
 		const ids: Set<Gallery['id']> = new Set<Gallery['id']>();
 
-		for(let i: number = 0; i < view['byteLength']; i += 4) {
+		for (let i: number = 0; i < view['byteLength']; i += 4) {
 			ids.add(view.getInt32(i));
 		}
 
-		if(isNegative) {
+		if (isNegative) {
 			// negative flag
 			ids.add(0);
 		}
@@ -454,8 +261,8 @@ export class GalleryManager extends Base {
 		const language: string = options['language'] || 'all';
 		let orderBy: string = '';
 
-		if(options['orderBy']) {
-			switch(options['orderBy']) {
+		if (options['orderBy']) {
+			switch (options['orderBy']) {
 				case SortType['DatePublished']: {
 					orderBy = 'date/published';
 				}
@@ -481,17 +288,17 @@ export class GalleryManager extends Base {
 			}
 		}
 
-		if(!options['tag'] || options['tag']['type'] === 'language') {
+		if (!options['tag'] || options['tag']['type'] === 'language') {
 			return [RESOURCE_DOMAIN, '/n/' + (orderBy || 'index') + '-' + language + '.nozomi'];
 		}
 
-		if(orderBy) {
+		if (orderBy) {
 			orderBy += '/';
 		}
 
 		let area: string;
 
-		switch(options['tag']['type']) {
+		switch (options['tag']['type']) {
 			case 'male':
 			case 'female': {
 				area = 'tag/';
@@ -512,15 +319,15 @@ export class GalleryManager extends Base {
 	private createReferences(ids: Set<number>, shouldShuffle: boolean): GalleryReference[] {
 		const references: GalleryReference[] = [];
 
-		for(const id of ids) {
+		for (const id of ids) {
 			references.push(new GalleryReference(this['hitomi'], id));
 		}
 
-		if(shouldShuffle) {
+		if (shouldShuffle) {
 			let currentIndex: number = references['length'];
 			let targetIndex: number;
 
-			while(currentIndex) {
+			while (currentIndex) {
 				targetIndex = Math.floor(Math.random() * currentIndex--);
 
 				const temporary: GalleryReference = references[targetIndex];
@@ -552,24 +359,24 @@ export class GalleryManager extends Base {
 		let i: number = 0;
 		let range: string | undefined;
 
-		if(options['page']) {
+		if (options['page']) {
 			const size: number = options['page']['size'] ? options['page']['size'] * 4 : 100;
 			const start: number = options['page']['index'] ? options['page']['index'] * size : 0;
 
 			range = start + '-' + (start + size - 1);
 		}
 
-		if(options['tags'] && options['tags']['length']) {
+		if (options['tags'] && options['tags']['length']) {
 			// bring positive tags to front
 			const tags: Tag[] = options['tags'].slice().sort(function (a: Tag, b: Tag): number {
 				return (a['isNegative'] as unknown as number) - (b['isNegative'] as unknown as number);
 			});
 
-			if(tags[0]['isNegative']) {
+			if (tags[0]['isNegative']) {
 				i = -1;
 			} else {
-				for(; i < tags['length'] && !tags[i]['isNegative']; i++) {
-					if(tags[i]['type'] === 'language') {
+				for (; i < tags['length'] && !tags[i]['isNegative']; i++) {
+					if (tags[i]['type'] === 'language') {
 						language = tags[i]['name'];
 
 						break;
@@ -579,12 +386,12 @@ export class GalleryManager extends Base {
 				i = 0;
 			}
 
-			if(range) {
-				if(tags['length'] > 2 || tags['length'] === 2 && !language) {
+			if (range) {
+				if (tags['length'] > 2 || tags['length'] === 2 && !language) {
 					throw new HitomiError('Page', 'used with multiple tags', false);
 				}
 
-				if(tags[tags['length'] - 1]['isNegative']) {
+				if (tags[tags['length'] - 1]['isNegative']) {
 					throw new HitomiError('Page', 'used with negative tag', false);
 				}
 
@@ -601,8 +408,8 @@ export class GalleryManager extends Base {
 				language: language
 			})));
 
-			for(; i < tags['length']; i++) {
-				if(tags[i]['type'] !== 'language' || !language && tags[i]['isNegative']) {
+			for (; i < tags['length']; i++) {
+				if (tags[i]['type'] !== 'language' || !language && tags[i]['isNegative']) {
 					idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
 						tag: tags[i],
 						language: language
@@ -614,32 +421,32 @@ export class GalleryManager extends Base {
 				orderBy: options['orderBy']
 			});
 
-			if(range) {
+			if (range) {
 				return this.createReferences(await this.requestIds(url, range), isRandom);
 			}
 
-			if(options['orderBy']) {
+			if (options['orderBy']) {
 				idSets.push(await this.requestIds(url));
 			}
 		}
 
-		if(options['title'] && options['title']['length']) {
+		if (options['title'] && options['title']['length']) {
 			const version: string = await this['index'].retrieve();
 			const title: string = options['title'].toLowerCase() + ' ';
 			const rootNode: Node | undefined = await this['index'].getNodeAtAddress(0n, version);
 
-			if(!rootNode) {
+			if (!rootNode) {
 				throw HitomiError['RootNodeEmpty'];
 			}
 
 			i /* currentIndex */ = 0;
 			let j /* nextIndex */: number = title.indexOf(' ');
 
-			while(j !== -1) {
-				if(j - i) {
+			while (j !== -1) {
+				if (j - i) {
 					const data: Node[1][number] | undefined = await this['index'].binarySearch(await this['hitomi'].hash(title.slice(i, j)), rootNode, version);
 
-					if(!data) {
+					if (!data) {
 						return [];
 					}
 
@@ -651,16 +458,16 @@ export class GalleryManager extends Base {
 			}
 		}
 
-		if(idSets['length']) {
-			for(i = 1; i < idSets['length']; i++) {
-				if(!idSets[0]['size']) {
+		if (idSets['length']) {
+			for (i = 1; i < idSets['length']; i++) {
+				if (!idSets[0]['size']) {
 					return [];
 				}
 
 				const isNegative: boolean = idSets[i].has(0);
 
-				for(const id of idSets[0]) {
-					if(isNegative === idSets[i].has(id)) {
+				for (const id of idSets[0]) {
+					if (isNegative === idSets[i].has(id)) {
 						idSets[0].delete(id);
 					}
 				}

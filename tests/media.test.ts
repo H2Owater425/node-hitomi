@@ -1,10 +1,10 @@
 import { describe, test } from 'mocha';
 import assert from 'assert';
 
-import { Image, Video } from '../source/media';
-import { Extension, ThumbnailSize } from '../source/enums';
-import { Hitomi } from '../source/hitomi';
-import type { ImageContext } from '../source/internal/types';
+import { Image, Video } from '@/structures/media';
+import { Extension, ThumbnailSize } from '@/structures/media';
+import { Hitomi } from '@/hitomi';
+import type { ImageContext } from '@/internal/types';
 import { createMock } from './shared/functions';
 import { ResponseType, RequestCall } from './shared/types';
 

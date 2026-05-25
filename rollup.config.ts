@@ -25,7 +25,7 @@ function replace(type: 'cjs' | 'esm' | 'browser' | 'types'): Plugin {
 				.replace(/^import '\.\/platform\/node\.mjs';\n/gm, '');
 			} else {
 				if(code.includes('@link Hitomi') && !code.includes('class Hitomi') && !code.includes('\'./hitomi.js\'')) {
-					code = code.replace(/^$/m, 'import { Hitomi } from \'./hitomi.js\';\n');
+					code = code.replace(/^$/m, 'import { Hitomi } from \'../hitomi.js\';\n');
 				}
 
 				if(code.includes('@link Gallery') && !code.includes('class Gallery') && !code.includes('\'./gallery.js\'')) {

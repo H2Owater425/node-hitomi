@@ -1,3 +1,4 @@
+import { HitomiError } from '../structures/error';
 import { Hitomi } from '../hitomi';
 import { DEFAULT_HEADERS } from '../internal/constants';
 import { RequestContext, ResponseType } from './shared';
@@ -47,7 +48,7 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 		}
 
 		default: {
-			throw new Error(host + path + ' must not send ' + response['status']);
+			throw new HitomiError('https://' + host + path + ' must not respond with ' + response['status']);
 		}
 	}
 }
