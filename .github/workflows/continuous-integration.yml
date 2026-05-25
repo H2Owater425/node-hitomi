@@ -1,6 +1,8 @@
 name: Continuous integration
 
 on:
+  workflow_dispatch:
+
   push:
     branches:
       - main
@@ -78,7 +80,7 @@ jobs:
 
       - name: Install dependencies
         if: matrix.node-version == '14.x'
-        run: npm install
+        run: npm install --force
 
       - name: Install dependencies
         if: matrix.node-version != '14.x'
