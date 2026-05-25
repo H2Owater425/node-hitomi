@@ -6,6 +6,7 @@ import type { Readable } from 'stream';
 import { DEFAULT_HEADERS } from '../internal/constants';
 import { RequestContext, ResponseType } from './shared';
 import { Hitomi } from '../hitomi';
+import { HitomiError } from '@/structures/error';
 
 const agent: Agent = new Agent({
 	keepAlive: true
@@ -49,7 +50,7 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 				default: {
 					response.resume();
 
-					return reject(new Error());
+					return reject(new HitomiError('https://' + host + path + ' must not respond with ' + response['statusCode']));
 				}
 			}
 
