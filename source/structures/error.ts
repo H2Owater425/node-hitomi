@@ -1,5 +1,8 @@
 import { GALLERY_TYPES, TAG_TYPES } from '../internal/constants';
 
+/**
+ * An error thrown by node-hitomi.
+ */
 export class HitomiError extends Error {
 	// @internal
 	public static OneOfState<T>(name: string, iteratable: Iterable<T>): HitomiError {

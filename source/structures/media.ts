@@ -8,8 +8,9 @@ import type { Gallery } from './gallery';
 import { ResponseType } from '@platform';
 
 /**
- * Supported image formats for retrieving images.
+ * Supported image file formats.
  *
+ * @readonly
  * @enum {string}
  */
 export const enum Extension {
@@ -19,8 +20,9 @@ export const enum Extension {
 }
 
 /**
- * Supported thumbnail sizes for retrieving images.
+ * Available thumbnail size presets.
  *
+ * @readonly
  * @enum {string}
  */
 export const enum ThumbnailSize {
@@ -30,7 +32,7 @@ export const enum ThumbnailSize {
 }
 
 /**
- * Abstract base class for media resources providing shared dimensions.
+ * An abstract base class for media resources with shared dimension properties.
  *
  * @abstract
  * @see {@link Image}
@@ -42,14 +44,14 @@ abstract class Media extends Base {
 		hitomi: Hitomi,
 		/**
 		 * Width of the media in pixels.
-		 * 
+		 *
 		 * @type {number}
 		 * @readonly
 		 */
 		public readonly width: number,
 		/**
 		 * Height of the media in pixels.
-		 * 
+		 *
 		 * @type {number}
 		 * @readonly
 		 */
@@ -67,8 +69,8 @@ abstract class Media extends Base {
 }
 
 /**
- * Image belonging to a gallery.
- * 
+ * An image file belonging to a {@link Gallery}.
+ *
  * @see {@link Gallery}
  */
 export class Image extends Media {
@@ -78,45 +80,45 @@ export class Image extends Media {
 		width: number,
 		height: number,
 		/**
-		 * Unique hash that identifies the image.
-		 * 
+		 * Unique hash identifying the image.
+		 *
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly hash: string,
 		/**
-		 * Original file name of the image.
-		 * 
+		 * Original filename of the image.
+		 *
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly name: string,
 		/**
-		 * Whether the AVIF format is available.
-		 * 
+		 * Whether this image is available in AVIF format.
+		 *
 		 * @type {boolean}
 		 * @readonly
 		 */
 		public readonly hasAvif: boolean,
 		/**
-		 * Whether the WebP format is available.
-		 * 
-		 * @deprecated This field is always true.
+		 * Whether this image is available in WebP format.
+		 *
+		 * @deprecated Always `true`.
 		 * @type {boolean}
 		 * @readonly
 		 */
 		public readonly hasWebp: boolean,
 		/**
-		 * Whether the JPEG XL format is available.
-		 * 
-		 * @deprecated This field is always false.
+		 * Whether this image is available in JPEG XL format.
+		 *
+		 * @deprecated Always `false`.
 		 * @type {boolean}
 		 * @readonly
 		 */
 		public readonly hasJxl: boolean,
 		/**
-		 * Whether thumbnail variants are available for the image.
-		 * 
+		 * Whether thumbnail variants are available for this image.
+		 *
 		 * @type {boolean}
 		 * @readonly
 		 */
@@ -126,25 +128,25 @@ export class Image extends Media {
 	}
 
 	/**
-	 * Resolves an image URL for the specified format and optional thumbnail size.
+	 * Resolves a URL for this image in the specified format, optionally using a thumbnail size.
 	 *
-	 * Only the combinations listed below are valid:
+	 * Only the following combinations are valid:
 	 *
-	 * | Thumbnail Size | Extension | Requirement (must be true)       |
+	 * | Thumbnail Size | Extension | Requirement (must be `true`)     |
 	 * | :------------- | :-------- | :------------------------------- |
 	 * | *(none)*       | *(all)*   | `has{Extension}`                 |
 	 * | `Small`        | *(all)*   | `has{Extension}`                 |
 	 * | `Medium`       | `Avif`    | `hasThumbnail && has{Extension}` |
 	 * | `Big`          | *(all)*   | `hasThumbnail && has{Extension}` |
-	 * 
-	 * @param {Extension} extension Desired image format.
-	 * @param {ThumbnailSize} [thumbnailSize] Optional thumbnail size. (a full-size image URL is returned if omitted)
-	 * @returns {Promise<string>} Promise that resolves to the final image URL.
-	 * @throws {HitomiError} Thrown when the `extension` and `thumbnailSize` combination is not valid.
-	 * @see {@link hasAvif}
-	 * @see {@link hasWebp}
-	 * @see {@link hasJxl}
-	 * @see {@link hasThumbnail}
+	 *
+	 * @param {Extension} extension The desired image format.
+	 * @param {ThumbnailSize} [thumbnailSize] The thumbnail size preset. Omit for a full-size image URL.
+	 * @returns {Promise<string>} A `Promise` that resolves to the image URL.
+	 * @throws {HitomiError} If the `extension` and `thumbnailSize` combination is invalid.
+	 * @see {@link Image.hasAvif}
+	 * @see {@link Image.hasWebp}
+	 * @see {@link Image.hasJxl}
+	 * @see {@link Image.hasThumbnail}
 	 */
 	public async resolveUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
 		// @ts-expect-error - Typescript internal error
@@ -195,14 +197,14 @@ export class Image extends Media {
 	}
 
 	/**
-	 * Fetches the image with the specified format and optional thumbnail size.
+	 * Fetches the image in the specified format and optional thumbnail size.
 	 *
-	 * The same `extension` and `thumbnailSize` restrictions as {@link resolveUrl} apply.
+	 * The same `extension` and `thumbnailSize` restrictions as {@link Image.resolveUrl} apply.
 	 *
-	 * @param {Extension} extension Desired image format.
-	 * @param {ThumbnailSize} [thumbnailSize] Optional thumbnail size. (a full-size image is returned if omitted)
-	 * @returns {Promise<Uint8Array>} Promise that resolves to the image as a `Uint8Array`.
-	 * @throws {HitomiError} Thrown when the `extension` and `thumbnailSize` combination is not valid.
+	 * @param {Extension} extension The desired image format.
+	 * @param {ThumbnailSize} [thumbnailSize] The thumbnail size preset. Omit for a full-size image.
+	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the image as a `Uint8Array`.
+	 * @throws {HitomiError} If the `extension` and `thumbnailSize` combination is invalid.
 	 */
 	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Uint8Array> {
 		return super.request(await this.resolveUrl(extension, thumbnailSize));
@@ -210,14 +212,14 @@ export class Image extends Media {
 }
 
 /**
- * Video belonging to a gallery.
- * 
+ * A video file belonging to a {@link Gallery}.
+ *
  * @see {@link Gallery}
  */
 export class Video extends Media {
 	/**
-	 * URL of the video.
-	 * 
+	 * Streaming URL of the video.
+	 *
 	 * @type {string}
 	 * @readonly
 	 */
@@ -237,7 +239,7 @@ export class Video extends Media {
 		height: number,
 		/**
 		 * File name of the video.
-		 * 
+		 *
 		 * @type {string}
 		 * @readonly
 		 */
@@ -253,7 +255,7 @@ export class Video extends Media {
 	/**
 	 * Fetches the video in MP4 format.
 	 *
-	 * @returns {Promise<Uint8Array>} Promise that resolves to the video as a `Uint8Array`.
+	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the video as a `Uint8Array`.
 	 */
 	public fetch(): Promise<Uint8Array> {
 		return super.request(this['url']);
@@ -262,7 +264,7 @@ export class Video extends Media {
 	/**
 	 * Fetches the poster (video thumbnail) in WebP format.
 	 *
-	 * @returns {Promise<Uint8Array>} Promise that resolves to the poster as a `Uint8Array`.
+	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the poster as a `Uint8Array`.
 	 */
 	public fetchPoster(): Promise<Uint8Array> {
 		return super.request(this['posterUrl']);

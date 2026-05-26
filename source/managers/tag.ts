@@ -6,8 +6,9 @@ import { Base } from '../internal/base';
 import { Tag } from '../structures/tag';
 
 /**
- * Initial-character filters for listing tags.
+ * Initial character filters for listing tags.
  *
+ * @readonly
  * @enum {string}
  */
 export const enum NameInitial {
@@ -38,13 +39,13 @@ export const enum NameInitial {
 	Y = 'y',
 	Z = 'z',
 	/**
-	 * Represents all non-alphabetic characters.
+	 * Matches all tags starting with a non-alphabetic character.
 	 */
 	_123 = '123'
 }
 
 /**
- * Manager for creating, parsing, searching, and listing {@link Tag} instances.
+ * A manager for creating, parsing, searching, and listing tags.
  *
  * @see {@link Hitomi}
  */
@@ -55,15 +56,15 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Creates a {@link Tag} instance from the specified type and name.
+	 * Creates a new {@link Tag} from the given type and name.
 	 *
-	 * Name constraints are the same as {@link Tag.prototype.name | Tag.name}.
+	 * The same name constraints as {@link Tag.prototype.name | Tag.name} apply.
 	 *
-	 * @param {Tag['type']} type Type of the tag.
-	 * @param {Tag['name']} name Name of the tag.
-	 * @param {boolean} [isNegative=false] Whether the tag is negative.
-	 * @returns {Tag} New {@link Tag} instance.
-	 * @throws {HitomiError} Thrown when `type` or `name` is invalid.
+	 * @param {Tag['type']} type The tag type.
+	 * @param {Tag['name']} name The tag name.
+	 * @param {boolean} [isNegative=false] Whether to create a negative tag.
+	 * @returns {Tag} A new {@link Tag}.
+	 * @throws {HitomiError} If `type` or `name` is invalid.
 	 */
 	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
 		if (!name['length']) {
@@ -74,14 +75,14 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Parses a space-separated expression into an array of {@link Tag} instances.
+	 * Parses a space-separated string into tags.
 	 *
-	 * Each tag expression should follow the format returned by {@link Tag.prototype.toString | Tag.toString}.
+	 * Each token should follow the format produced by {@link Tag.prototype.toString | Tag.toString}.
 	 *
-	 * Duplicate tags and tokens without a colon separator are ignored.
+	 * Duplicate tags and tokens without a colon separator are silently ignored.
 	 *
-	 * @param {string} expression Space-separated tag expression string.
-	 * @returns {Tag[]} Array of parsed {@link Tag} instances.
+	 * @param {string} expression A space-separated tag expression string.
+	 * @returns {Tag[]} An array of parsed tags.
 	 */
 	public parse(expression: string): Tag[] {
 		expression = expression.trim() + ' ';
@@ -117,13 +118,13 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Searches for all {@link Tag} entries matching the given term.
+	 * Searches for tags matching the given term.
 	 *
-	 * Returns tuples containing each matching {@link Tag} and its gallery count.
+	 * Returns each matching {@link Tag} paired with its gallery count.
 	 *
-	 * @param {string} term Search term, optionally prefixed with a tag type and colon.
-	 * @returns {Promise<[Tag, number][]>} Promise that resolves to an array of `[Tag, count]` tuples.
-	 * @throws {HitomiError} Thrown when type is invalid.
+	 * @param {string} term The search term, optionally prefixed with a tag type and colon (e.g. `"artist:name"`).
+	 * @returns {Promise<[Tag, number][]>} A `Promise` that resolves to an array of `[Tag, count]` tuples.
+	 * @throws {HitomiError} If the specified tag type is invalid.
 	 */
 	public async search(term: string): Promise<[Tag, number][]> {
 		const isNegative: boolean = term[0] === '-';
@@ -164,12 +165,12 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Lists available {@link Tag} entries for the specified type.
+	 * Lists all available tags for the specified type.
 	 *
-	 * @param {Tag['type']} type Tag type to list.
-	 * @param {NameInitial} [startsWith] Initial character filter. Required for types other than `'language'` and `'type'`.
-	 * @returns {Promise<Tag[]>} Promise that resolves to an array of {@link Tag} instances.
-	 * @throws {HitomiError} Thrown when `startsWith` is missing for required types, or when `type` is invalid.
+	 * @param {Tag['type']} type The tag type to list.
+	 * @param {NameInitial} [startsWith] The initial character filter. Required for all types except `'language'` and `'type'`.
+	 * @returns {Promise<Tag[]>} A `Promise` that resolves to an array of tags.
+	 * @throws {HitomiError} If `startsWith` is missing for types that require it, or if `type` is invalid.
 	 */
 	public async list(type: Tag['type'], startsWith?: NameInitial): Promise<Tag[]> {
 		const tags: Tag[] = [];

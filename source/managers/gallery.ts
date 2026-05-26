@@ -11,8 +11,9 @@ import { Image, Video } from '../structures/media';
 import { Tag, Language } from '../structures/tag';
 
 /**
- * Sorting options for listing galleries.
+ * Sort orders for gallery listings.
  *
+ * @readonly
  * @enum {string}
  */
 export const enum SortType {
@@ -26,7 +27,7 @@ export const enum SortType {
 }
 
 /**
- * Pagination options for listing galleries.
+ * Pagination options for gallery listings.
  *
  * @see {@link GalleryOptions}
  */
@@ -46,13 +47,13 @@ export interface PageOptions {
 }
 
 /**
- * Filter options for listing galleries.
+ * Search and filter options for listing galleries.
  *
  * @see {@link GalleryManager.list}
  */
 export interface GalleryOptions {
 	/**
-	 * {@link Tag} instances to filter.
+	 * Tags to filter results by.
 	 */
 	tags?: Tag[];
 	/**
@@ -72,7 +73,7 @@ export interface GalleryOptions {
 }
 
 /**
- * Manager for retrieving and listing {@link Gallery} instances.
+ * A manager for retrieving and listing galleries.
  *
  * @see {@link Hitomi}
  */
@@ -90,10 +91,10 @@ export class GalleryManager extends Base {
 	}
 
 	/**
-	 * Retrieves a {@link Gallery} by a unique identifier.
+	 * Retrieves a {@link Gallery} by its unique identifier.
 	 *
-	 * @param {number} id Unique gallery identifier.
-	 * @returns {Promise<Gallery>} Promise that resolves to a {@link Gallery} instance.
+	 * @param {number} id The unique gallery identifier.
+	 * @returns {Promise<Gallery>} A `Promise` that resolves to the matching {@link Gallery}.
 	 */
 	public async retrieve(id: number): Promise<Gallery> {
 		const rawGallery: {
@@ -341,15 +342,15 @@ export class GalleryManager extends Base {
 	}
 
 	/**
-	 * Lists {@link GalleryReference} entries that match the specified search criteria.
+	 * Lists galleries as {@link GalleryReference} matching the specified search criteria.
 	 *
 	 * When `options.page` is provided, only one non-language tag (optionally combined with a language tag) is allowed, and negative tags are not supported.
 	 *
-	 * When using `Popularity{Period}` in `options.orderBy`, the number of galleries may vary.
+	 * When using a popularity-based sort in `options.orderBy`, the number of returned galleries may vary.
 	 *
-	 * @param {GalleryOptions} [options] Search options.
-	 * @returns {Promise<GalleryReference[]>} Promise that resolves to an array of {@link GalleryReference} instances.
-	 * @throws {HitomiError} Thrown when `page` is used with multiple tags or any negative tag.
+	 * @param {GalleryOptions} [options] The search and filter options.
+	 * @returns {Promise<GalleryReference[]>} A `Promise` that resolves to matching galleries as {@link GalleryReference}.
+	 * @throws {HitomiError} If `page` is used with multiple tags or any negative tag.
 	 * @see {@link SortType}
 	 */
 	public async list(options: GalleryOptions = {}): Promise<GalleryReference[]> {
