@@ -1,7 +1,7 @@
 import typescript from '@rollup/plugin-typescript';
 import { resolve as pathResolve } from 'path';
 import { dts } from 'rollup-plugin-dts';
-import { mkdirSync, rmSync, writeFileSync } from 'fs';
+import { rmSync } from 'fs';
 import type { Plugin, RollupOptions } from "rollup";
 import type { SourceFile, TransformationContext, Node, PropertyAssignment, Expression } from 'typescript';
 import { isEnumDeclaration, visitEachChild, NodeFlags, visitNode } from 'typescript';
