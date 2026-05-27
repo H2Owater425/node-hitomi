@@ -149,23 +149,23 @@ export class GalleryManager extends Base {
 		let i: number = 0;
 		let type: Tag['type'];
 
-		for (; i < DEDICATED_TAG_PROPERTIES['length']; i++) {
+		for(; i < DEDICATED_TAG_PROPERTIES['length']; i++) {
 			// @ts-expect-error - Typescript internal error
 			const dedicatedTagProperty: `${(typeof DEDICATED_TAG_PROPERTIES)[number]}s` = DEDICATED_TAG_PROPERTIES[i] + 's';
 
 			type = i !== 2 ? DEDICATED_TAG_PROPERTIES[i] as Tag['type'] : 'series';
 
-			if (rawGallery[dedicatedTagProperty]) {
-				for (let j: number = 0; j < rawGallery[dedicatedTagProperty]['length']; j++)
+			if(rawGallery[dedicatedTagProperty]) {
+				for(let j: number = 0; j < rawGallery[dedicatedTagProperty]['length']; j++)
 					// @ts-expect-error - Typescript internal error
 					dedicatedTags[i].push(new Tag(this['hitomi'], type, rawGallery[dedicatedTagProperty][j][DEDICATED_TAG_PROPERTIES[i]]));
 			}
 		}
 
-		for (i = 0; i < rawGallery['tags']['length']; i++) {
-			if (Boolean(rawGallery['tags'][i]['male'])) {
+		for(i = 0; i < rawGallery['tags']['length']; i++) {
+			if(Boolean(rawGallery['tags'][i]['male'])) {
 				type = 'male';
-			} else if (Boolean(rawGallery['tags'][i]['female'])) {
+			} else if(Boolean(rawGallery['tags'][i]['female'])) {
 				type = 'female';
 			} else {
 				type = 'tag';
@@ -176,7 +176,7 @@ export class GalleryManager extends Base {
 
 		const thumbnailIndex: number = Math.floor(rawGallery['files']['length'] / 2);
 
-		for (i = 0; i < rawGallery['files']['length']; i++) {
+		for(i = 0; i < rawGallery['files']['length']; i++) {
 			files.push(new Image(
 				this['hitomi'],
 				rawGallery['files'][i]['width'],
@@ -190,7 +190,7 @@ export class GalleryManager extends Base {
 			));
 		}
 
-		for (i = 0; i < rawGallery['languages']['length']; i++) {
+		for(i = 0; i < rawGallery['languages']['length']; i++) {
 			translations.push(new TranslatedGallery(
 				this['hitomi'],
 				rawGallery['languages'][i]['galleryid'],
@@ -205,7 +205,7 @@ export class GalleryManager extends Base {
 
 		const relations: GalleryReference[] = [];
 
-		for (i = 0; i < rawGallery['related']['length']; i++) {
+		for(i = 0; i < rawGallery['related']['length']; i++) {
 			relations.push(new GalleryReference(this['hitomi'], rawGallery['related'][i]));
 		}
 
@@ -241,11 +241,11 @@ export class GalleryManager extends Base {
 		const view: DataView = await this['hitomi'].request(url[0], url[1], ResponseType['VIEW'], range);
 		const ids: Set<Gallery['id']> = new Set<Gallery['id']>();
 
-		for (let i: number = 0; i < view['byteLength']; i += 4) {
+		for(let i: number = 0; i < view['byteLength']; i += 4) {
 			ids.add(view.getInt32(i));
 		}
 
-		if (isNegative) {
+		if(isNegative) {
 			// negative flag
 			ids.add(0);
 		}
@@ -262,8 +262,8 @@ export class GalleryManager extends Base {
 		const language: string = options['language'] || 'all';
 		let orderBy: string = '';
 
-		if (options['orderBy']) {
-			switch (options['orderBy']) {
+		if(options['orderBy']) {
+			switch(options['orderBy']) {
 				case SortType['DatePublished']: {
 					orderBy = 'date/published';
 				}
@@ -289,17 +289,17 @@ export class GalleryManager extends Base {
 			}
 		}
 
-		if (!options['tag'] || options['tag']['type'] === 'language') {
+		if(!options['tag'] || options['tag']['type'] === 'language') {
 			return [RESOURCE_DOMAIN, '/n/' + (orderBy || 'index') + '-' + language + '.nozomi'];
 		}
 
-		if (orderBy) {
+		if(orderBy) {
 			orderBy += '/';
 		}
 
 		let area: string;
 
-		switch (options['tag']['type']) {
+		switch(options['tag']['type']) {
 			case 'male':
 			case 'female': {
 				area = 'tag/';
@@ -320,15 +320,15 @@ export class GalleryManager extends Base {
 	private createReferences(ids: Set<number>, shouldShuffle: boolean): GalleryReference[] {
 		const references: GalleryReference[] = [];
 
-		for (const id of ids) {
+		for(const id of ids) {
 			references.push(new GalleryReference(this['hitomi'], id));
 		}
 
-		if (shouldShuffle) {
+		if(shouldShuffle) {
 			let currentIndex: number = references['length'];
 			let targetIndex: number;
 
-			while (currentIndex) {
+			while(currentIndex) {
 				targetIndex = Math.floor(Math.random() * currentIndex--);
 
 				const temporary: GalleryReference = references[targetIndex];
@@ -360,24 +360,24 @@ export class GalleryManager extends Base {
 		let i: number = 0;
 		let range: string | undefined;
 
-		if (options['page']) {
+		if(options['page']) {
 			const size: number = options['page']['size'] ? options['page']['size'] * 4 : 100;
 			const start: number = options['page']['index'] ? options['page']['index'] * size : 0;
 
 			range = start + '-' + (start + size - 1);
 		}
 
-		if (options['tags'] && options['tags']['length']) {
+		if(options['tags'] && options['tags']['length']) {
 			// bring positive tags to front
 			const tags: Tag[] = options['tags'].slice().sort(function (a: Tag, b: Tag): number {
 				return (a['isNegative'] as unknown as number) - (b['isNegative'] as unknown as number);
 			});
 
-			if (tags[0]['isNegative']) {
+			if(tags[0]['isNegative']) {
 				i = -1;
 			} else {
-				for (; i < tags['length'] && !tags[i]['isNegative']; i++) {
-					if (tags[i]['type'] === 'language') {
+				for(; i < tags['length'] && !tags[i]['isNegative']; i++) {
+					if(tags[i]['type'] === 'language') {
 						language = tags[i]['name'];
 
 						break;
@@ -387,12 +387,12 @@ export class GalleryManager extends Base {
 				i = 0;
 			}
 
-			if (range) {
-				if (tags['length'] > 2 || tags['length'] === 2 && !language) {
+			if(range) {
+				if(tags['length'] > 2 || tags['length'] === 2 && !language) {
 					throw new HitomiError('Page', 'used with multiple tags', false);
 				}
 
-				if (tags[tags['length'] - 1]['isNegative']) {
+				if(tags[tags['length'] - 1]['isNegative']) {
 					throw new HitomiError('Page', 'used with negative tag', false);
 				}
 
@@ -409,8 +409,8 @@ export class GalleryManager extends Base {
 				language: language
 			})));
 
-			for (; i < tags['length']; i++) {
-				if (tags[i]['type'] !== 'language' || !language && tags[i]['isNegative']) {
+			for(; i < tags['length']; i++) {
+				if(tags[i]['type'] !== 'language' || !language && tags[i]['isNegative']) {
 					idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
 						tag: tags[i],
 						language: language
@@ -422,32 +422,32 @@ export class GalleryManager extends Base {
 				orderBy: options['orderBy']
 			});
 
-			if (range) {
+			if(range) {
 				return this.createReferences(await this.requestIds(url, range), isRandom);
 			}
 
-			if (options['orderBy']) {
+			if(options['orderBy']) {
 				idSets.push(await this.requestIds(url));
 			}
 		}
 
-		if (options['title'] && options['title']['length']) {
+		if(options['title'] && options['title']['length']) {
 			const version: string = await this['index'].retrieve();
 			const title: string = options['title'].toLowerCase() + ' ';
 			const rootNode: Node | undefined = await this['index'].getNodeAtAddress(0n, version);
 
-			if (!rootNode) {
+			if(!rootNode) {
 				throw HitomiError['RootNodeEmpty'];
 			}
 
 			i /* currentIndex */ = 0;
 			let j /* nextIndex */: number = title.indexOf(' ');
 
-			while (j !== -1) {
-				if (j - i) {
+			while(j !== -1) {
+				if(j - i) {
 					const data: Node[1][number] | undefined = await this['index'].binarySearch(await this['hitomi'].hash(title.slice(i, j)), rootNode, version);
 
-					if (!data) {
+					if(!data) {
 						return [];
 					}
 
@@ -459,16 +459,16 @@ export class GalleryManager extends Base {
 			}
 		}
 
-		if (idSets['length']) {
-			for (i = 1; i < idSets['length']; i++) {
-				if (!idSets[0]['size']) {
+		if(idSets['length']) {
+			for(i = 1; i < idSets['length']; i++) {
+				if(!idSets[0]['size']) {
 					return [];
 				}
 
 				const isNegative: boolean = idSets[i].has(0);
 
-				for (const id of idSets[0]) {
-					if (isNegative === idSets[i].has(id)) {
+				for(const id of idSets[0]) {
+					if(isNegative === idSets[i].has(id)) {
 						idSets[0].delete(id);
 					}
 				}

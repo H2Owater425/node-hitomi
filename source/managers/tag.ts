@@ -67,7 +67,7 @@ export class TagManager extends Base {
 	 * @throws {HitomiError} If `type` or `name` is invalid.
 	 */
 	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
-		if (!name['length']) {
+		if(!name['length']) {
 			throw new HitomiError('Name', 'empty', false);
 		}
 
@@ -93,14 +93,14 @@ export class TagManager extends Base {
 		let currentIndex: number = 0;
 		let nextIndex: number;
 
-		while ((nextIndex = expression.indexOf(' ', currentIndex)) !== -1) {
+		while((nextIndex = expression.indexOf(' ', currentIndex)) !== -1) {
 			const colonIndex: number = expression.indexOf(':', currentIndex);
 
-			if (colonIndex !== -1 && colonIndex < nextIndex) {
+			if(colonIndex !== -1 && colonIndex < nextIndex) {
 				const rawTag: string = expression.slice(currentIndex, nextIndex);
 				const isNegative: Tag['isNegative'] = expression[currentIndex] === '-';
 
-				if (!rawTags.has(rawTag)) {
+				if(!rawTags.has(rawTag)) {
 					tags.push(new Tag(
 						this['hitomi'],
 						expression.slice(currentIndex + (isNegative as unknown as number), colonIndex) as Tag['type'],
@@ -131,30 +131,30 @@ export class TagManager extends Base {
 		let i: number = term.indexOf(':') + 1;
 		let path: string;
 
-		if (i) {
+		if(i) {
 			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
 
-			if (!TAG_TYPES.has(type)) {
+			if(!TAG_TYPES.has(type)) {
 				throw HitomiError['OneOfTagType'];
 			}
 
 			path = '/' + type;
 		} else {
-			if (isNegative) {
+			if(isNegative) {
 				i++;
 			}
 
 			path = '/global';
 		}
 
-		while (i < term['length'] && term[i] !== ':') {
+		while(i < term['length'] && term[i] !== ':') {
 			path += '/' + term[i++];
 		}
 
 		const response: [string, number, Tag['type']][] = await this['hitomi'].request(TAG_INDEX_DOMAIN, path + '.json', ResponseType['JSON']) as [string, number, Tag['type']][];
 		const tagAndCounts: [Tag, number][] = [];
 
-		for (i = 0; i < response['length']; i++) {
+		for(i = 0; i < response['length']; i++) {
 			tagAndCounts.push([
 				new Tag(this['hitomi'], response[i][2], response[i][0]),
 				response[i][1]
@@ -176,16 +176,16 @@ export class TagManager extends Base {
 		const tags: Tag[] = [];
 		let names: Set<string> | undefined;
 
-		switch (type) {
+		switch(type) {
 			case 'type': {
 				names = GALLERY_TYPES;
 			}
 			case 'language': {
-				if (!names) {
+				if(!names) {
 					names = LANGUAGE_NAMES;
 				}
 
-				for (const name of names) {
+				for(const name of names) {
 					tags.push(new Tag(this['hitomi'], type, name));
 				}
 
@@ -193,7 +193,7 @@ export class TagManager extends Base {
 			}
 
 			default: {
-				if (!startsWith) {
+				if(!startsWith) {
 					throw new HitomiError('StartsWith', 'provided except for language and type');
 				}
 
@@ -201,7 +201,7 @@ export class TagManager extends Base {
 				let target: string = 'href="/' + type + '/';
 				let area: string;
 
-				switch (type) {
+				switch(type) {
 					case 'male':
 					case 'female': {
 						target = 'href="/tag/' + type + '%3A';
@@ -237,10 +237,10 @@ export class TagManager extends Base {
 				let currentIndex: number;
 				let nextIndex: number = 0;
 
-				while ((currentIndex = response.indexOf(target, nextIndex) + target['length']) !== endIndex) {
+				while((currentIndex = response.indexOf(target, nextIndex) + target['length']) !== endIndex) {
 					nextIndex = response.indexOf('.', currentIndex);
 
-					if (type !== 'tag' || !response.startsWith('male', currentIndex) && !response.startsWith('female', currentIndex)) {
+					if(type !== 'tag' || !response.startsWith('male', currentIndex) && !response.startsWith('female', currentIndex)) {
 						tags.push(new Tag(
 							this['hitomi'],
 							type,

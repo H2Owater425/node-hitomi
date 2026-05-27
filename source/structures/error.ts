@@ -29,7 +29,7 @@ export class HitomiError extends Error {
 
 	// @internal
 	constructor(messageOrTarget: string, state?: string, isAffirmative: boolean = true) {
-		if (arguments['length'] === 1) {
+		if(arguments['length'] === 1) {
 			super(messageOrTarget);
 
 			return;
