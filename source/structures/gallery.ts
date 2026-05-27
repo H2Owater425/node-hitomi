@@ -12,14 +12,14 @@ export class Title {
 	// @internal
 	constructor(
 		/**
-		 * Display title of the gallery.
+		 * The display title of the gallery.
 		 *
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly display: string,
 		/**
-		 * Japanese title of the gallery.
+		 * The Japanese title of the gallery.
 		 *
 		 * @deprecated Always `null`.
 		 * @type {string | null}
@@ -40,7 +40,7 @@ export class GalleryReference extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * Unique identifier of the gallery.
+		 * The unique identifier of the gallery.
 		 *
 		 * @type {number}
 		 * @readonly
@@ -71,14 +71,14 @@ export class TranslatedGallery extends GalleryReference {
 		hitomi: Hitomi,
 		id: GalleryReference['id'],
 		/**
-		 * Language of the translated gallery, or `null` if unavailable.
+		 * The language of the translated gallery, or `null` if unavailable.
 		 *
 		 * @type {Language | null}
 		 * @readonly
 		 */
 		public readonly language: Language | null,
 		/**
-		 * URL path of the gallery.
+		 * The URL path of the gallery.
 		 *
 		 * @type {string}
 		 * @readonly
@@ -102,14 +102,14 @@ export class Gallery extends TranslatedGallery {
 		language: TranslatedGallery['language'],
 		url: TranslatedGallery['url'],
 		/**
-		 * Title of the gallery.
+		 * The title of the gallery.
 		 *
 		 * @type {Title}
 		 * @readonly
 		 */
 		public readonly title: Title,
 		/**
-		 * Type of the gallery.
+		 * The type of the gallery.
 		 *
 		 * @type {'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'imageset' | 'anime'}
 		 * @readonly
@@ -151,7 +151,7 @@ export class Gallery extends TranslatedGallery {
 		 */
 		public readonly tags: readonly Tag[],
 		/**
-		 * Image files in the gallery.
+		 * The image files in the gallery.
 		 *
 		 * @type {readonly Image[]}
 		 * @readonly
@@ -179,21 +179,21 @@ export class Gallery extends TranslatedGallery {
 		 */
 		public readonly isBlocked: boolean,
 		/**
-		 * Date when the gallery was added.
+		 * The date when the gallery was added.
 		 *
 		 * @type {Date}
 		 * @readonly
 		 */
 		public readonly addedDate: Date,
 		/**
-		 * Date when the original work was published, or `null` if unavailable.
+		 * The date when the original work was published, or `null` if unavailable.
 		 *
 		 * @type {Date | null}
 		 * @readonly
 		 */
 		public readonly publishedDate: Date | null = null,
 		/**
-		 * Video resource associated with the gallery, or `null` if unavailable.
+		 * The video resource associated with the gallery, or `null` if unavailable.
 		 *
 		 * @type {Video | null}
 		 * @readonly

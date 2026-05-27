@@ -9,5 +9,8 @@ export { Extension, ThumbnailSize, Image, Video } from './structures/media';
 export { Language, Tag } from './structures/tag';
 export { type RequestContext, type RequestFunction, type HashFunction, type OnRequestFunction, ResponseType } from '@platform';
 
+/**
+ * A default {@link Hitomi} client instance.
+ */
 export const hitomi: Hitomi = new Hitomi();
 export default hitomi;

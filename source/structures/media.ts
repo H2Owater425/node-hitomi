@@ -43,14 +43,14 @@ abstract class Media extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * Width of the media in pixels.
+		 * The width of the media in pixels.
 		 *
 		 * @type {number}
 		 * @readonly
 		 */
 		public readonly width: number,
 		/**
-		 * Height of the media in pixels.
+		 * The height of the media in pixels.
 		 *
 		 * @type {number}
 		 * @readonly
@@ -80,14 +80,14 @@ export class Image extends Media {
 		width: number,
 		height: number,
 		/**
-		 * Unique hash identifying the image.
+		 * The unique hash identifying the image.
 		 *
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly hash: string,
 		/**
-		 * Original filename of the image.
+		 * The original filename of the image.
 		 *
 		 * @type {string}
 		 * @readonly
@@ -218,14 +218,14 @@ export class Image extends Media {
  */
 export class Video extends Media {
 	/**
-	 * Streaming URL of the video.
+	 * The streaming URL of the video.
 	 *
 	 * @type {string}
 	 * @readonly
 	 */
 	public readonly url: string;
 	/**
-	 * URL of the poster (video thumbnail).
+	 * The URL of the poster (video thumbnail).
 	 *
 	 * @type {string}
 	 * @readonly
@@ -238,7 +238,7 @@ export class Video extends Media {
 		width: number,
 		height: number,
 		/**
-		 * File name of the video.
+		 * The file name of the video.
 		 *
 		 * @type {string}
 		 * @readonly

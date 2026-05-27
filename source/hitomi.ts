@@ -34,13 +34,13 @@ export interface HitomiOptions<T = unknown> {
 	 */
 	hash?: HashFunction;
 	/**
-	 * Maximum age (in milliseconds) before the cached index version is refreshed.
+	 * Maximum age in milliseconds, before the cached index version is refreshed.
 	 *
 	 * @default 600000
 	 */
 	indexMaximumAge?: number;
 	/**
-	 * Maximum age (in milliseconds) before the cached image URL context is refreshed.
+	 * Maximum age in milliseconds, before the cached image URL context is refreshed.
 	 *
 	 * @default 3600000
 	 */

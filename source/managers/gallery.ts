@@ -57,11 +57,11 @@ export interface GalleryOptions {
 	 */
 	tags?: Tag[];
 	/**
-	 * Title keyword to search for.
+	 * The title keyword to search for.
 	 */
 	title?: string;
 	/**
-	 * Sort type to order by.
+	 * The sort type to order by.
 	 *
 	 * @default SortType.DateAdded
 	 */

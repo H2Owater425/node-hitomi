@@ -12,7 +12,7 @@ import type { Gallery } from './gallery';
  */
 export class Language extends Base {
 	/**
-	 * URL path for browsing galleries filtered by this language.
+	 * The URL path for browsing galleries filtered by this language.
 	 *
 	 * @type {string}
 	 * @readonly
@@ -23,14 +23,14 @@ export class Language extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * English name of the language.
+		 * The English name of the language.
 		 *
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly name: string,
 		/**
-		 * Native name of the language.
+		 * The native name of the language.
 		 *
 		 * @type {string}
 		 * @readonly
@@ -61,7 +61,7 @@ export class Language extends Base {
  */
 export class Tag extends Base {
 	/**
-	 * URL path for browsing galleries matching this tag.
+	 * The URL path for browsing galleries matching this tag.
 	 *
 	 * @type {string}
 	 * @readonly
@@ -72,14 +72,14 @@ export class Tag extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * Type of the tag.
+		 * The type of the tag.
 		 *
 		 * @type {'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag'}
 		 * @readonly
 		 */
 		public readonly type: 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag',
 		/**
-		 * Name of the tag.
+		 * The name of the tag.
 		 *
 		 * For `'language'` and `'type'` tags, the name is validated against known values.
 		 *
