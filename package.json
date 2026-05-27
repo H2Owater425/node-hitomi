@@ -32,7 +32,7 @@
 	"types": "./distribution/types/index.d.ts",
 	"browser": "./distribution/browser/index.js",
 	"scripts": {
-		"build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
+		"build": "rollup --config=rollup.config.ts --configPlugin=@rollup/plugin-typescript",
 		"dev": "node --require=tsconfig-paths/register --require=ts-node/register debug.ts",
 		"test": "mocha --require=tsconfig-paths/register --require=ts-node/register tests/*.test.ts"
 	},
@@ -40,7 +40,7 @@
 		"@rollup/plugin-typescript": "^12.3.0",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "~24",
-		"mocha": "^12.0.0-beta-9",
+		"mocha": "^10.8.2",
 		"rollup": "^4.60.0",
 		"rollup-plugin-dts": "^6.3.0",
 		"ts-node": "^10.9.2",
