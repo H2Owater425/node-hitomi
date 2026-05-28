@@ -10,7 +10,7 @@ export { Language, Tag } from './structures/tag';
 export { type RequestContext, type RequestFunction, type HashFunction, type OnRequestFunction, ResponseType } from '@platform';
 
 /**
- * A default {@link Hitomi} client instance.
+ * A default {@link Hitomi} client.
  */
 export const hitomi: Hitomi = new Hitomi();
 export default hitomi;
