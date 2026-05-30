@@ -86,11 +86,12 @@ export class Hitomi {
 	 * Creates a new Hitomi client.
 	 *
 	 * @param {HitomiOptions} [options] The configuration options for the client.
+	 * @throws {HitomiError} If `options.indexMaximumAge` or `options.imageContextMaximumAge` is provided as a negative integer.
 	 */
-	constructor(options: HitomiOptions = {}) {
+	constructor(options: HitomiOptions<any> = {}) {
 		for(let i: number = 0; i < MAXIMUM_AGE_PROPERTIES['length']; i++) {
 			if(options[MAXIMUM_AGE_PROPERTIES[i]] && (!Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 0)) {
-				throw new HitomiError(capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'an integer greater than 0');
+				throw new HitomiError(capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a non-negative integer');
 			}
 		}
 
@@ -134,7 +135,7 @@ export class Hitomi {
 			hash: optionsHash ? async function (data: string): Promise<Uint8Array> {
 				return (await optionsHash(data)).subarray(0, 4);
 			} : hash,
-			indexMaximumAge: options['indexMaximumAge'] || 600000
+			indexMaximumAge: options['indexMaximumAge'] || options['indexMaximumAge'] === 0 ? options['indexMaximumAge'] : 600000
 		});
 
 		this['galleries'] = new GalleryManager(this);
@@ -192,7 +193,7 @@ export class Hitomi {
 				}
 
 				return context;
-			}, options['imageContextMaximumAge'] || 3600000)
+			}, options['imageContextMaximumAge'] || options['imageContextMaximumAge'] === 0 ? options['imageContextMaximumAge'] : 3600000)
 		});
 	}
 }
