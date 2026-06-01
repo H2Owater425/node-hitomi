@@ -5,15 +5,14 @@ import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../inte
 import type { Node } from '../internal/types';
 import type { Gallery } from './gallery';
 
-// Moved from gallery to avoid circular dependency
 /**
- * Language associated with galleries.
+ * A language associated with a {@link Gallery}.
  *
  * @see {@link Gallery}
  */
 export class Language extends Base {
 	/**
-	 * URL path for language-filtered galleries.
+	 * The URL path for browsing galleries filtered by this language.
 	 *
 	 * @type {string}
 	 * @readonly
@@ -24,14 +23,14 @@ export class Language extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * English name of the language.
+		 * The English name of the language.
 		 *
 		 * @type {string}
 		 * @readonly
 		 */
 		public readonly name: string,
 		/**
-		 * Native name of the language.
+		 * The native name of the language.
 		 *
 		 * @type {string}
 		 * @readonly
@@ -44,10 +43,10 @@ export class Language extends Base {
 	}
 
 	/**
-	 * Converts the language into a {@link Tag} instance.
+	 * Converts this language into a {@link Tag} of type `'language'`.
 	 *
-	 * @param {boolean} [isNegative=false] Negative flag for the generated tag.
-	 * @returns {Tag} New {@link Tag} instance of type `'language'`.
+	 * @param {boolean} [isNegative=false] Whether to create a negative tag.
+	 * @returns {Tag} A new {@link Tag}.
 	 */
 	public toTag(isNegative: boolean = false): Tag {
 		return new Tag(this['hitomi'], 'language', this['name'], isNegative);
@@ -55,15 +54,15 @@ export class Language extends Base {
 }
 
 /**
- * Search tag used to filter and categorize galleries.
- * 
+ * A tag used to filter and categorize galleries.
+ *
  * @see {@link Gallery}
  * @see {@link TagManager}
  */
 export class Tag extends Base {
 	/**
-	 * URL path for galleries matching the tag.
-	 * 
+	 * The URL path for browsing galleries matching this tag.
+	 *
 	 * @type {string}
 	 * @readonly
 	 */
@@ -73,14 +72,14 @@ export class Tag extends Base {
 	constructor(
 		hitomi: Hitomi,
 		/**
-		 * Type of the tag.
+		 * The type of the tag.
 		 *
 		 * @type {'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag'}
 		 * @readonly
 		 */
 		public readonly type: 'artist' | 'group' | 'type' | 'language' | 'series' | 'character' | 'male' | 'female' | 'tag',
 		/**
-		 * Name of the tag.
+		 * The name of the tag.
 		 *
 		 * For `'language'` and `'type'` tags, the name is validated against known values.
 		 *
@@ -89,7 +88,7 @@ export class Tag extends Base {
 		 */
 		public readonly name: string,
 		/**
-		 * Whether the tag is used for exclusion.
+		 * Whether this tag is negative and excludes matching galleries.
 		 *
 		 * @type {boolean}
 		 * @readonly
@@ -108,7 +107,7 @@ export class Tag extends Base {
 
 			case 'type': {
 				if(!GALLERY_TYPES.has(name as Gallery['type'])) {
-					throw HitomiError['OneOfGalleryType'];
+					throw HitomiError.InvalidMember('Name', GALLERY_TYPES);
 				}
 			}
 			case 'artist':
@@ -123,7 +122,7 @@ export class Tag extends Base {
 
 			case 'language': {
 				if(!LANGUAGE_NAMES.has(name)) {
-					throw HitomiError['OneOfGalleryType'];
+					throw HitomiError.InvalidMember('Name', LANGUAGE_NAMES);
 				}
 
 				this['url'] = '/index-' + name + '.html';
@@ -132,7 +131,7 @@ export class Tag extends Base {
 			}
 
 			default: {
-				throw HitomiError['OneOfTagType'];
+				throw HitomiError['InvalidTagType'];
 			}
 		}
 
@@ -140,9 +139,9 @@ export class Tag extends Base {
 	}
 
 	/**
-	 * Lists available {@link Language} entries for galleries matching the tag.
+	 * Lists the available languages for galleries matching this tag.
 	 *
-	 * @returns {Promise<Language[]>} Promise that resolves to an array of {@link Language} instances.
+	 * @returns {Promise<Language[]>} A `Promise` that resolves to an array of languages.
 	 */
 	public async listLanguages(): Promise<Language[]> {
 		const languages: Language[] = [];
@@ -164,7 +163,7 @@ export class Tag extends Base {
 					}
 				}
 
-				// unreachable
+				throw HitomiError['InvalidTagName'];
 			}
 
 			default: {
@@ -176,13 +175,13 @@ export class Tag extends Base {
 		const rootNode: Node | undefined = await this['hitomi']['languageIndex'].getNodeAtAddress(0n, version);
 
 		if(!rootNode) {
-			throw HitomiError['RootNodeEmpty'];
+			throw HitomiError['EmptyRootNode'];
 		}
 
 		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(await this['hitomi'].hash(term), rootNode, version);
 
 		if(!data) {
-			throw new HitomiError('Name', 'valid');
+			throw HitomiError['InvalidTagName'];
 		}
 
 		for(let mask: bigint = 1n; i < BINARY_ORDERED_LANGUAGES['length']; i++, mask <<= 1n) {
@@ -196,12 +195,12 @@ export class Tag extends Base {
 	}
 
 	/**
-	 * Converts the tag to its string representation.
+	 * Converts this tag to its string representation.
 	 *
-	 * Output format is `[-]type:name`, where spaces are replaced with underscores.
+	 * The output format is `[-]type:name`, where spaces in the name are replaced with underscores.
 	 *
-	 * @param {boolean} [isNegative] Whether the tag is negative. (defaults to {@link Tag.isNegative})
-	 * @returns {string} Formatted tag string.
+	 * @param {boolean} [isNegative] Whether to format as a negative tag. Defaults to {@link Tag.isNegative}.
+	 * @returns {string} The formatted tag string.
 	 */
 	public toString(isNegative: boolean = this['isNegative']): string {
 		return (isNegative ? '-' : '') + this['type'] + ':' + this['name'].replace(/ /g, '_');

@@ -4,42 +4,43 @@ import { TagManager } from './managers/tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, MAXIMUM_AGE_PROPERTIES } from './internal/constants';
 import { defineProperties, capitalize } from './internal/functions';
 import { Provider, IndexProvider } from './internal/provider';
-import { HitomiError } from './structures/error';
+import { ErrorCode, HitomiError } from './structures/error';
 import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
 
 /**
- * Configuration options for creating a Hitomi client.
- * 
+ * Options for creating a {@link Hitomi} client.
+ *
+ * @template T The platform-specific request options type.
  * @see {@link Hitomi}
  */
 export interface HitomiOptions<T = unknown> {
 	/**
-	 * HTTPS Agent instance for connection reuse.
-	 * 
+	 * A custom HTTPS agent for connection pooling.
+	 *
 	 * @default new Agent({ keepAlive: true })
-	 * @deprecated Use {@link onRequest} instead (overrides it if set). Will be removed in v10.
+	 * @deprecated Use {@link onRequest} instead. This option takes precedence over `onRequest` when set. Will be removed in v10.
 	 */
 	agent?: unknown;
 	/**
-	 * HTTPS request function.
+	 * A custom function for making HTTPS requests.
 	 */
 	request?: RequestFunction;
 	/**
-	 * Request hook function.
+	 * A hook function invoked before each HTTP request.
 	 */
 	onRequest?: OnRequestFunction<T>;
 	/**
-	 * SHA-256 hash function.
+	 * A custom function for computing SHA-256 hashes.
 	 */
 	hash?: HashFunction;
 	/**
-	 * Maximum age of cached index version in milliseconds.
+	 * Maximum age in milliseconds, before the cached index version is refreshed.
 	 *
 	 * @default 600000
 	 */
 	indexMaximumAge?: number;
 	/**
-	 * Maximum age of cached image URL context in milliseconds.
+	 * Maximum age in milliseconds, before the cached image URL context is refreshed.
 	 *
 	 * @default 3600000
 	 */
@@ -47,18 +48,18 @@ export interface HitomiOptions<T = unknown> {
 }
 
 /**
- * Client for interacting with Hitomi API
+ * A client for interacting with the Hitomi API.
  */
 export class Hitomi {
 	/**
-	 * Manager for retrieving and listing galleries.
+	 * A manager for retrieving and listing galleries.
 	 *
 	 * @type {GalleryManager}
 	 * @readonly
 	 */
 	public readonly galleries: GalleryManager;
 	/**
-	 * Manager for creating, parsing, searching, and listing tags.
+	 * A manager for creating, parsing, searching, and listing tags.
 	 *
 	 * @type {TagManager}
 	 * @readonly
@@ -84,16 +85,17 @@ export class Hitomi {
 	/**
 	 * Creates a new Hitomi client.
 	 *
-	 * @param {HitomiOptions} [options] Configuration options.
+	 * @param {HitomiOptions} [options] The configuration options for the client.
+	 * @throws {HitomiError} If `options.indexMaximumAge` or `options.imageContextMaximumAge` is provided as a negative integer.
 	 */
-	constructor(options: HitomiOptions = {}) {
+	constructor(options: HitomiOptions<any> = {}) {
 		for(let i: number = 0; i < MAXIMUM_AGE_PROPERTIES['length']; i++) {
 			if(options[MAXIMUM_AGE_PROPERTIES[i]] && (!Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 0)) {
-				throw new HitomiError(capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'an integer greater than 0');
+				throw new HitomiError(ErrorCode['InvalidArgument'], capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a non-negative integer');
 			}
 		}
 
-		// Options object might be modified
+		// Options might be modified
 		const optionsRequest: RequestFunction | undefined = options['request'];
 		const optionsOnRequest: OnRequestFunction | undefined = options['agent'] ? function (context: RequestContext): RequestContext {
 			// @ts-ignore
@@ -133,7 +135,7 @@ export class Hitomi {
 			hash: optionsHash ? async function (data: string): Promise<Uint8Array> {
 				return (await optionsHash(data)).subarray(0, 4);
 			} : hash,
-			indexMaximumAge: options['indexMaximumAge'] || 600000
+			indexMaximumAge: options['indexMaximumAge'] || options['indexMaximumAge'] === 0 ? options['indexMaximumAge'] : 600000
 		});
 
 		this['galleries'] = new GalleryManager(this);
@@ -156,7 +158,7 @@ export class Hitomi {
 					const subdomainCode: number = +response.slice(currentIndex, nextIndex);
 
 					if(!Number.isInteger(subdomainCode)) {
-						throw HitomiError['ImageContextResolverFail'];
+						throw HitomiError['UnparsableImageContext'];
 					}
 
 					context[0].add(subdomainCode);
@@ -165,7 +167,7 @@ export class Hitomi {
 				}
 
 				if(!context[0]['size']) {
-					throw HitomiError['ImageContextResolverFail'];
+					throw HitomiError['UnparsableImageContext'];
 				}
 
 				currentIndex = response.indexOf('var o = ') + 8;
@@ -173,7 +175,7 @@ export class Hitomi {
 				const rawIsSuffix1: number = +response.slice(currentIndex, response.indexOf(';', currentIndex));
 
 				if(!Number.isInteger(rawIsSuffix1)) {
-					throw HitomiError['ImageContextResolverFail'];
+					throw HitomiError['UnparsableImageContext'];
 				}
 
 				context[1] = !rawIsSuffix1;
@@ -181,17 +183,17 @@ export class Hitomi {
 				currentIndex = response.lastIndexOf('b: \'') + 4;
 
 				if(currentIndex === 3) {
-					throw HitomiError['ImageContextResolverFail'];
+					throw HitomiError['UnparsableImageContext'];
 				}
 
 				context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
 
 				if(!context[2]['length']) {
-					throw HitomiError['ImageContextResolverFail'];
+					throw HitomiError['UnparsableImageContext'];
 				}
 
 				return context;
-			}, options['imageContextMaximumAge'] || 3600000)
+			}, options['imageContextMaximumAge'] || options['imageContextMaximumAge'] === 0 ? options['imageContextMaximumAge'] : 3600000)
 		});
 	}
 }

@@ -307,6 +307,11 @@ describe('GalleryManager', function (): void {
 				size: 2
 			}
 		});
+		const ids: GalleryReference['id'][] = [];
+
+		for(let i: number = 0; i < references['length']; i++) {
+			ids.push(references[i]['id']);
+		}
 
 		assert.deepStrictEqual(calls, [{
 			host: 'ltn.gold-usergeneratedcontent.net',
@@ -314,8 +319,6 @@ describe('GalleryManager', function (): void {
 			type: ResponseType['VIEW'],
 			range: '8-15'
 		}]);
-		assert.deepStrictEqual(references.map(function (reference: GalleryReference): number {
-			return reference['id'];
-		}), [11, 22]);
+		assert.deepStrictEqual(ids, [11, 22]);
 	});
 });

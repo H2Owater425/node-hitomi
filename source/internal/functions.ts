@@ -1,7 +1,9 @@
+import type { Tag } from '../structures/tag';
+
 // @internal
 // compare_arraybuffers in search.js
-export function compare(a: Uint8Array, b: Uint8Array): 0 | 1 | -1 {
-	const length: number = a['byteLength'] > b['byteLength'] ? a['byteLength'] : b['byteLength'];
+export function compareBuffers(a: Uint8Array, b: Uint8Array): number {
+	const length: number = a['byteLength'] < b['byteLength'] ? a['byteLength'] : b['byteLength'];
 
 	for(let i: number = 0; i < length; i++) {
 		if(a[i] < b[i]) {
@@ -14,6 +16,11 @@ export function compare(a: Uint8Array, b: Uint8Array): 0 | 1 | -1 {
 	}
 
 	return 0;
+}
+
+// @internal
+export function compareTags(a: Tag, b: Tag): number {
+	return (a['isNegative'] as unknown as number) - (b['isNegative'] as unknown as number);
 }
 
 // @internal
