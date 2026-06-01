@@ -11,10 +11,11 @@ import { Image, Video } from '../structures/media';
 import { Tag, Language } from '../structures/tag';
 
 /**
- * Sort orders for gallery listings.
+ * Sort orders for listing galleries.
  *
  * @readonly
  * @enum {string}
+ * @see {@link GalleryOptions.orderBy}
  */
 export const enum SortType {
 	DateAdded = 'added',
@@ -27,9 +28,9 @@ export const enum SortType {
 }
 
 /**
- * Pagination options for gallery listings.
+ * Pagination options for listing galleries.
  *
- * @see {@link GalleryOptions}
+ * @see {@link GalleryOptions.page}
  */
 export interface PageOptions {
 	/**

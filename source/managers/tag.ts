@@ -10,6 +10,7 @@ import { Tag } from '../structures/tag';
  *
  * @readonly
  * @enum {string}
+ * @see {@link TagManager.list}
  */
 export const enum NameInitial {
 	A = 'a',

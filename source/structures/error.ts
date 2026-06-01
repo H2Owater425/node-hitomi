@@ -2,6 +2,8 @@ import { GALLERY_TYPES, TAG_TYPES } from '../internal/constants';
 
 /**
  * An error thrown by node-hitomi.
+ *
+ * @extends {Error}
  */
 export class HitomiError extends Error {
 	// @internal
