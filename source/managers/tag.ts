@@ -1,5 +1,5 @@
 import { ResponseType } from '@platform';
-import { HitomiError } from '../structures/error';
+import { ErrorCode, HitomiError } from '../structures/error';
 import type { Hitomi } from '../hitomi';
 import { TAG_TYPES, TAG_INDEX_DOMAIN, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN } from '../internal/constants';
 import { Base } from '../internal/base';
@@ -69,7 +69,7 @@ export class TagManager extends Base {
 	 */
 	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
 		if(!name['length']) {
-			throw new HitomiError('Name', 'empty', false);
+			throw new HitomiError(ErrorCode['InvalidArgument'], 'Name', 'empty', false);
 		}
 
 		return new Tag(this['hitomi'], type, name.replace(/_/g, ' '), isNegative);
@@ -136,7 +136,7 @@ export class TagManager extends Base {
 			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
 
 			if(!TAG_TYPES.has(type)) {
-				throw HitomiError['OneOfTagType'];
+				throw HitomiError['InvalidTagType'];
 			}
 
 			path = '/' + type;
@@ -195,7 +195,7 @@ export class TagManager extends Base {
 
 			default: {
 				if(!startsWith) {
-					throw new HitomiError('StartsWith', 'provided except for language and type');
+					throw new HitomiError(ErrorCode['InvalidArgument'], 'StartsWith', 'provided except for language and type');
 				}
 
 				// createTagUrn
@@ -228,7 +228,7 @@ export class TagManager extends Base {
 					}
 
 					default: {
-						throw HitomiError['OneOfTagType'];
+						throw HitomiError['InvalidTagType'];
 					}
 				}
 

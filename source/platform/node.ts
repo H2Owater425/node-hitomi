@@ -1,11 +1,11 @@
-import { Agent, request as httpsRequest, RequestOptions } from 'https';
-import { IncomingMessage, OutgoingHttpHeaders } from 'http';
+import { Agent, request as httpsRequest, type RequestOptions } from 'https';
+import type { IncomingMessage, OutgoingHttpHeaders } from 'http';
 import { createGunzip } from 'zlib';
 import { createHash } from 'crypto';
 import type { Readable } from 'stream';
 import { DEFAULT_HEADERS } from '../internal/constants';
-import { RequestContext, ResponseType } from './shared';
-import { Hitomi } from '../hitomi';
+import { type RequestContext, ResponseType } from './shared';
+import type { Hitomi } from '../hitomi';
 import { HitomiError } from '../structures/error';
 
 const agent: Agent = new Agent({
@@ -50,7 +50,8 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 				default: {
 					response.resume();
 
-					return reject(new HitomiError('https://' + host + path + ' must not respond with ' + response['statusCode']));
+					// @ts-expect-error - StatusCode must be exist since it's from request
+					return reject(HitomiError.UnexpectedHttpStatus(host, path, response['statusCode']));
 				}
 			}
 

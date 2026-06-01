@@ -3,7 +3,7 @@ import { Hitomi } from './hitomi';
 export { type HitomiOptions, Hitomi } from './hitomi';
 export { type GalleryOptions, type PageOptions, SortType, GalleryManager } from './managers/gallery';
 export { NameInitial, TagManager } from './managers/tag';
-export { HitomiError } from './structures/error';
+export { ErrorCode, HitomiError } from './structures/error';
 export { Title, GalleryReference, TranslatedGallery, Gallery } from './structures/gallery';
 export { Extension, ThumbnailSize, Image, Video } from './structures/media';
 export { Language, Tag } from './structures/tag';

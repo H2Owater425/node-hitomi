@@ -2,7 +2,7 @@ import type { Hitomi } from '../hitomi';
 import { BASE_DOMAIN } from '../internal/constants';
 import { capitalize } from '../internal/functions';
 import { Base } from '../internal/base';
-import { HitomiError } from './error';
+import { ErrorCode, HitomiError } from './error';
 import type { ImageContext } from '../internal/types';
 import type { Gallery } from './gallery';
 import { ResponseType } from '@platform';
@@ -151,7 +151,7 @@ export class Image extends Media {
 	public async resolveUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
 		// @ts-expect-error - Typescript internal error
 		if(!extension || !this['has' + capitalize(extension)]) {
-			throw new HitomiError('Extension', 'supported');
+			throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'Extension', 'supported');
 		}
 
 		let subdomain: string;
@@ -163,14 +163,14 @@ export class Image extends Media {
 			switch(thumbnailSize) {
 				case 'smallbig': {
 					if(extension !== 'avif') {
-						throw new HitomiError('ThumbnailSize.Medium', 'used only with avif');
+						throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'ThumbnailSize.Medium', 'used only with avif');
 					}
 
 					member = 'Medium';
 				}
 				case 'big': {
 					if(!this['hasThumbnail']) {
-						throw new HitomiError('ThumbnailSize.' + member, 'used only with image that has thumbnail');
+						throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'ThumbnailSize.' + member, 'used only with image that has thumbnail');
 					}
 				}
 				case 'small': {
@@ -179,7 +179,7 @@ export class Image extends Media {
 
 				default: {
 					// @ts-expect-error
-					throw HitomiError.OneOfState('ThumbnailSize', ThumbnailSize);
+					throw HitomiError.InvalidMember('ThumbnailSize', ThumbnailSize);
 				}
 			}
 

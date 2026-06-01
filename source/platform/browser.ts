@@ -1,7 +1,7 @@
 import { HitomiError } from '../structures/error';
-import { Hitomi } from '../hitomi';
+import type { Hitomi } from '../hitomi';
 import { DEFAULT_HEADERS } from '../internal/constants';
-import { RequestContext, ResponseType } from './shared';
+import { type RequestContext, ResponseType } from './shared';
 
 // @internal
 export function request(host: string, path: string, type: ResponseType.BYTE, range?: string): Promise<Uint8Array>;
@@ -48,7 +48,7 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 		}
 
 		default: {
-			throw new HitomiError('https://' + host + path + ' must not respond with ' + response['status']);
+			throw HitomiError.UnexpectedHttpStatus(host, path, response['status']);
 		}
 	}
 }

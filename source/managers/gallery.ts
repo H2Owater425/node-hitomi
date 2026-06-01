@@ -1,5 +1,5 @@
 import { ResponseType } from '@platform';
-import { HitomiError } from '../structures/error';
+import { ErrorCode, HitomiError } from '../structures/error';
 import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structures/gallery';
 import type { Hitomi } from '../hitomi';
 import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from '../internal/constants';
@@ -285,7 +285,7 @@ export class GalleryManager extends Base {
 
 				default: {
 					// @ts-expect-error
-					throw HitomiError.OneOfState('OrderBy', SortType);
+					throw HitomiError.InvalidMember('OrderBy', SortType);
 				}
 			}
 		}
@@ -388,11 +388,11 @@ export class GalleryManager extends Base {
 
 			if(range) {
 				if(tags['length'] > 2 || tags['length'] === 2 && !language) {
-					throw new HitomiError('Page', 'used with multiple tags', false);
+					throw new HitomiError(ErrorCode['InvalidArgument'], 'Page', 'used with multiple tags', false);
 				}
 
 				if(tags[tags['length'] - 1]['isNegative']) {
-					throw new HitomiError('Page', 'used with negative tag', false);
+					throw new HitomiError(ErrorCode['InvalidArgument'], 'Page', 'used with negative tag', false);
 				}
 
 				return this.createReferences(await this.requestIds(GalleryManager.createNozomiUrl({
@@ -436,7 +436,7 @@ export class GalleryManager extends Base {
 			const rootNode: Node | undefined = await this['index'].getNodeAtAddress(0n, version);
 
 			if(!rootNode) {
-				throw HitomiError['RootNodeEmpty'];
+				throw HitomiError['EmptyRootNode'];
 			}
 
 			i /* currentIndex */ = 0;

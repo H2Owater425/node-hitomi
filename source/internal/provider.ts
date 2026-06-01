@@ -1,6 +1,6 @@
 import { ResponseType } from '@platform';
 import type { Hitomi } from '../hitomi';
-import { HitomiError } from '../structures/error';
+import { ErrorCode, HitomiError } from '../structures/error';
 import { Base } from './base';
 import { RESOURCE_DOMAIN } from './constants';
 import { compareBuffers } from './functions';
@@ -66,7 +66,7 @@ export class IndexProvider extends Provider<string> {
 			const keySize: number = view.getInt32(offset);
 
 			if(keySize < 1 || keySize > 31) {
-				throw new HitomiError('KeySize', 'between 1 and 31');
+				throw new HitomiError(ErrorCode['UnexpectedResourceFormat'], 'KeySize', 'between 1 and 31');
 			}
 
 			node[0].push(new Uint8Array(view['buffer'], view['byteOffset'] + (offset += 4), keySize));

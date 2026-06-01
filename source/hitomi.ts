@@ -4,7 +4,7 @@ import { TagManager } from './managers/tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN, MAXIMUM_AGE_PROPERTIES } from './internal/constants';
 import { defineProperties, capitalize } from './internal/functions';
 import { Provider, IndexProvider } from './internal/provider';
-import { HitomiError } from './structures/error';
+import { ErrorCode, HitomiError } from './structures/error';
 import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
 
 /**
@@ -91,7 +91,7 @@ export class Hitomi {
 	constructor(options: HitomiOptions<any> = {}) {
 		for(let i: number = 0; i < MAXIMUM_AGE_PROPERTIES['length']; i++) {
 			if(options[MAXIMUM_AGE_PROPERTIES[i]] && (!Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 0)) {
-				throw new HitomiError(capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a non-negative integer');
+				throw new HitomiError(ErrorCode['InvalidArgument'], capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a non-negative integer');
 			}
 		}
 
@@ -158,7 +158,7 @@ export class Hitomi {
 					const subdomainCode: number = +response.slice(currentIndex, nextIndex);
 
 					if(!Number.isInteger(subdomainCode)) {
-						throw HitomiError['ImageContextResolverFail'];
+						throw HitomiError['UnparsableImageContext'];
 					}
 
 					context[0].add(subdomainCode);
@@ -167,7 +167,7 @@ export class Hitomi {
 				}
 
 				if(!context[0]['size']) {
-					throw HitomiError['ImageContextResolverFail'];
+					throw HitomiError['UnparsableImageContext'];
 				}
 
 				currentIndex = response.indexOf('var o = ') + 8;
@@ -175,7 +175,7 @@ export class Hitomi {
 				const rawIsSuffix1: number = +response.slice(currentIndex, response.indexOf(';', currentIndex));
 
 				if(!Number.isInteger(rawIsSuffix1)) {
-					throw HitomiError['ImageContextResolverFail'];
+					throw HitomiError['UnparsableImageContext'];
 				}
 
 				context[1] = !rawIsSuffix1;
@@ -183,13 +183,13 @@ export class Hitomi {
 				currentIndex = response.lastIndexOf('b: \'') + 4;
 
 				if(currentIndex === 3) {
-					throw HitomiError['ImageContextResolverFail'];
+					throw HitomiError['UnparsableImageContext'];
 				}
 
 				context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
 
 				if(!context[2]['length']) {
-					throw HitomiError['ImageContextResolverFail'];
+					throw HitomiError['UnparsableImageContext'];
 				}
 
 				return context;

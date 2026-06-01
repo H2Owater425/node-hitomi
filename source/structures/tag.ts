@@ -107,7 +107,7 @@ export class Tag extends Base {
 
 			case 'type': {
 				if(!GALLERY_TYPES.has(name as Gallery['type'])) {
-					throw HitomiError['OneOfGalleryType'];
+					throw HitomiError.InvalidMember('Name', GALLERY_TYPES);
 				}
 			}
 			case 'artist':
@@ -122,7 +122,7 @@ export class Tag extends Base {
 
 			case 'language': {
 				if(!LANGUAGE_NAMES.has(name)) {
-					throw HitomiError['OneOfGalleryType'];
+					throw HitomiError.InvalidMember('Name', LANGUAGE_NAMES);
 				}
 
 				this['url'] = '/index-' + name + '.html';
@@ -131,7 +131,7 @@ export class Tag extends Base {
 			}
 
 			default: {
-				throw HitomiError['OneOfTagType'];
+				throw HitomiError['InvalidTagType'];
 			}
 		}
 
@@ -163,7 +163,7 @@ export class Tag extends Base {
 					}
 				}
 
-				// unreachable
+				throw HitomiError['InvalidTagName'];
 			}
 
 			default: {
@@ -175,13 +175,13 @@ export class Tag extends Base {
 		const rootNode: Node | undefined = await this['hitomi']['languageIndex'].getNodeAtAddress(0n, version);
 
 		if(!rootNode) {
-			throw HitomiError['RootNodeEmpty'];
+			throw HitomiError['EmptyRootNode'];
 		}
 
 		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(await this['hitomi'].hash(term), rootNode, version);
 
 		if(!data) {
-			throw new HitomiError('Name', 'valid');
+			throw HitomiError['InvalidTagName'];
 		}
 
 		for(let mask: bigint = 1n; i < BINARY_ORDERED_LANGUAGES['length']; i++, mask <<= 1n) {

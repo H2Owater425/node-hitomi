@@ -1,6 +1,6 @@
 import type { Hitomi } from '../hitomi';
 import { Image, Video } from './media';
-import { Language, Tag } from './tag';
+import { Language, type Tag } from './tag';
 import { Base } from '../internal/base';
 
 /**
