@@ -55,7 +55,7 @@ export class HitomiError extends Error {
 
 	// @internal
 	constructor(code: ErrorCode, messageOrTarget: string, state?: string, isAffirmative: boolean = true) {
-		super(messageOrTarget + (arguments['length'] === 2 ? '' : + ' must ' + (isAffirmative ? '' : 'not ') + 'be ' + state));
+		super(messageOrTarget + (arguments['length'] === 2 ? '' : ' must ' + (isAffirmative ? '' : 'not ') + 'be ' + state));
 
 		this['name'] = 'HitomiError [' + code + ']';
 		this['code'] = code;
