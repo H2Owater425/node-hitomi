@@ -1,11 +1,16 @@
 import { Hitomi } from './hitomi';
 
-export type { Gallery, Title, TranslatedGallery, GalleryReference, GalleryManager } from './gallery';
-export { Hitomi } from './hitomi';
-export type { Image, Video } from './media';
-export type { Language, Tag, TagManager } from './tag';
-export { HitomiError } from './utilities/structures';
-export { SortType, NameInitial, Extension, ThumbnailSize } from './utilities/constants';
+export { type HitomiOptions, Hitomi } from './hitomi';
+export { type GalleryOptions, type PageOptions, SortType, GalleryManager } from './managers/gallery';
+export { NameInitial, TagManager } from './managers/tag';
+export { ErrorCode, HitomiError } from './structures/error';
+export { Title, GalleryReference, TranslatedGallery, Gallery } from './structures/gallery';
+export { Extension, ThumbnailSize, Image, Video } from './structures/media';
+export { Language, Tag } from './structures/tag';
+export { type RequestContext, type RequestFunction, type HashFunction, type OnRequestFunction, ResponseType } from '@platform';
 
+/**
+ * A default {@link Hitomi} client.
+ */
 export const hitomi: Hitomi = new Hitomi();
 export default hitomi;

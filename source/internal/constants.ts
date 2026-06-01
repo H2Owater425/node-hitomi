@@ -1,22 +1,21 @@
-import type { Gallery } from '../gallery';
-import type { Language, Tag } from '../tag';
+import type { Gallery } from '../structures/gallery';
+import type { Language, Tag } from '../structures/tag';
 
 export const BASE_DOMAIN = 'gold-usergeneratedcontent.net' as const;
 
-// @ts-expect-error - typescript internal error
+// @ts-expect-error - Typescript internal error
 export const RESOURCE_DOMAIN: `ltn.${typeof BASE_DOMAIN}` = 'ltn.' + BASE_DOMAIN;
 
 export const FRONT_DOMAIN = 'hitomi.la' as const;
 
-// @ts-expect-error
+// @ts-expect-error - Typescript internal error
 export const TAG_INDEX_DOMAIN: `tagindex.${typeof FRONT_DOMAIN}` = 'tagindex.' + FRONT_DOMAIN;
 
 export const DEFAULT_HEADERS = {
-	connection: 'keep-alive',
 	referer: 'https://' + FRONT_DOMAIN
 } as const;
 
-export const STALE_TIME_PROPERTIES = ['indexMaximumAge', 'imageContextMaximumAge'] as const;
+export const MAXIMUM_AGE_PROPERTIES = ['indexMaximumAge', 'imageContextMaximumAge'] as const;
 
 export const DEDICATED_TAG_PROPERTIES = ['artist', 'group', 'parody', 'character'] as const;
 
@@ -92,78 +91,3 @@ export const TAG_TYPES: Set<Tag['type']> = new Set<Tag['type']>([
 	'female',
 	'tag'
 ]);
-
-/**
- * Sorting options for listing galleries.
- *
- * @enum {string}
- */
-export const enum SortType {
-	DateAdded = 'added',
-	DatePublished = 'published',
-	Random = 'random',
-	PopularityDay = 'today',
-	PopularityWeek = 'week',
-	PopularityMonth = 'month',
-	PopularityYear = 'year'
-}
-
-/**
- * Initial-character filters for listing tags.
- *
- * @enum {string}
- */
-export const enum NameInitial {
-	A = 'a',
-	B = 'b',
-	C = 'c',
-	D = 'd',
-	E = 'e',
-	F = 'f',
-	G = 'g',
-	H = 'h',
-	I = 'i',
-	J = 'j',
-	K = 'k',
-	L = 'l',
-	M = 'm',
-	N = 'n',
-	O = 'o',
-	P = 'p',
-	Q = 'q',
-	R = 'r',
-	S = 's',
-	T = 't',
-	U = 'u',
-	V = 'v',
-	W = 'w',
-	X = 'x',
-	Y = 'y',
-	Z = 'z',
-	/**
-	 * Represents all non-alphabetic characters.
-	 */
-	_123 = '123'
-}
-
-/**
- * Supported image formats for retrieving images.
- *
- * @enum {string}
- */
-export const enum Extension {
-	Avif = 'avif',
-	Webp = 'webp',
-	Jxl = 'jxl'
-}
-
-/**
- * Supported thumbnail sizes for retrieving images.
- *
- * @enum {string}
- */
-export const enum ThumbnailSize {
-	Small = 'small',
-	Medium = 'smallbig',
-	Big = 'big'
-}

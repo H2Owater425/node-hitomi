@@ -1,14 +1,16 @@
 import { describe, test } from 'mocha';
 import assert from 'assert';
 
-import { Language, Tag, TagManager } from '../source/tag';
-import { NameInitial, BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../source/utilities/constants';
-import { Hitomi } from '../source/hitomi';
-import type { Node, URL } from '../source/utilities/types';
-import { assertInstanceOf, createMock } from './utilities/functions';
+import { Tag } from '@/structures/tag';
+import { Language } from '@/structures/tag';
+import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '@/internal/constants';
+import { TagManager, NameInitial } from '@/managers/tag';
+import { Hitomi } from '@/hitomi';
+import type { Node } from '@/internal/types';
+import { assertInstanceOf, createMock } from './shared/functions';
 import { createHash } from 'crypto';
-import { PARTIAL_TAG_TYPES } from './utilities/constants';
-import { IndexProvider } from '../source/utilities/structures';
+import { PARTIAL_TAG_TYPES } from './shared/constants';
+import { ResponseType, RequestCall } from './shared/types';
 
 describe('Language', function (): void {
 	test('constructor exposes url and toTag converts to language tag', function (): void {
@@ -30,7 +32,7 @@ describe('Language', function (): void {
 
 		for(let i: number = 0; i < BINARY_ORDERED_LANGUAGES['length']; i++) {
 			const language: Language = new Language(hitomi, BINARY_ORDERED_LANGUAGES[i][0], BINARY_ORDERED_LANGUAGES[i][1]);
-	
+
 			assert.strictEqual(language['name'], BINARY_ORDERED_LANGUAGES[i][0]);
 			assert.strictEqual(language['localName'], BINARY_ORDERED_LANGUAGES[i][1]);
 			assert.strictEqual(language['url'], '/index-' + BINARY_ORDERED_LANGUAGES[i][0] + '.html');
@@ -75,7 +77,7 @@ describe('Tag', function (): void {
 				case 'male':
 				case 'female': {
 					url = '/tag/' + type + '%3A';
-	
+
 					break;
 				}
 
@@ -104,16 +106,16 @@ describe('Tag', function (): void {
 			new Tag(hitomi, 'type', 'encyclopedia');
 		}, /Name must be one of/);
 	});
-	
+
 	test('constructor sets generated url', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 		const maleTag: Tag = new Tag(hitomi, 'male', 'male tag');
 		const artistTag: Tag = new Tag(hitomi, 'artist', 'artist tag');
-		
+
 		assert.strictEqual(maleTag['url'], '/tag/male%3Amale%20tag-all.html');
 		assert.strictEqual(artistTag['url'], '/artist/artist%20tag-all.html');
 	});
-	
+
 	test('toString returns formatted expression', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 		const tag: Tag = new Tag(hitomi, 'tag', 'general tag', true);
@@ -124,15 +126,15 @@ describe('Tag', function (): void {
 
 	test('listLanguages returns direct mapping for language tag without index access', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
-			languageIndex: createMock<IndexProvider>({
-				retrieve: async function (): Promise<string> {
-					throw new Error('retrieve should not be called');
+			languageIndex: createMock<Hitomi['languageIndex']>({
+				retrieve: function (): Promise<string> {
+					return Promise.reject(new Error('retrieve should not be called'));
 				},
-				getNodeAtAddress: async function (): Promise<Node | undefined> {
-					throw new Error('getNodeAtAddress should not be called');
+				getNodeAtAddress: function (): Promise<Node | undefined> {
+					return Promise.reject(new Error('getNodeAtAddress should not be called'));
 				},
-				binarySearch: async function (): Promise<Node[1][number] | undefined> {
-					throw new Error('binarySearch should not be called');
+				binarySearch: function (): Promise<Node[1][number] | undefined> {
+					return Promise.reject(new Error('binarySearch should not be called'));
 				}
 			})
 		});
@@ -152,28 +154,31 @@ describe('Tag', function (): void {
 			function: string;
 			address?: bigint;
 			version?: string;
-			key?: Buffer;
+			key?: Uint8Array;
 			root?: Node;
 		}[] = []; 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			languageIndex: createMock<IndexProvider>({
-				retrieve: async function (): Promise<string> {
+			hash: function (term: string): Promise<Uint8Array> {
+				return Promise.resolve(createHash('sha256').update(term).digest().subarray(0, 4));
+			},
+			languageIndex: createMock<Hitomi['languageIndex']>({
+				retrieve: function (): Promise<string> {
 					calls.push({
 						function: 'retrieve'
 					});
 
-					return version;
+					return Promise.resolve(version);
 				},
-				getNodeAtAddress: async function (address: bigint, version: string): Promise<Node> {
+				getNodeAtAddress: function (address: bigint, version: string): Promise<Node> {
 					calls.push({
 						function: 'getNodeAtAddress',
 						address: address,
 						version: version
 					});
 
-					return rootNode;
+					return Promise.resolve(rootNode);
 				},
-				binarySearch: async function (key: Buffer, root: Node, version: string): Promise<Node[1][number]> {
+				binarySearch: function (key: Uint8Array, root: Node, version: string): Promise<Node[1][number]> {
 					calls.push({
 						function: 'binarySearch',
 						key: key,
@@ -181,7 +186,7 @@ describe('Tag', function (): void {
 						version: version
 					});
 
-					return [13n, 0];
+					return Promise.resolve([13n, 0]);
 				}
 			})
 		});
@@ -229,7 +234,6 @@ describe('TagManager', function (): void {
 		assert.strictEqual(tags[0]['name'], 'artist tag');
 		assert.strictEqual(tags[0]['isNegative'], false);
 
-
 		assert.strictEqual(tags[1]['type'], 'tag');
 		assert.strictEqual(tags[1]['name'], 'general tag');
 		assert.strictEqual(tags[1]['isNegative'], true);
@@ -249,23 +253,22 @@ describe('TagManager', function (): void {
 	});
 
 	test('search builds request path and maps response pairs', async function (): Promise<void> {
-		const calls: {
-			url: URL,
-			range: string | undefined
-		}[] = [];
+		const calls: RequestCall[] = [];
 		const rawTagAndCounts: [string, number, string][] = [
 			['swimsuit', 70000, 'female'],
 			['sweating', 50000, 'female']
 		];
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Buffer> {
+			request: createMock<Hitomi['request']>(function (host: string, path: string, type: ResponseType, range?: string): [string, number, string][] {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
+					type: type,
 					range: range
 				});
 
-				return Buffer.from(JSON.stringify(rawTagAndCounts));
-			}
+				return rawTagAndCounts;
+			})
 		});
 		const manager: TagManager = new TagManager(hitomi);
 
@@ -273,10 +276,14 @@ describe('TagManager', function (): void {
 		const femaleTagAndCounts: [Tag, number][] = await manager.search('-female:sw:::unreachable:');
 
 		assert.deepStrictEqual(calls, [{
-			url: ['tagindex.hitomi.la', '/global/s/w.json'],
+			host: 'tagindex.hitomi.la',
+			path: '/global/s/w.json',
+			type: ResponseType['JSON'],
 			range: undefined
 		}, {
-			url: ['tagindex.hitomi.la', '/female/s/w.json'],
+			host: 'tagindex.hitomi.la',
+			path: '/female/s/w.json',
+			type: ResponseType['JSON'],
 			range: undefined
 		}]);
 
@@ -303,9 +310,9 @@ describe('TagManager', function (): void {
 
 	test('search rejects invalid type', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (): Promise<Buffer> {
+			request: createMock<Hitomi['request']>(function (): never {
 				throw new Error('request should not be called');
-			}
+			})
 		});
 		const manager: TagManager = new TagManager(hitomi);
 
@@ -316,9 +323,9 @@ describe('TagManager', function (): void {
 
 	test('list returns language and type tags without network request', async function (): Promise<void> {
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (): Promise<Buffer> {
+			request: createMock<Hitomi['request']>(function (): never {
 				throw new Error('request should not be called');
-			}
+			})
 		});
 
 		const manager: TagManager = new TagManager(hitomi);
@@ -331,24 +338,23 @@ describe('TagManager', function (): void {
 	});
 
 	test('list requests and parses browsable tags', async function (): Promise<void> {
-		const calls: {
-			url: URL;
-			range: string | undefined;
-		}[] = [];
+		const calls: RequestCall[] = [];
 		const response: string = `<a href="/tag/1%20general%20tag-all.html">1 general tag</a>
 		<a href="/tag/2%20general%20tag-all.html">2 general tag</a>
 		<a href="/tag/male%3A3%20male%20tag-all.html">3 male tag ♂</a>
 		<a href="/tag/female%3A4%20female%20tag-all.html">4 female tag ♀</a>`;
 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			request: async function (url: URL, range?: string): Promise<Buffer> {
+			request: createMock<Hitomi['request']>(function (host: string, path: string, type: ResponseType, range?: string): string {
 				calls.push({
-					url: url,
+					host: host,
+					path: path,
+					type: type,
 					range: range
 				});
 
-				return Buffer.from(response);
-			}
+				return response;
+			})
 		});
 		const manager: TagManager = new TagManager(hitomi);
 
@@ -357,15 +363,21 @@ describe('TagManager', function (): void {
 		const femaleTags: Tag[] = await manager.list('female', NameInitial._123);
 
 		assert.deepStrictEqual(calls, [{
-			url: ['hitomi.la', '/alltags-123.html'],
+			host: 'hitomi.la',
+			path: '/alltags-123.html',
+			type: ResponseType['TEXT'],
 			range: undefined
 		},
 		{
-			url: ['hitomi.la', '/alltags-123.html'],
+			host: 'hitomi.la',
+			path: '/alltags-123.html',
+			type: ResponseType['TEXT'],
 			range: undefined
 		},
 		{
-			url: ['hitomi.la', '/alltags-123.html'],
+			host: 'hitomi.la',
+			path: '/alltags-123.html',
+			type: ResponseType['TEXT'],
 			range: undefined
 		}]);
 
@@ -393,7 +405,7 @@ describe('TagManager', function (): void {
 		const manager: TagManager = new TagManager(hitomi);
 
 		for(const type of PARTIAL_TAG_TYPES) {
-			await assert.rejects(async function (): Promise<Tag[]> {
+			await assert.rejects(function (): Promise<Tag[]> {
 				return manager.list(type);
 			}, /StartsWith must be provided except for language and type/);
 		}

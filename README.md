@@ -25,6 +25,7 @@ npm install node-hitomi
 yarn add node-hitomi
 pnpm add node-hitomi
 bun add node-hitomi
+deno add npm:node-hitomi
 ```
 
 ## Features
@@ -37,13 +38,13 @@ bun add node-hitomi
 
 ## Usage
 
-The package exports a default client instance, but you can also create your own client for custom configuration.
+The package exports a default client, but you can also create your own client for custom configuration.
 
 ```typescript
-import { Hitomi } from 'node-hitomi';
-import { Agent } from 'https';
+import { Hitomi, RequestContext } from 'node-hitomi';
+import { Agent, RequestOptions } from 'https';
 
-const agent = new Agent({
+const agent: Agent = new Agent({
 	keepAlive: true,
 	// Bypass server name indication field blocking
 	servername: '',
@@ -51,13 +52,21 @@ const agent = new Agent({
 });
 
 const hitomi = new Hitomi({
-	agent: agent,
+	onRequest: function (context: RequestContext<RequestOptions>): void {
+		// Inspect or modify the request context before each HTTP request
+		console.log(context);
+
+		context.options.agent = agent;
+
+		context.options.headers['X-Forwarded-Host'] = context.host;
+		context.host = 'proxy.example.com';
+	},
 	indexMaximumAge: 300000,
 	imageContextMaximumAge: 1800000
 });
 ```
 
-If you use CommonJS module:
+If you use CommonJS:
 
 ```typescript
 const { hitomi, SortType /* and more... */ } = require('node-hitomi');
@@ -71,7 +80,7 @@ const { hitomi, SortType /* and more... */ } = require('node-hitomi');
 
 #### `GalleryManager.retrieve(id)`
 
-Retrieves a full gallery by id and returns a `Gallery` instance.
+Retrieves a full `Gallery` by its id.
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -86,12 +95,12 @@ console.log(`Language: ${gallery.language?.name}`);
 
 #### `GalleryManager.list(options?)`
 
-Lists galleries that match the given criteria. You can pass tags, a title query, sort options, and paging options. The method returns `GalleryReference[]`.
+Lists galleries that match the given criteria and returns `GalleryReference[]`. You can pass tags, a title query, sort options, and paging options.
 
 ```typescript
 import hitomi, { SortType } from 'node-hitomi';
 
-// Parse a search expression into structured tag objects
+// Parse a search expression into tags
 const tags = hitomi.tags.parse('male:sole_male -female:netorare series:blue_archive');
 
 // List matching gallery references
@@ -113,7 +122,7 @@ if(references.length > 0) {
 > Not every `options.page` usage is valid. It must meet the restrictions below.
 > 
 > - Only one non-language tag is allowed (optionally combined with a language tag).
-> - Negative tags and title are not supported.
+> - Negative tags and title queries are not supported.
 > 
 > ```typescript
 > const simpleTags = hitomi.tags.parse('type:manga language:english');
@@ -128,7 +137,7 @@ if(references.length > 0) {
 > 	}
 > });
 > 
-> console.log(pagedReferences, `(${pagedReferences['length']} galleries)`);
+> console.log(pagedReferences, `(${pagedReferences.length} galleries)`);
 > ```
 
 ---
@@ -139,7 +148,7 @@ if(references.length > 0) {
 
 #### `TagManager.create(type, name, isNegative?)`
 
-Creates a `Tag` instance with a type, name, and optional negation flag.
+Creates a `Tag` from a type and name. You can pass `true` to make it negative.
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -153,12 +162,12 @@ console.log(languages);
 
 #### `TagManager.parse(expression)`
 
-Parses a human-readable expression into unique `Tag` instances. The expected format is `[-]type:name`, where spaces are represented by underscores.
+Parses a space-separated expression into unique `Tag[]`. The expected format is `[-]type:name`, where spaces are represented by underscores.
 
 ```typescript
 import hitomi from 'node-hitomi';
 
-// Parse a string expression into Tag instances
+// Parse a string expression into tags
 const parsedTags = hitomi.tags.parse('female:yandere male:sole_male -tag:group');
 
 console.log(parsedTags);
@@ -216,43 +225,43 @@ Resolves an image URL in the requested format and optional thumbnail size.
 ```typescript
 import hitomi, { Extension, ThumbnailSize } from 'node-hitomi';
 
-// Retrieve a gallery by id and get thumbnail available images
+// Retrieve a gallery by id and get representative thumbnails
 const gallery = await hitomi.galleries.retrieve(123456);
 const thumbnails = gallery.getThumbnails();
 
-// Full-size WebP URL
+// Resolve the full-size WebP URL
 const imageUrl = await thumbnails[0].resolveUrl(Extension.Webp);
 console.log(`Image URL: ${imageUrl}`);
 
-// AVIF medium thumbnail URL
+// Resolve the medium AVIF thumbnail URL
 const thumbnailUrl = await thumbnails[1].resolveUrl(Extension.Avif, ThumbnailSize.Medium);
 console.log(`Thumbnail URL: ${thumbnailUrl}`);
 ```
 
 #### `Image.fetch(extension, thumbnailSize?)`
 
-Fetches an image as a `Buffer`. The same extension and thumbnail constraints as [`Image.resolveUrl`](#imageresolveurlextension-thumbnailsize) apply.
+Fetches an image as a [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array). The same `extension` and `thumbnailSize` restrictions as [`Image.resolveUrl`](#imageresolveurlextension-thumbnailsize) apply.
 
 ```typescript
 import hitomi, { Extension, ThumbnailSize } from 'node-hitomi';
 import { writeFileSync } from 'fs';
 
-// Retrieve a gallery by id and get thumbnail available images
+// Retrieve a gallery by id and get representative thumbnails
 const gallery = await hitomi.galleries.retrieve(123456);
 const thumbnails = gallery.getThumbnails();
 
-// Fetch and save a full-size image
+// Fetch and save the full-size WebP image
 const imageBuffer = await thumbnails[0].fetch(Extension.Webp);
 writeFileSync('image.webp', imageBuffer);
 
-// Fetch and save a medium thumbnail
+// Fetch and save the medium AVIF thumbnail
 const thumbnailBuffer = await thumbnails[1].fetch(Extension.Avif, ThumbnailSize.Medium);
 writeFileSync('thumbnail.avif', thumbnailBuffer);
 ```
 
 #### `Video.fetch()`
 
-Fetches a gallery video as an MP4 `Buffer`.
+Fetches a gallery video as an MP4 [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array).
 
 ```typescript
 import hitomi from 'node-hitomi';
@@ -269,7 +278,7 @@ if(gallery.video) {
 
 #### `Video.fetchPoster()`
 
-Fetches the video poster as a WebP `Buffer`.
+Fetches the video poster as a WebP [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array).
 
 ```typescript
 import hitomi from 'node-hitomi';

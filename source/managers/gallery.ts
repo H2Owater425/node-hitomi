@@ -1,222 +1,80 @@
-import type { Hitomi } from './hitomi';
-import { Image, Video } from './media';
-import { Language, Tag } from './tag';
-import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES, SortType } from './utilities/constants';
-import { defineProperties, hashTerm, formatOneOfState } from './utilities/functions';
-import { Base, IndexProvider, HitomiError } from './utilities/structures';
-import type { URL, Node } from './utilities/types';
+import { ResponseType } from '@platform';
+import { ErrorCode, HitomiError } from '../structures/error';
+import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structures/gallery';
+import type { Hitomi } from '../hitomi';
+import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from '../internal/constants';
+import { compareTags, defineProperties } from '../internal/functions';
+import { IndexProvider } from '../internal/provider';
+import { Base } from '../internal/base';
+import type { Node } from '../internal/types';
+import { Image, Video } from '../structures/media';
+import { Tag, Language } from '../structures/tag';
 
 /**
- * Title associated with a gallery.
- * 
- * @see {@link Gallery}
+ * Sort orders for listing galleries.
+ *
+ * @readonly
+ * @enum {string}
+ * @see {@link GalleryOptions.orderBy}
  */
-export class Title {
-	// @internal
-	constructor(
-		/**
-		 * Display title of the gallery.
-		 * 
-		 * @type {string}
-		 * @readonly
-		 */
-		public readonly display: string,
-		/**
-		 * Japanese title of the gallery.
-		 * 
-		 * @deprecated This field is always null.
-		 * @type {string | null}
-		 * @readonly
-		 */
-		public readonly japanese: string | null = null
-	) {}
+export const enum SortType {
+	DateAdded = 'added',
+	DatePublished = 'published',
+	Random = 'random',
+	PopularityDay = 'today',
+	PopularityWeek = 'week',
+	PopularityMonth = 'month',
+	PopularityYear = 'year'
 }
 
 /**
- * Reference to a gallery with a unique identifier.
- * 
- * @see {@link Gallery}
- * @see {@link GalleryManager}
+ * Pagination options for listing galleries.
+ *
+ * @see {@link GalleryOptions.page}
  */
-export class GalleryReference extends Base {
-	constructor(
-		hitomi: Hitomi,
-		/**
-		 * Unique identifier of the gallery.
-		 * 
-		 * @type {number}
-		 * @readonly
-		 */
-		public readonly id: number
-	) {
-		super(hitomi);
-	}
-
+export interface PageOptions {
 	/**
-	 * Retrieves a full {@link Gallery} associated with the unique identifier.
-	 * 
-	 * @returns {Promise<Gallery>} Promise that resolves to a full {@link Gallery} instance.
+	 * Zero-based page index.
+	 *
+	 * @default 0
 	 */
-	public retrieve(): Promise<Gallery> {
-		return this['hitomi']['galleries'].retrieve(this['id']);
-	}
-}
-
-/**
- * Partial gallery for a specific language.
- * 
- * @see {@link Gallery}
- */
-export class TranslatedGallery extends GalleryReference {
-	// @internal
-	constructor(
-		hitomi: Hitomi,
-		id: GalleryReference['id'],
-		/**
-		 * Language of the gallery. (`null` if unavailable)
-		 * 
-		 * @type {Language | null}
-		 * @readonly
-		 */
-		public readonly language: Language | null,
-		/**
-		 * URL path of the gallery.
-		 * 
-		 * @type {string}
-		 * @readonly
-		 */
-		public readonly url: string
-	) {
-		super(hitomi, id);
-	}
-}
-
-/**
- * Full gallery with metadata, files, and relationships.
- * 
- * @see {@link GalleryManager}
- */
-export class Gallery extends TranslatedGallery {
-	// @internal
-	constructor(
-		hitomi: Hitomi,
-		id: TranslatedGallery['id'],
-		language: TranslatedGallery['language'],
-		url: TranslatedGallery['url'],
-		/**
-		 * Title of the gallery.
-		 * 
-		 * @type {Title}
-		 * @readonly
-		 */
-		public readonly title: Title,
-		/**
-		 * Type of the gallery.
-		 * 
-		 * @type {'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'imageset' | 'anime'}
-		 * @readonly
-		 */
-		public readonly type: 'doujinshi' | 'manga' | 'artistcg' | 'gamecg' | 'imageset' | 'anime',
-		/**
-		 * Artist tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly artists: readonly Tag[],
-		/**
-		 * Group tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly groups: readonly Tag[],
-		/**
-		 * Series (parody) tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly series: readonly Tag[],
-		/**
-		 * Character tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly characters: readonly Tag[],
-		/**
-		 * General, male, and female tags associated with the gallery.
-		 * 
-		 * @type {readonly Tag[]}
-		 * @readonly
-		 */
-		public readonly tags: readonly Tag[],
-		/**
-		 * Image files in the gallery.
-		 * 
-		 * @type {readonly Image[]}
-		 * @readonly
-		 */
-		public readonly files: readonly Image[],
-		/**
-		 * Available translations in other languages.
-		 * 
-		 * @type {readonly TranslatedGallery[]}
-		 * @readonly
-		 */
-		public readonly translations: readonly TranslatedGallery[],
-		/**
-		 * References to related galleries.
-		 * 
-		 * @type {readonly GalleryReference[]}
-		 * @readonly
-		 */
-		public readonly relations: readonly GalleryReference[],
-		/**
-		 * Whether the gallery is blocked.
-		 * 
-		 * @type {boolean}
-		 * @readonly
-		 */
-		public readonly isBlocked: boolean,
-		/**
-		 * Date when the gallery was added.
-		 * 
-		 * @type {Date}
-		 * @readonly
-		 */
-		public readonly addedDate: Date,
-		/**
-		 * Date when the original work was published. (`null` if unavailable)
-		 * 
-		 * @type {Date | null}
-		 * @readonly
-		 */
-		public readonly publishedDate: Date | null = null,
-		/**
-		 * Video resource associated with the gallery. (`null` if unavailable)
-		 * 
-		 * @type {Video | null}
-		 * @readonly
-		 */
-		public readonly video: Video | null = null
-	) {
-		super(hitomi, id, language, url);
-	}
-
+	index?: number;
 	/**
-	 * Returns representative thumbnails.
-	 * 
-	 * @returns {[Image, Image]} Tuple containing the first and middle image.
+	 * Number of galleries per page.
+	 *
+	 * @default 25
 	 */
-	public getThumbnails(): [Image, Image] {
-		return [this['files'][0], this['files'][Math.floor(this['files']['length'] / 2)]]
-	}
+	size?: number;
 }
 
 /**
- * Manager for retrieving and listing {@link Gallery} instances.
+ * Search and filter options for listing galleries.
+ *
+ * @see {@link GalleryManager.list}
+ */
+export interface GalleryOptions {
+	/**
+	 * Tags to filter results by.
+	 */
+	tags?: Tag[];
+	/**
+	 * The title keyword to search for.
+	 */
+	title?: string;
+	/**
+	 * The sort type to order by.
+	 *
+	 * @default SortType.DateAdded
+	 */
+	orderBy?: SortType;
+	/**
+	 * Pagination options.
+	 */
+	page?: PageOptions;
+}
+
+/**
+ * A manager for retrieving and listing galleries.
  *
  * @see {@link Hitomi}
  */
@@ -234,10 +92,10 @@ export class GalleryManager extends Base {
 	}
 
 	/**
-	 * Retrieves a {@link Gallery} by a unique identifier.
+	 * Retrieves a {@link Gallery} by its unique identifier.
 	 *
-	 * @param {number} id Unique gallery identifier.
-	 * @returns {Promise<Gallery>} Promise that resolves to a {@link Gallery} instance.
+	 * @param {number} id The unique gallery identifier.
+	 * @returns {Promise<Gallery>} A `Promise` that resolves to the matching {@link Gallery}.
 	 */
 	public async retrieve(id: number): Promise<Gallery> {
 		const rawGallery: {
@@ -283,7 +141,7 @@ export class GalleryManager extends Base {
 			date: string;
 			datepublished: string | null;
 			videofilename: string | null;
-		} = JSON.parse(String(await this['hitomi'].request([RESOURCE_DOMAIN, '/galleries/' + id + '.js'])).slice(18));
+		} = JSON.parse((await this['hitomi'].request(RESOURCE_DOMAIN, '/galleries/' + id + '.js', ResponseType['TEXT'])).slice(18));
 		const dedicatedTags: [Tag[], Tag[], Tag[], Tag[]] = [[] /* artists */, [] /* groups */, [] /* series */, [] /* characters */];
 		const tags: Tag[] = [];
 		const files: Image[] = [];
@@ -293,14 +151,14 @@ export class GalleryManager extends Base {
 		let type: Tag['type'];
 
 		for(; i < DEDICATED_TAG_PROPERTIES['length']; i++) {
-			// @ts-expect-error - typescript internal error
+			// @ts-expect-error - Typescript internal error
 			const dedicatedTagProperty: `${(typeof DEDICATED_TAG_PROPERTIES)[number]}s` = DEDICATED_TAG_PROPERTIES[i] + 's';
 
 			type = i !== 2 ? DEDICATED_TAG_PROPERTIES[i] as Tag['type'] : 'series';
 
 			if(rawGallery[dedicatedTagProperty]) {
 				for(let j: number = 0; j < rawGallery[dedicatedTagProperty]['length']; j++)
-					// @ts-expect-error - typescript internal error
+					// @ts-expect-error - Typescript internal error
 					dedicatedTags[i].push(new Tag(this['hitomi'], type, rawGallery[dedicatedTagProperty][j][DEDICATED_TAG_PROPERTIES[i]]));
 			}
 		}
@@ -379,13 +237,13 @@ export class GalleryManager extends Base {
 		);
 	}
 
-	// nozomi uses jspack
 	// @internal
-	private static unpackIds(response: Buffer, isNegative: boolean = false): Set<Gallery['id']> {
+	private async requestIds(url: [string, string], range?: string, isNegative: boolean = false): Promise<Set<Gallery['id']>> {
+		const view: DataView = await this['hitomi'].request(url[0], url[1], ResponseType['VIEW'], range);
 		const ids: Set<Gallery['id']> = new Set<Gallery['id']>();
 
-		for(let i: number = 0; i < response['byteLength']; i += 4) {
-			ids.add(response.readInt32BE(i));
+		for(let i: number = 0; i < view['byteLength']; i += 4) {
+			ids.add(view.getInt32(i));
 		}
 
 		if(isNegative) {
@@ -401,7 +259,7 @@ export class GalleryManager extends Base {
 		tag?: Tag;
 		language?: string;
 		orderBy?: SortType;
-	} = {}): URL {
+	} = {}): [string, string] {
 		const language: string = options['language'] || 'all';
 		let orderBy: string = '';
 
@@ -427,7 +285,7 @@ export class GalleryManager extends Base {
 
 				default: {
 					// @ts-expect-error
-					throw new HitomiError('OrderBy', formatOneOfState(SortType));
+					throw HitomiError.InvalidMember('OrderBy', SortType);
 				}
 			}
 		}
@@ -485,32 +343,18 @@ export class GalleryManager extends Base {
 	}
 
 	/**
-	 * Lists {@link GalleryReference} entries that match the specified search criteria.
+	 * Lists galleries as {@link GalleryReference} matching the specified search criteria.
 	 *
 	 * When `options.page` is provided, only one non-language tag (optionally combined with a language tag) is allowed, and negative tags are not supported.
 	 *
-	 * When using `Popularity{Period}` in `options.orderBy`, the number of galleries may vary.
+	 * When using a popularity-based sort in `options.orderBy`, the number of returned galleries may vary.
 	 *
-	 * @param {object} [options] Search options.
-	 * @param {Tag[]} [options.tags] Tag filters as {@link Tag} instances.
-	 * @param {string} [options.title] Title query string.
-	 * @param {SortType} [options.orderBy=SortType.DateAdded] Sort order. (defaults to `SortType.DateAdded`)
-	 * @param {object} [options.page] Pagination options.
-	 * @param {number} [options.page.index=0] Zero-based page index. (defaults to `0` when `options.page` is provided)
-	 * @param {number} [options.page.size=25] Number of galleries per page. (defaults to `25` when `options.page` is provided)
-	 * @returns {Promise<GalleryReference[]>} Promise that resolves to an array of {@link GalleryReference} instances.
-	 * @throws {HitomiError} Thrown when `page` is used with multiple tags or any negative tag.
+	 * @param {GalleryOptions} [options] The search and filter options.
+	 * @returns {Promise<GalleryReference[]>} A `Promise` that resolves to matching galleries as {@link GalleryReference}.
+	 * @throws {HitomiError} If `page` is used with multiple tags or any negative tag.
 	 * @see {@link SortType}
 	 */
-	public async list(options: {
-		tags?: Tag[];
-		title?: string;
-		orderBy?: SortType;
-		page?: {
-			index?: number;
-			size?: number;
-		};
-	} = {}): Promise<GalleryReference[]> {
+	public async list(options: GalleryOptions = {}): Promise<GalleryReference[]> {
 		const idSets: Set<Gallery['id']>[] = [];
 		const isRandom: boolean = options['orderBy'] === 'random';
 		let language: string | undefined;
@@ -526,9 +370,7 @@ export class GalleryManager extends Base {
 
 		if(options['tags'] && options['tags']['length']) {
 			// bring positive tags to front
-			const tags: Tag[] = options['tags'].slice().sort(function (a: Tag, b: Tag): number {
-				return (a['isNegative'] as unknown as number) - (b['isNegative'] as unknown as number);
-			});
+			const tags: Tag[] = options['tags'].slice().sort(compareTags);
 
 			if(tags[0]['isNegative']) {
 				i = -1;
@@ -546,45 +388,45 @@ export class GalleryManager extends Base {
 
 			if(range) {
 				if(tags['length'] > 2 || tags['length'] === 2 && !language) {
-					throw new HitomiError('Page', 'used with multiple tags', false);
+					throw new HitomiError(ErrorCode['InvalidArgument'], 'Page', 'used with multiple tags', false);
 				}
 
 				if(tags[tags['length'] - 1]['isNegative']) {
-					throw new HitomiError('Page', 'used with negative tag', false);
+					throw new HitomiError(ErrorCode['InvalidArgument'], 'Page', 'used with negative tag', false);
 				}
 
-				return this.createReferences(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+				return this.createReferences(await this.requestIds(GalleryManager.createNozomiUrl({
 					tag: tags[+(tags[0]['type'] === 'language') /* selects non-language tag */],
 					orderBy: options['orderBy'],
 					language: language
-				}), range)), isRandom);
+				}), range), isRandom);
 			}
 
-			idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+			idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
 				tag: tags[i++] /* if first tag is negative i becomes -1, therefore tags give undefined  */,
 				orderBy: options['orderBy'],
 				language: language
-			}))));
+			})));
 
 			for(; i < tags['length']; i++) {
 				if(tags[i]['type'] !== 'language' || !language && tags[i]['isNegative']) {
-					idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl({
+					idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
 						tag: tags[i],
 						language: language
-					})), tags[i]['isNegative']));
+					}), undefined, tags[i]['isNegative']));
 				}
 			}
 		} else {
-			const urn: URL = GalleryManager.createNozomiUrl({
+			const url: [string, string] = GalleryManager.createNozomiUrl({
 				orderBy: options['orderBy']
 			});
 
 			if(range) {
-				return this.createReferences(GalleryManager.unpackIds(await this['hitomi'].request(urn, range)), isRandom);
+				return this.createReferences(await this.requestIds(url, range), isRandom);
 			}
 
 			if(options['orderBy']) {
-				idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(urn)));
+				idSets.push(await this.requestIds(url));
 			}
 		}
 
@@ -594,7 +436,7 @@ export class GalleryManager extends Base {
 			const rootNode: Node | undefined = await this['index'].getNodeAtAddress(0n, version);
 
 			if(!rootNode) {
-				throw HitomiError['ROOT_NODE_EMPTY'];
+				throw HitomiError['EmptyRootNode'];
 			}
 
 			i /* currentIndex */ = 0;
@@ -602,13 +444,13 @@ export class GalleryManager extends Base {
 
 			while(j !== -1) {
 				if(j - i) {
-					const data: Node[1][number] | undefined = await this['index'].binarySearch(hashTerm(title.slice(i, j)), rootNode, version);
+					const data: Node[1][number] | undefined = await this['index'].binarySearch(await this['hitomi'].hash(title.slice(i, j)), rootNode, version);
 
 					if(!data) {
 						return [];
 					}
 
-					idSets.push(GalleryManager.unpackIds(await this['hitomi'].request([RESOURCE_DOMAIN, '/galleriesindex/galleries.' + version + '.data'], (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n))));
+					idSets.push(await this.requestIds([RESOURCE_DOMAIN, '/galleriesindex/galleries.' + version + '.data'], (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n)));
 				}
 
 				i = j + 1;
@@ -631,7 +473,7 @@ export class GalleryManager extends Base {
 				}
 			}
 		} else {
-			idSets.push(GalleryManager.unpackIds(await this['hitomi'].request(GalleryManager.createNozomiUrl())));
+			idSets.push(await this.requestIds(GalleryManager.createNozomiUrl()));
 		}
 
 		return this.createReferences(idSets[0], isRandom);

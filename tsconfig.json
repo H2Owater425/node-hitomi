@@ -7,7 +7,11 @@
 		"types": ["node"],
 		"removeComments": true,
 		"stripInternal": true,
-		"preserveConstEnums": true
+		"preserveConstEnums": true,
+		"paths": {
+			"@/*": ["./source/*"],
+			"@platform": ["./source/platform/node.ts", "./source/platform/browser.ts"]
+		}
 	},
 	"ts-node": {
 		"compilerOptions": {
@@ -15,5 +19,5 @@
 			"module": "nodenext"
 		}
 	},
-	"include": ["./source/**/*", "./tests/**/*", "rollup.config.ts"]
+	"include": ["source/**/*", "tests/**/*", "rollup.config.ts"]
 }
