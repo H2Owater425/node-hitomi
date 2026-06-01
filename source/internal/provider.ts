@@ -3,7 +3,7 @@ import type { Hitomi } from '../hitomi';
 import { HitomiError } from '../structures/error';
 import { Base } from './base';
 import { RESOURCE_DOMAIN } from './constants';
-import { compare } from './functions';
+import { compareBuffers } from './functions';
 import type { Node } from './types';
 
 // @internal
@@ -102,7 +102,7 @@ export class IndexProvider extends Provider<string> {
 		let index: number = 0;
 
 		while(index < node[0]['length'] &&
-			(compareResult = compare(key, node[0][index])) === 1) {
+			(compareResult = compareBuffers(key, node[0][index])) === 1) {
 			index++;
 		}
 
