@@ -20,7 +20,7 @@ export interface HitomiOptions<T = any> {
 	 * @default new Agent({ keepAlive: true })
 	 * @deprecated Use {@link onRequest} instead. This option takes precedence over `onRequest` when set. Will be removed in v10.
 	 */
-	agent?: unknown;
+	agent?: unknown; // TODO: Remove in v10
 	/**
 	 * A custom function for making HTTPS requests.
 	 */
@@ -96,10 +96,11 @@ export class Hitomi {
 		}
 
 		// Options might be modified
+		const optionsAgent: unknown | undefined = options['agent']; // TODO: Remove in v10
 		const optionsRequest: RequestFunction | undefined = options['request'];
-		const optionsOnRequest: OnRequestFunction | undefined = options['agent'] ? function (context: RequestContext): RequestContext {
+		const optionsOnRequest: OnRequestFunction | undefined = optionsAgent ? function (context: RequestContext): RequestContext {
 			// @ts-ignore
-			context['options']['agent'] = options['agent'];
+			context['options']['agent'] = optionsAgent;
 
 			return context;
 		} : options['onRequest'];
