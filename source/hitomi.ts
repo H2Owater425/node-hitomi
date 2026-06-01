@@ -13,7 +13,7 @@ import { request, type RequestFunction, hash, type HashFunction, ResponseType, t
  * @template T The platform-specific request options type.
  * @see {@link Hitomi}
  */
-export interface HitomiOptions<T = unknown> {
+export interface HitomiOptions<T = any> {
 	/**
 	 * A custom HTTPS agent for connection pooling.
 	 *
@@ -88,7 +88,7 @@ export class Hitomi {
 	 * @param {HitomiOptions} [options] The configuration options for the client.
 	 * @throws {HitomiError} If `options.indexMaximumAge` or `options.imageContextMaximumAge` is provided as a negative integer.
 	 */
-	constructor(options: HitomiOptions<any> = {}) {
+	constructor(options: HitomiOptions = {}) {
 		for(let i: number = 0; i < MAXIMUM_AGE_PROPERTIES['length']; i++) {
 			if(options[MAXIMUM_AGE_PROPERTIES[i]] && (!Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 0)) {
 				throw new HitomiError(ErrorCode['InvalidArgument'], capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a non-negative integer');
