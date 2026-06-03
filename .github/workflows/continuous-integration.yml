@@ -4,14 +4,13 @@ on:
   workflow_dispatch:
 
   push:
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
+    branches:
+      - main
 
-    paths-ignore:
-      - '**/*.md'
-      - '.github/assets/**/*'
-      - '.gitignore'
-      - '.npmignore'
+    paths:
+      - 'source/**'
+      - 'test/**'
+      - 'package.json'
 
   pull_request:
     types:
@@ -20,14 +19,10 @@ on:
       - reopened
       - ready_for_review
 
-    branches:
-      - main
-
-    paths-ignore:
-      - '**/*.md'
-      - '.github/assets/**/*'
-      - '.gitignore'
-      - '.npmignore'
+    paths:
+      - 'source/**'
+      - 'test/**'
+      - 'package.json'
 
 permissions:
   contents: read
