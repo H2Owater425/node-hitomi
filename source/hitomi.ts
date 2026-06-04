@@ -1,8 +1,8 @@
 import type { ImageContext } from './internal/types';
 import { GalleryManager } from './managers/gallery';
 import { TagManager } from './managers/tag';
-import { DEFAULT_HEADERS, RESOURCE_DOMAIN, MAXIMUM_AGE_PROPERTIES } from './internal/constants';
-import { defineProperties, capitalize } from './internal/functions';
+import { DEFAULT_HEADERS, RESOURCE_DOMAIN } from './internal/constants';
+import { defineProperties } from './internal/functions';
 import { Provider, IndexProvider } from './internal/provider';
 import { ErrorCode, HitomiError } from './structures/error';
 import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
@@ -82,6 +82,19 @@ export class Hitomi {
 	// @internal
 	public readonly imageContext!: Provider<ImageContext>;
 
+	// @internal
+	private static getMaximumAge(options: HitomiOptions, key: 'indexMaximumAge' | 'imageContextMaximumAge', defaultValue: number): number {
+		if(!options[key] || options[key] === 0) {
+			return defaultValue;
+		}
+
+		if(!Number.isInteger(options[key]) || options[key] < 0) {
+			throw new HitomiError(ErrorCode['InvalidArgument'], 'Options.' + key, 'a non-negative integer');
+		}
+
+		return options[key];
+	}
+
 	/**
 	 * Creates a new Hitomi client.
 	 *
@@ -89,12 +102,6 @@ export class Hitomi {
 	 * @throws {HitomiError} If `options.indexMaximumAge` or `options.imageContextMaximumAge` is provided as a negative integer.
 	 */
 	constructor(options: HitomiOptions = {}) {
-		for(let i: number = 0; i < MAXIMUM_AGE_PROPERTIES['length']; i++) {
-			if(options[MAXIMUM_AGE_PROPERTIES[i]] && (!Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 0)) {
-				throw new HitomiError(ErrorCode['InvalidArgument'], capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a non-negative integer');
-			}
-		}
-
 		// Options might be modified
 		const optionsAgent: unknown | undefined = options['agent']; // TODO: Remove in v10
 		const optionsRequest: RequestFunction | undefined = options['request'];
@@ -136,7 +143,7 @@ export class Hitomi {
 			hash: optionsHash ? async function (data: string): Promise<Uint8Array> {
 				return (await optionsHash(data)).subarray(0, 4);
 			} : hash,
-			indexMaximumAge: options['indexMaximumAge'] || options['indexMaximumAge'] === 0 ? options['indexMaximumAge'] : 600000
+			indexMaximumAge: Hitomi.getMaximumAge(options, 'indexMaximumAge', 600000)
 		});
 
 		this['galleries'] = new GalleryManager(this);
@@ -194,7 +201,7 @@ export class Hitomi {
 				}
 
 				return context;
-			}, options['imageContextMaximumAge'] || options['imageContextMaximumAge'] === 0 ? options['imageContextMaximumAge'] : 3600000)
+			}, Hitomi.getMaximumAge(options, 'imageContextMaximumAge', 3600000))
 		});
 	}
 }
