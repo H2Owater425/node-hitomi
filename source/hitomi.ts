@@ -3,7 +3,7 @@ import { GalleryManager } from './managers/gallery';
 import { TagManager } from './managers/tag';
 import { DEFAULT_HEADERS, RESOURCE_DOMAIN } from './internal/constants';
 import { defineProperties } from './internal/functions';
-import { Provider, IndexProvider } from './internal/provider';
+import { Provider, IndexProvider } from './internal/providers';
 import { ErrorCode, HitomiError } from './structures/error';
 import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
 

@@ -4,7 +4,7 @@ import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structur
 import type { Hitomi } from '../hitomi';
 import { RESOURCE_DOMAIN } from '../internal/constants';
 import { defineProperties } from '../internal/functions';
-import { IndexProvider } from '../internal/provider';
+import { IndexProvider } from '../internal/providers';
 import { Base } from '../internal/base';
 import type { Node } from '../internal/types';
 import { Image, Video } from '../structures/media';
