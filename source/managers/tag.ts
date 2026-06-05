@@ -140,7 +140,7 @@ export class TagManager extends Base {
 			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
 
 			if(!Tag['TYPES'].has(type)) {
-				throw HitomiError.InvalidMember('Type', Tag['TYPES']);
+				throw HitomiError.invalidMember('Type', Tag['TYPES']);
 			}
 
 			path = '/' + type;
@@ -203,7 +203,7 @@ export class TagManager extends Base {
 				}
 
 				if(!TagManager['NAME_INITIALS'].has(startsWith)) {
-					throw HitomiError.InvalidMember('StartsWith', TagManager['NAME_INITIALS']);
+					throw HitomiError.invalidMember('StartsWith', TagManager['NAME_INITIALS']);
 				}
 
 				// createTagUrn
@@ -236,7 +236,7 @@ export class TagManager extends Base {
 					}
 
 					default: {
-						throw HitomiError.InvalidMember('Type', Tag['TYPES']);
+						throw HitomiError.invalidMember('Type', Tag['TYPES']);
 					}
 				}
 

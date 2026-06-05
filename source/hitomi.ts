@@ -166,7 +166,7 @@ export class Hitomi {
 					const subdomainCode: number = +response.slice(currentIndex, nextIndex);
 
 					if(!Number.isInteger(subdomainCode)) {
-						throw HitomiError['UnparsableImageContext'];
+						throw HitomiError['unparsableImageContext'];
 					}
 
 					context[0].add(subdomainCode);
@@ -175,7 +175,7 @@ export class Hitomi {
 				}
 
 				if(!context[0]['size']) {
-					throw HitomiError['UnparsableImageContext'];
+					throw HitomiError['unparsableImageContext'];
 				}
 
 				currentIndex = response.indexOf('var o = ') + 8;
@@ -183,7 +183,7 @@ export class Hitomi {
 				const rawIsSuffix1: number = +response.slice(currentIndex, response.indexOf(';', currentIndex));
 
 				if(!Number.isInteger(rawIsSuffix1)) {
-					throw HitomiError['UnparsableImageContext'];
+					throw HitomiError['unparsableImageContext'];
 				}
 
 				context[1] = !rawIsSuffix1;
@@ -191,13 +191,13 @@ export class Hitomi {
 				currentIndex = response.lastIndexOf('b: \'') + 4;
 
 				if(currentIndex === 3) {
-					throw HitomiError['UnparsableImageContext'];
+					throw HitomiError['unparsableImageContext'];
 				}
 
 				context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
 
 				if(!context[2]['length']) {
-					throw HitomiError['UnparsableImageContext'];
+					throw HitomiError['unparsableImageContext'];
 				}
 
 				return context;

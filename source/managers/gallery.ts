@@ -288,7 +288,7 @@ export class GalleryManager extends Base {
 
 				default: {
 					// @ts-expect-error
-					throw HitomiError.InvalidMember('OrderBy', SortType);
+					throw HitomiError.invalidMember('OrderBy', SortType);
 				}
 			}
 		}
@@ -439,7 +439,7 @@ export class GalleryManager extends Base {
 			const rootNode: Node | undefined = await this['index'].getNodeAtAddress(0n, version);
 
 			if(!rootNode) {
-				throw HitomiError['EmptyRootNode'];
+				throw HitomiError['emptyRootNode'];
 			}
 
 			i /* currentIndex */ = 0;

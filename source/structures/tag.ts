@@ -10,7 +10,7 @@ import { Gallery } from './gallery';
  * @see {@link Gallery}
  */
 export class Language extends Base {
-	// @internal
+	// @internal - Binary ordered name and localName
 	public static readonly ORDERED: readonly [string, string][] = [
 		['indonesian', 'Bahasa Indonesia'],
 		['javanese', 'Basa Jawa'],
@@ -172,7 +172,7 @@ export class Tag extends Base {
 
 			case 'type': {
 				if(!Gallery['TYPES'].has(name as Gallery['type'])) {
-					throw HitomiError.InvalidMember('Name', Gallery['TYPES']);
+					throw HitomiError.invalidMember('Name', Gallery['TYPES']);
 				}
 			}
 			case 'artist':
@@ -187,7 +187,7 @@ export class Tag extends Base {
 
 			case 'language': {
 				if(!Language['NAMES'].has(name)) {
-					throw HitomiError.InvalidMember('Name', Language['NAMES']);
+					throw HitomiError.invalidMember('Name', Language['NAMES']);
 				}
 
 				this['url'] = '/index-' + name + '.html';
@@ -196,7 +196,7 @@ export class Tag extends Base {
 			}
 
 			default: {
-				throw HitomiError.InvalidMember('Type', Tag['TYPES']);
+				throw HitomiError.invalidMember('Type', Tag['TYPES']);
 			}
 		}
 
@@ -228,7 +228,7 @@ export class Tag extends Base {
 					}
 				}
 
-				throw HitomiError['InvalidTagName'];
+				throw HitomiError['invalidTagName'];
 			}
 
 			default: {
@@ -240,13 +240,13 @@ export class Tag extends Base {
 		const rootNode: Node | undefined = await this['hitomi']['languageIndex'].getNodeAtAddress(0n, version);
 
 		if(!rootNode) {
-			throw HitomiError['EmptyRootNode'];
+			throw HitomiError['emptyRootNode'];
 		}
 
 		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(await this['hitomi'].hash(term), rootNode, version);
 
 		if(!data) {
-			throw HitomiError['InvalidTagName'];
+			throw HitomiError['invalidTagName'];
 		}
 
 		for(let mask: bigint = 1n; i < Language['ORDERED']['length']; i++, mask <<= 1n) {

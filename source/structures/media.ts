@@ -179,7 +179,7 @@ export class Image extends Media {
 
 				default: {
 					// @ts-expect-error
-					throw HitomiError.InvalidMember('ThumbnailSize', ThumbnailSize);
+					throw HitomiError.invalidMember('ThumbnailSize', ThumbnailSize);
 				}
 			}
 

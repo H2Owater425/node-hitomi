@@ -20,27 +20,27 @@ export enum ErrorCode {
  */
 export class HitomiError extends Error {
 	// @internal
-	public static InvalidMember<T>(name: string, iteratable: Iterable<T>): HitomiError {
+	public static invalidMember<T>(name: string, iteratable: Iterable<T>): HitomiError {
 		return new HitomiError(ErrorCode['InvalidArgument'], name, 'one of ' + (iteratable[Symbol['iterator']] ? Array.from(iteratable) : Object.values(iteratable)).join(', '));
 	}
 
 	// @internal
-	public static UnexpectedResponseStatus(host: string, path: string, code: number): HitomiError {
+	public static unexpectedResponseStatus(host: string, path: string, code: number): HitomiError {
 		return new HitomiError(ErrorCode['UnexpectedResponseStatus'], 'https://' + host + path + ' must not respond with ' + code);
 	}
 
 	// @internal
-	public static get InvalidTagName(): HitomiError {
+	public static get invalidTagName(): HitomiError {
 		return new HitomiError(ErrorCode['InvalidField'], 'Name', 'valid');
 	}
 
 	// @internal
-	public static get EmptyRootNode(): HitomiError {
+	public static get emptyRootNode(): HitomiError {
 		return new HitomiError(ErrorCode['UnexpectedResponseBody'], 'Root node', 'empty', false);
 	}
 
 	// @internal
-	public static get UnparsableImageContext(): HitomiError {
+	public static get unparsableImageContext(): HitomiError {
 		return new HitomiError(ErrorCode['UnexpectedResponseBody'], 'Image context', 'parsable');
 	}
 
