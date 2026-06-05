@@ -1,9 +1,10 @@
 import { ResponseType } from '@platform';
 import { ErrorCode, HitomiError } from '../structures/error';
 import type { Hitomi } from '../hitomi';
-import { TAG_TYPES, TAG_INDEX_DOMAIN, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN } from '../internal/constants';
+import { TAG_INDEX_DOMAIN, FRONT_DOMAIN } from '../internal/constants';
 import { Base } from '../internal/base';
-import { Tag } from '../structures/tag';
+import { Language, Tag } from '../structures/tag';
+import { Gallery } from '../structures/gallery';
 
 /**
  * Initial character filters for listing tags.
@@ -51,6 +52,9 @@ export enum NameInitial {
  * @see {@link Hitomi}
  */
 export class TagManager extends Base {
+	// @internal
+	private static readonly NAME_INITIALS: Set<NameInitial> = new Set<NameInitial>(Object.values(NameInitial));
+
 	// @internal
 	constructor(hitomi: Hitomi) {
 		super(hitomi);
@@ -135,7 +139,7 @@ export class TagManager extends Base {
 		if(i) {
 			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
 
-			if(!TAG_TYPES.has(type)) {
+			if(!Tag['TYPES'].has(type)) {
 				throw HitomiError['InvalidTagType'];
 			}
 
@@ -179,11 +183,11 @@ export class TagManager extends Base {
 
 		switch(type) {
 			case 'type': {
-				names = GALLERY_TYPES;
+				names = Gallery['TYPES'];
 			}
 			case 'language': {
 				if(!names) {
-					names = LANGUAGE_NAMES;
+					names = Language['NAMES'];
 				}
 
 				for(const name of names) {
@@ -196,6 +200,10 @@ export class TagManager extends Base {
 			default: {
 				if(!startsWith) {
 					throw new HitomiError(ErrorCode['InvalidArgument'], 'StartsWith', 'provided except for language and type');
+				}
+
+				if(!TagManager['NAME_INITIALS'].has(startsWith)) {
+					throw HitomiError.InvalidMember('StartsWith', TagManager['NAME_INITIALS']);
 				}
 
 				// createTagUrn

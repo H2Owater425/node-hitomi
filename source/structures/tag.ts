@@ -1,9 +1,8 @@
 import type { Hitomi } from '../hitomi';
 import { Base } from '../internal/base';
 import { HitomiError } from './error';
-import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../internal/constants';
 import type { Node } from '../internal/types';
-import type { Gallery } from './gallery';
+import { Gallery } from './gallery';
 
 /**
  * A language associated with a {@link Gallery}.
@@ -11,6 +10,55 @@ import type { Gallery } from './gallery';
  * @see {@link Gallery}
  */
 export class Language extends Base {
+	// @internal
+	public static readonly ORDERED: readonly [string, string][] = [
+		['indonesian', 'Bahasa Indonesia'],
+		['javanese', 'Basa Jawa'],
+		['catalan', 'Català'],
+		['cebuano', 'Cebuano'],
+		['czech', 'Čeština'],
+		['danish', 'Dansk'],
+		['german', 'Deutsch'],
+		['estonian', 'Eesti'],
+		['english', 'English'],
+		['spanish', 'Español'],
+		['esperanto', 'Esperanto'],
+		['french', 'Français'],
+		['hindi', 'Hindi'],
+		['icelandic', 'Íslenska'],
+		['italian', 'Italiano'],
+		['latin', 'Latina'],
+		['hungarian', 'Magyar'],
+		['dutch', 'Nederlands'],
+		['norwegian', 'Norsk'],
+		['polish', 'Polski'],
+		['portuguese', 'Português'],
+		['romanian', 'Română'],
+		['albanian', 'Shqip'],
+		['slovak', 'Slovenčina'],
+		['serbian', 'Srpski'],
+		['finnish', 'Suomi'],
+		['swedish', 'Svenska'],
+		['tagalog', 'Tagalog'],
+		['vietnamese', 'Tiếng Việt'],
+		['turkish', 'Türkçe'],
+		['greek', 'Ελληνικά'],
+		['bulgarian', 'Български'],
+		['mongolian', 'Монгол'],
+		['russian', 'Русский'],
+		['ukrainian', 'Українська'],
+		['hebrew', 'עברית'],
+		['arabic', 'العربية'],
+		['persian', 'فارسی'],
+		['thai', 'ไทย'],
+		['burmese', 'မြန်မာဘာသာ'],
+		['korean', '한국어'],
+		['chinese', '中文'],
+		['japanese', '日本語']
+	];
+	// @internal
+	public static readonly NAMES: Set<string> = new Set<string>();
+
 	/**
 	 * The URL path for browsing galleries filtered by this language.
 	 *
@@ -53,6 +101,10 @@ export class Language extends Base {
 	}
 }
 
+for(let i: number = 0; i < Language['ORDERED']['length']; i++) {
+	Language['NAMES'].add(Language['ORDERED'][i][0]);
+}
+
 /**
  * A tag used to filter and categorize galleries.
  *
@@ -60,6 +112,19 @@ export class Language extends Base {
  * @see {@link TagManager}
  */
 export class Tag extends Base {
+	// @internal
+	public static readonly TYPES: Set<Tag['type']> = new Set<Tag['type']>([
+		'artist',
+		'group',
+		'type',
+		'language',
+		'series',
+		'character',
+		'male',
+		'female',
+		'tag'
+	]);
+
 	/**
 	 * The URL path for browsing galleries matching this tag.
 	 *
@@ -106,8 +171,8 @@ export class Tag extends Base {
 			}
 
 			case 'type': {
-				if(!GALLERY_TYPES.has(name as Gallery['type'])) {
-					throw HitomiError.InvalidMember('Name', GALLERY_TYPES);
+				if(!Gallery['TYPES'].has(name as Gallery['type'])) {
+					throw HitomiError.InvalidMember('Name', Gallery['TYPES']);
 				}
 			}
 			case 'artist':
@@ -121,8 +186,8 @@ export class Tag extends Base {
 			}
 
 			case 'language': {
-				if(!LANGUAGE_NAMES.has(name)) {
-					throw HitomiError.InvalidMember('Name', LANGUAGE_NAMES);
+				if(!Language['NAMES'].has(name)) {
+					throw HitomiError.InvalidMember('Name', Language['NAMES']);
 				}
 
 				this['url'] = '/index-' + name + '.html';
@@ -157,9 +222,9 @@ export class Tag extends Base {
 			}
 
 			case 'language': {
-				for(; i < BINARY_ORDERED_LANGUAGES['length']; i++) {
-					if(this['name'] === BINARY_ORDERED_LANGUAGES[i][0]) {
-						return [new Language(this['hitomi'], BINARY_ORDERED_LANGUAGES[i][0], BINARY_ORDERED_LANGUAGES[i][1])];
+				for(; i < Language['ORDERED']['length']; i++) {
+					if(this['name'] === Language['ORDERED'][i][0]) {
+						return [new Language(this['hitomi'], Language['ORDERED'][i][0], Language['ORDERED'][i][1])];
 					}
 				}
 
@@ -184,10 +249,9 @@ export class Tag extends Base {
 			throw HitomiError['InvalidTagName'];
 		}
 
-		for(let mask: bigint = 1n; i < BINARY_ORDERED_LANGUAGES['length']; i++, mask <<= 1n) {
+		for(let mask: bigint = 1n; i < Language['ORDERED']['length']; i++, mask <<= 1n) {
 			if(data[0] & mask) {
-				// @ts-expect-error
-				languages.push(new Language(this['hitomi'], ...BINARY_ORDERED_LANGUAGES[i]));
+				languages.push(new Language(this['hitomi'], ...Language['ORDERED'][i]));
 			}
 		}
 

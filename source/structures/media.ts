@@ -161,19 +161,19 @@ export class Image extends Media {
 			let member: string = 'Big';
 
 			switch(thumbnailSize) {
-				case 'smallbig': {
-					if(extension !== 'avif') {
+				case ThumbnailSize['Medium']: {
+					if(extension !== Extension['Avif']) {
 						throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'ThumbnailSize.Medium', 'used only with avif');
 					}
 
 					member = 'Medium';
 				}
-				case 'big': {
+				case ThumbnailSize['Big']: {
 					if(!this['hasThumbnail']) {
 						throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'ThumbnailSize.' + member, 'used only with image that has thumbnail');
 					}
 				}
-				case 'small': {
+				case ThumbnailSize['Small']: {
 					break;
 				}
 

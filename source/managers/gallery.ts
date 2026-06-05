@@ -2,7 +2,7 @@ import { ResponseType } from '@platform';
 import { ErrorCode, HitomiError } from '../structures/error';
 import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structures/gallery';
 import type { Hitomi } from '../hitomi';
-import { RESOURCE_DOMAIN, DEDICATED_TAG_PROPERTIES } from '../internal/constants';
+import { RESOURCE_DOMAIN } from '../internal/constants';
 import { compareTags, defineProperties } from '../internal/functions';
 import { IndexProvider } from '../internal/provider';
 import { Base } from '../internal/base';
@@ -80,6 +80,9 @@ export interface GalleryOptions {
  */
 export class GalleryManager extends Base {
 	// @internal
+	private static readonly RAW_TYPES: readonly ['artist', 'group', 'parody', 'character'] = ['artist', 'group', 'parody', 'character'];
+
+	// @internal
 	private readonly index!: IndexProvider;
 
 	// @internal
@@ -150,16 +153,16 @@ export class GalleryManager extends Base {
 		let i: number = 0;
 		let type: Tag['type'];
 
-		for(; i < DEDICATED_TAG_PROPERTIES['length']; i++) {
+		for(; i < GalleryManager['RAW_TYPES']['length']; i++) {
 			// @ts-expect-error - Typescript internal error
-			const dedicatedTagProperty: `${(typeof DEDICATED_TAG_PROPERTIES)[number]}s` = DEDICATED_TAG_PROPERTIES[i] + 's';
+			const rawPluralType: `${(typeof GalleryManager['RAW_TYPES'])[number]}s` = GalleryManager['RAW_TYPES'][i] + 's';
 
-			type = i !== 2 ? DEDICATED_TAG_PROPERTIES[i] as Tag['type'] : 'series';
+			type = i !== 2 ? GalleryManager['RAW_TYPES'][i] as Tag['type'] : 'series';
 
-			if(rawGallery[dedicatedTagProperty]) {
-				for(let j: number = 0; j < rawGallery[dedicatedTagProperty]['length']; j++)
+			if(rawGallery[rawPluralType]) {
+				for(let j: number = 0; j < rawGallery[rawPluralType]['length']; j++)
 					// @ts-expect-error - Typescript internal error
-					dedicatedTags[i].push(new Tag(this['hitomi'], type, rawGallery[dedicatedTagProperty][j][DEDICATED_TAG_PROPERTIES[i]]));
+					dedicatedTags[i].push(new Tag(this['hitomi'], type, rawGallery[rawPluralType][j][GalleryManager['RAW_TYPES'][i]]));
 			}
 		}
 
@@ -356,7 +359,7 @@ export class GalleryManager extends Base {
 	 */
 	public async list(options: GalleryOptions = {}): Promise<GalleryReference[]> {
 		const idSets: Set<Gallery['id']>[] = [];
-		const isRandom: boolean = options['orderBy'] === 'random';
+		const isRandom: boolean = options['orderBy'] === SortType['Random'];
 		let language: string | undefined;
 		let i: number = 0;
 		let range: string | undefined;

@@ -1,9 +1,7 @@
 import { describe, test } from 'mocha';
 import assert from 'assert';
 
-import { Tag } from '@/structures/tag';
-import { Language } from '@/structures/tag';
-import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '@/internal/constants';
+import { Language, Tag } from '@/structures/tag';
 import { TagManager, NameInitial } from '@/managers/tag';
 import { Hitomi } from '@/hitomi';
 import type { Node } from '@/internal/types';
@@ -11,6 +9,7 @@ import { assertInstanceOf, createMock } from './shared/functions';
 import { createHash } from 'crypto';
 import { PARTIAL_TAG_TYPES } from './shared/constants';
 import { ResponseType, RequestCall } from './shared/types';
+import { Gallery } from '@/structures/gallery';
 
 describe('Language', function (): void {
 	test('constructor exposes url and toTag converts to language tag', function (): void {
@@ -30,12 +29,12 @@ describe('Language', function (): void {
 	test('constructor accepts all known language tuples', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 
-		for(let i: number = 0; i < BINARY_ORDERED_LANGUAGES['length']; i++) {
-			const language: Language = new Language(hitomi, BINARY_ORDERED_LANGUAGES[i][0], BINARY_ORDERED_LANGUAGES[i][1]);
+		for(let i: number = 0; i < Language['ORDERED']['length']; i++) {
+			const language: Language = new Language(hitomi, Language['ORDERED'][i][0], Language['ORDERED'][i][1]);
 
-			assert.strictEqual(language['name'], BINARY_ORDERED_LANGUAGES[i][0]);
-			assert.strictEqual(language['localName'], BINARY_ORDERED_LANGUAGES[i][1]);
-			assert.strictEqual(language['url'], '/index-' + BINARY_ORDERED_LANGUAGES[i][0] + '.html');
+			assert.strictEqual(language['name'], Language['ORDERED'][i][0]);
+			assert.strictEqual(language['localName'], Language['ORDERED'][i][1]);
+			assert.strictEqual(language['url'], '/index-' + Language['ORDERED'][i][0] + '.html');
 		}
 	});
 });
@@ -44,7 +43,7 @@ describe('Tag', function (): void {
 	test('constructor accepts all known names for language type', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 
-		for(const name of LANGUAGE_NAMES) {
+		for(const name of Language['NAMES']) {
 			const tag: Tag = new Tag(hitomi, 'language', name);
 
 			assert.strictEqual(tag['type'], 'language');
@@ -56,7 +55,7 @@ describe('Tag', function (): void {
 	test('constructor accepts all known names for type tag', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 
-		for(const type of GALLERY_TYPES) {
+		for(const type of Gallery['TYPES']) {
 			const tag: Tag = new Tag(hitomi, 'type', type);
 
 			assert.strictEqual(tag['type'], 'type');
@@ -207,10 +206,10 @@ describe('Tag', function (): void {
 			version: version
 		}]);
 
-		const binaryOrderedLanguages: (typeof BINARY_ORDERED_LANGUAGES)[number][] = [
-			BINARY_ORDERED_LANGUAGES[0],
-			BINARY_ORDERED_LANGUAGES[2],
-			BINARY_ORDERED_LANGUAGES[3]
+		const binaryOrderedLanguages: (typeof Language['ORDERED'])[number][] = [
+			Language['ORDERED'][0],
+			Language['ORDERED'][2],
+			Language['ORDERED'][3]
 		];
 
 		for(let i: number = 0; i < languages['length']; i++) {
@@ -333,8 +332,8 @@ describe('TagManager', function (): void {
 		const languageTags: Tag[] = await manager.list('language');
 		const typeTags: Tag[] = await manager.list('type');
 
-		assert.strictEqual(languageTags['length'], BINARY_ORDERED_LANGUAGES['length']);
-		assert.strictEqual(typeTags['length'], GALLERY_TYPES['size']);
+		assert.strictEqual(languageTags['length'], Language['ORDERED']['length']);
+		assert.strictEqual(typeTags['length'], Gallery['TYPES']['size']);
 	});
 
 	test('list requests and parses browsable tags', async function (): Promise<void> {

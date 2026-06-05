@@ -96,6 +96,16 @@ export class TranslatedGallery extends GalleryReference {
  */
 export class Gallery extends TranslatedGallery {
 	// @internal
+	public static readonly TYPES: Set<Gallery['type']> = new Set<Gallery['type']>([
+		'doujinshi',
+		'manga',
+		'artistcg',
+		'gamecg',
+		'imageset',
+		'anime'
+	]);
+
+	// @internal
 	constructor(
 		hitomi: Hitomi,
 		id: TranslatedGallery['id'],
