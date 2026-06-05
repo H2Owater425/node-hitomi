@@ -105,19 +105,18 @@ export class Hitomi {
 	 */
 	constructor(options: HitomiOptions = {}) {
 		// Options might be modified
-		const optionsAgent: unknown | undefined = options['agent']; // TODO: Remove in v10
-		const optionsRequest: RequestFunction | undefined = options['request'];
-		const optionsOnRequest: OnRequestFunction | undefined = optionsAgent ? function (context: RequestContext): RequestContext {
-			// @ts-ignore
-			context['options']['agent'] = optionsAgent;
+		options = Object.assign<{}, HitomiOptions>({}, options);
+		options.onRequest = options['agent'] ? function (context: RequestContext): RequestContext {
+			// @ts-ignore - Can not use https.RequestOptions as generic
+			context['options']['agent'] = options['agent'];
 
 			return context;
-		} : options['onRequest'];
-		const optionsHash: HashFunction | undefined = options['hash'];
+		} : options.onRequest;
 
 		defineProperties(this, {
-			request: optionsRequest ? async function (host: string, path: string, type: ResponseType, range?: string): Promise<Uint8Array | DataView | string | unknown> {
-				const buffer: Uint8Array = await optionsRequest(host, path, Object.assign<Record<string, string>, Record<string, string>>(range ? {
+			request: options.request ? async function (host: string, path: string, type: ResponseType, range?: string): Promise<Uint8Array | DataView | string | unknown> {
+				// @ts-expect-error - Typescript internal error
+				const buffer: Uint8Array = await options.request(host, path, Object.assign<Record<string, string>, Record<string, string>>(range ? {
 					range: 'bytes=' + range
 				} : {
 					'accept-encoding': 'gzip'
@@ -141,9 +140,10 @@ export class Hitomi {
 					}
 				}
 			} : request.bind(this),
-			onRequest: optionsOnRequest || function (): void {},
-			hash: optionsHash ? async function (data: string): Promise<Uint8Array> {
-				return (await optionsHash(data)).subarray(0, 4);
+			onRequest: options.onRequest || function (): void {},
+			hash: options.hash ? async function (data: string): Promise<Uint8Array> {
+				// @ts-expect-error - Typescript internal error
+				return (await options.hash(data)).subarray(0, 4);
 			} : hash,
 			indexMaximumAge: Hitomi.getMaximumAge(options, 'indexMaximumAge', 600000)
 		});
