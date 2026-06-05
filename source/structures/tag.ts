@@ -128,6 +128,14 @@ export class Tag extends Base {
 
 	// @internal
 	public static compare(a: Tag, b: Tag): number {
+		if(!(a instanceof Tag)) {
+			return b instanceof Tag ? 1 : 0;
+		}
+
+		if(!(b instanceof Tag)) {
+			return -1;
+		}
+
 		return (a['isNegative'] as unknown as number) - (b['isNegative'] as unknown as number);
 	}
 
