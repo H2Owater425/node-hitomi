@@ -12,7 +12,7 @@ import { Tag } from '../structures/tag';
  * @enum {string}
  * @see {@link TagManager.list}
  */
-export const enum NameInitial {
+export enum NameInitial {
 	A = 'a',
 	B = 'b',
 	C = 'c',

@@ -13,7 +13,7 @@ import { ResponseType } from '@platform';
  * @readonly
  * @enum {string}
  */
-export const enum Extension {
+export enum Extension {
 	Avif = 'avif',
 	Webp = 'webp',
 	Jxl = 'jxl'
@@ -25,7 +25,7 @@ export const enum Extension {
  * @readonly
  * @enum {string}
  */
-export const enum ThumbnailSize {
+export enum ThumbnailSize {
 	Small = 'small',
 	Medium = 'smallbig',
 	Big = 'big'

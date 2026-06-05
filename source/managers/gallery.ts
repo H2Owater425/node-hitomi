@@ -17,7 +17,7 @@ import { Tag, Language } from '../structures/tag';
  * @enum {string}
  * @see {@link GalleryOptions.orderBy}
  */
-export const enum SortType {
+export enum SortType {
 	DateAdded = 'added',
 	DatePublished = 'published',
 	Random = 'random',
