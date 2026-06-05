@@ -1,5 +1,3 @@
-import { TAG_TYPES } from '../internal/constants';
-
 /**
  * Error codes for identifying {@link HitomiError}.
  *
@@ -9,10 +7,10 @@ import { TAG_TYPES } from '../internal/constants';
  */
 export enum ErrorCode {
 	InvalidArgument = 'INVALID_ARGUMENT',
-	UnsupportedMediaVariant = 'UNSUPPORTED_MEDIA_VARIANT',
-	UnexpectedHttpStatus = 'UNEXPECTED_HTTP_STATUS',
-	UnexpectedResourceFormat = 'UNEXPECTED_RESOURCE_FORMAT',
-	InvalidTagName = 'INVALID_TAG_NAME'
+	InvalidCombination = 'INVALID_COMBINATION',
+	InvalidField = 'INVALID_FIELD',
+	UnexpectedResponseStatus = 'UNEXPECTED_RESPONSE_STATUS',
+	UnexpectedResponseBody = 'UNEXPECTED_RESPONSE_BODY'
 }
 
 /**
@@ -27,28 +25,23 @@ export class HitomiError extends Error {
 	}
 
 	// @internal
-	public static UnexpectedHttpStatus(host: string, path: string, code: number): HitomiError {
-		return new HitomiError(ErrorCode['UnexpectedHttpStatus'], 'https://' + host + path + ' must not respond with ' + code);
+	public static UnexpectedResponseStatus(host: string, path: string, code: number): HitomiError {
+		return new HitomiError(ErrorCode['UnexpectedResponseStatus'], 'https://' + host + path + ' must not respond with ' + code);
 	}
 
 	// @internal
 	public static get InvalidTagName(): HitomiError {
-		return new HitomiError(ErrorCode['InvalidTagName'], 'Name', 'valid');
-	}
-
-	// @internal
-	public static get InvalidTagType(): HitomiError {
-		return HitomiError.InvalidMember('Type', TAG_TYPES);
+		return new HitomiError(ErrorCode['InvalidField'], 'Name', 'valid');
 	}
 
 	// @internal
 	public static get EmptyRootNode(): HitomiError {
-		return new HitomiError(ErrorCode['UnexpectedResourceFormat'], 'Root node', 'empty', false);
+		return new HitomiError(ErrorCode['UnexpectedResponseBody'], 'Root node', 'empty', false);
 	}
 
 	// @internal
 	public static get UnparsableImageContext(): HitomiError {
-		return new HitomiError(ErrorCode['UnexpectedResourceFormat'], 'Image context', 'parsable');
+		return new HitomiError(ErrorCode['UnexpectedResponseBody'], 'Image context', 'parsable');
 	}
 
 	public readonly code: ErrorCode;

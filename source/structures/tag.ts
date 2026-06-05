@@ -196,7 +196,7 @@ export class Tag extends Base {
 			}
 
 			default: {
-				throw HitomiError['InvalidTagType'];
+				throw HitomiError.InvalidMember('Type', Tag['TYPES']);
 			}
 		}
 

@@ -51,7 +51,7 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 					response.resume();
 
 					// @ts-expect-error - StatusCode must be exist since it's from request
-					return reject(HitomiError.UnexpectedHttpStatus(host, path, response['statusCode']));
+					return reject(HitomiError.UnexpectedResponseStatus(host, path, response['statusCode']));
 				}
 			}
 

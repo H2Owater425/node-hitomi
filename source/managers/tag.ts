@@ -140,7 +140,7 @@ export class TagManager extends Base {
 			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
 
 			if(!Tag['TYPES'].has(type)) {
-				throw HitomiError['InvalidTagType'];
+				throw HitomiError.InvalidMember('Type', Tag['TYPES']);
 			}
 
 			path = '/' + type;
@@ -199,7 +199,7 @@ export class TagManager extends Base {
 
 			default: {
 				if(!startsWith) {
-					throw new HitomiError(ErrorCode['InvalidArgument'], 'StartsWith', 'provided except for language and type');
+					throw new HitomiError(ErrorCode['InvalidCombination'], 'StartsWith', 'provided except for language and type');
 				}
 
 				if(!TagManager['NAME_INITIALS'].has(startsWith)) {
@@ -236,7 +236,7 @@ export class TagManager extends Base {
 					}
 
 					default: {
-						throw HitomiError['InvalidTagType'];
+						throw HitomiError.InvalidMember('Type', Tag['TYPES']);
 					}
 				}
 

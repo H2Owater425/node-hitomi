@@ -151,7 +151,7 @@ export class Image extends Media {
 	public async resolveUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
 		// @ts-expect-error - Typescript internal error
 		if(!extension || !this['has' + capitalize(extension)]) {
-			throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'Extension', 'supported');
+			throw new HitomiError(ErrorCode['InvalidCombination'], 'Extension', 'supported');
 		}
 
 		let subdomain: string;
@@ -163,14 +163,14 @@ export class Image extends Media {
 			switch(thumbnailSize) {
 				case ThumbnailSize['Medium']: {
 					if(extension !== Extension['Avif']) {
-						throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'ThumbnailSize.Medium', 'used only with avif');
+						throw new HitomiError(ErrorCode['InvalidCombination'], 'ThumbnailSize.Medium', 'used only with avif');
 					}
 
 					member = 'Medium';
 				}
 				case ThumbnailSize['Big']: {
 					if(!this['hasThumbnail']) {
-						throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'ThumbnailSize.' + member, 'used only with image that has thumbnail');
+						throw new HitomiError(ErrorCode['InvalidCombination'], 'ThumbnailSize.' + member, 'used only with image that has thumbnail');
 					}
 				}
 				case ThumbnailSize['Small']: {
