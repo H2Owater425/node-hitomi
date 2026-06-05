@@ -3,7 +3,7 @@ import { ErrorCode, HitomiError } from '../structures/error';
 import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structures/gallery';
 import type { Hitomi } from '../hitomi';
 import { RESOURCE_DOMAIN } from '../internal/constants';
-import { compareTags, defineProperties } from '../internal/functions';
+import { defineProperties } from '../internal/functions';
 import { IndexProvider } from '../internal/provider';
 import { Base } from '../internal/base';
 import type { Node } from '../internal/types';
@@ -373,7 +373,7 @@ export class GalleryManager extends Base {
 
 		if(options['tags'] && options['tags']['length']) {
 			// bring positive tags to front
-			const tags: Tag[] = options['tags'].slice().sort(compareTags);
+			const tags: Tag[] = options['tags'].slice().sort(Tag.compare);
 
 			if(tags[0]['isNegative']) {
 				i = -1;

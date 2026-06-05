@@ -125,6 +125,11 @@ export class Tag extends Base {
 		'tag'
 	]);
 
+	// @internal
+	public static compare(a: Tag, b: Tag): number {
+		return (a['isNegative'] as unknown as number) - (b['isNegative'] as unknown as number);
+	}
+
 	/**
 	 * The URL path for browsing galleries matching this tag.
 	 *
