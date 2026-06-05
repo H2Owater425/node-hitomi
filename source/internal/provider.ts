@@ -39,8 +39,7 @@ export class Provider<T> extends Base {
 
 // @internal
 export class IndexProvider extends Provider<string> {
-	// @internal
-	// compare_arraybuffers in search.js
+	// @internal - Reference compare_arraybuffers in search.js
 	private static compareBuffers(a: Uint8Array, b: Uint8Array): number {
 		const length: number = a['byteLength'] < b['byteLength'] ? a['byteLength'] : b['byteLength'];
 
@@ -73,7 +72,7 @@ export class IndexProvider extends Provider<string> {
 			return;
 		}
 
-		// decode_node in search.js
+		// Reference decode_node in search.js
 		const node: Node = [[], [], []];
 		const keyCount: number = view.getInt32(0);
 		let offset: number = 4;

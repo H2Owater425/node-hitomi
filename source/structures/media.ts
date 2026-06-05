@@ -10,8 +10,8 @@ import { ResponseType } from '@platform';
 /**
  * Supported image file formats.
  *
- * @readonly
  * @enum {string}
+ * @readonly
  */
 export enum Extension {
 	Avif = 'avif',
@@ -22,8 +22,8 @@ export enum Extension {
 /**
  * Available thumbnail size presets.
  *
- * @readonly
  * @enum {string}
+ * @readonly
  */
 export enum ThumbnailSize {
 	Small = 'small',
@@ -69,7 +69,7 @@ abstract class Media extends Base {
 }
 
 /**
- * An image file belonging to a {@link Gallery}.
+ * An image file belonging to a gallery.
  *
  * @see {@link Gallery}
  */
@@ -143,6 +143,8 @@ export class Image extends Media {
 	 * @param {ThumbnailSize} [thumbnailSize] The thumbnail size preset. Omit for a full-size image URL.
 	 * @returns {Promise<string>} A `Promise` that resolves to the image URL.
 	 * @throws {HitomiError} If the `extension` and `thumbnailSize` combination is invalid.
+	 * @see {@link Extension}
+	 * @see {@link ThumbnailSize}
 	 * @see {@link Image.hasAvif}
 	 * @see {@link Image.hasWebp}
 	 * @see {@link Image.hasJxl}
@@ -205,6 +207,8 @@ export class Image extends Media {
 	 * @param {ThumbnailSize} [thumbnailSize] The thumbnail size preset. Omit for a full-size image.
 	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the image as a `Uint8Array`.
 	 * @throws {HitomiError} If the `extension` and `thumbnailSize` combination is invalid.
+	 * @see {@link Extension}
+	 * @see {@link ThumbnailSize}
 	 */
 	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Uint8Array> {
 		return super.request(await this.resolveUrl(extension, thumbnailSize));
@@ -212,7 +216,7 @@ export class Image extends Media {
 }
 
 /**
- * A video file belonging to a {@link Gallery}.
+ * A video file belonging to a gallery.
  *
  * @see {@link Gallery}
  */

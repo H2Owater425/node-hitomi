@@ -5,7 +5,7 @@ import type { Node } from '../internal/types';
 import { Gallery } from './gallery';
 
 /**
- * A language associated with a {@link Gallery}.
+ * A language associated with a gallery.
  *
  * @see {@link Gallery}
  */
@@ -91,10 +91,11 @@ export class Language extends Base {
 	}
 
 	/**
-	 * Converts this language into a {@link Tag} of type `'language'`.
+	 * Converts this language into a tag of type `'language'`.
 	 *
 	 * @param {boolean} [isNegative=false] Whether to create a negative tag.
-	 * @returns {Tag} A new {@link Tag}.
+	 * @returns {Tag} A new tag.
+	 * @see {@link Tag}
 	 */
 	public toTag(isNegative: boolean = false): Tag {
 		return new Tag(this['hitomi'], 'language', this['name'], isNegative);
@@ -212,6 +213,7 @@ export class Tag extends Base {
 	 * Lists the available languages for galleries matching this tag.
 	 *
 	 * @returns {Promise<Language[]>} A `Promise` that resolves to an array of languages.
+	 * @see {@link Language}
 	 */
 	public async listLanguages(): Promise<Language[]> {
 		const languages: Language[] = [];

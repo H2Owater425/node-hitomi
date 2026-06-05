@@ -8,7 +8,7 @@ import { ErrorCode, HitomiError } from './structures/error';
 import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
 
 /**
- * Options for creating a {@link Hitomi} client.
+ * Options for creating a hitomi client.
  *
  * @template T The platform-specific request options type.
  * @see {@link Hitomi}
@@ -56,6 +56,7 @@ export class Hitomi {
 	 *
 	 * @type {GalleryManager}
 	 * @readonly
+	 * @see {@link GalleryManager}
 	 */
 	public readonly galleries: GalleryManager;
 	/**
@@ -63,6 +64,7 @@ export class Hitomi {
 	 *
 	 * @type {TagManager}
 	 * @readonly
+	 * @see {@link TagManager}
 	 */
 	public readonly tags: TagManager;
 

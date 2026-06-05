@@ -9,8 +9,8 @@ import { Gallery } from '../structures/gallery';
 /**
  * Initial character filters for listing tags.
  *
- * @readonly
  * @enum {string}
+ * @readonly
  * @see {@link TagManager.list}
  */
 export enum NameInitial {
@@ -61,15 +61,16 @@ export class TagManager extends Base {
 	}
 
 	/**
-	 * Creates a new {@link Tag} from the given type and name.
+	 * Creates a new tag from the given type and name.
 	 *
 	 * The same name constraints as {@link Tag.prototype.name | Tag.name} apply.
 	 *
 	 * @param {Tag['type']} type The tag type.
 	 * @param {Tag['name']} name The tag name.
 	 * @param {boolean} [isNegative=false] Whether to create a negative tag.
-	 * @returns {Tag} A new {@link Tag}.
+	 * @returns {Tag} A new tag.
 	 * @throws {HitomiError} If `type` or `name` is invalid.
+	 * @see {@link Tag}
 	 */
 	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
 		if(!name['length']) {
@@ -88,6 +89,7 @@ export class TagManager extends Base {
 	 *
 	 * @param {string} expression A space-separated tag expression string.
 	 * @returns {Tag[]} An array of parsed tags.
+	 * @see {@link Tag}
 	 */
 	public parse(expression: string): Tag[] {
 		expression = expression.trim() + ' ';
@@ -125,11 +127,12 @@ export class TagManager extends Base {
 	/**
 	 * Searches for tags matching the given term.
 	 *
-	 * Returns each matching {@link Tag} paired with its gallery count.
+	 * Returns each matching tag paired with its gallery count.
 	 *
 	 * @param {string} term The search term, optionally prefixed with a tag type and colon (e.g. `"artist:name"`).
 	 * @returns {Promise<[Tag, number][]>} A `Promise` that resolves to an array of `[Tag, count]` tuples.
 	 * @throws {HitomiError} If the specified tag type is invalid.
+	 * @see {@link Tag}
 	 */
 	public async search(term: string): Promise<[Tag, number][]> {
 		const isNegative: boolean = term[0] === '-';
@@ -176,6 +179,7 @@ export class TagManager extends Base {
 	 * @param {NameInitial} [startsWith] The initial character filter. Required for all types except `'language'` and `'type'`.
 	 * @returns {Promise<Tag[]>} A `Promise` that resolves to an array of tags.
 	 * @throws {HitomiError} If `startsWith` is missing for types that require it, or if `type` is invalid.
+	 * @see {@link Tag}
 	 */
 	public async list(type: Tag['type'], startsWith?: NameInitial): Promise<Tag[]> {
 		const tags: Tag[] = [];

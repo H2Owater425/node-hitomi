@@ -13,8 +13,8 @@ import { Tag, Language } from '../structures/tag';
 /**
  * Sort orders for listing galleries.
  *
- * @readonly
  * @enum {string}
+ * @readonly
  * @see {@link GalleryOptions.orderBy}
  */
 export enum SortType {
@@ -95,10 +95,11 @@ export class GalleryManager extends Base {
 	}
 
 	/**
-	 * Retrieves a {@link Gallery} by its unique identifier.
+	 * Retrieves a gallery by its unique identifier.
 	 *
 	 * @param {number} id The unique gallery identifier.
-	 * @returns {Promise<Gallery>} A `Promise` that resolves to the matching {@link Gallery}.
+	 * @returns {Promise<Gallery>} A `Promise` that resolves to the matching gallery.
+	 * @see {@link Gallery}
 	 */
 	public async retrieve(id: number): Promise<Gallery> {
 		const rawGallery: {
@@ -346,15 +347,16 @@ export class GalleryManager extends Base {
 	}
 
 	/**
-	 * Lists galleries as {@link GalleryReference} matching the specified search criteria.
+	 * Lists gallery references matching the specified search criteria.
 	 *
 	 * When `options.page` is provided, only one non-language tag (optionally combined with a language tag) is allowed, and negative tags are not supported.
 	 *
 	 * When using a popularity-based sort in `options.orderBy`, the number of returned galleries may vary.
 	 *
 	 * @param {GalleryOptions} [options] The search and filter options.
-	 * @returns {Promise<GalleryReference[]>} A `Promise` that resolves to matching galleries as {@link GalleryReference}.
+	 * @returns {Promise<GalleryReference[]>} A `Promise` that resolves to matching gallery references.
 	 * @throws {HitomiError} If `page` is used with multiple tags or any negative tag.
+	 * @see {@link GalleryReference}
 	 * @see {@link SortType}
 	 */
 	public async list(options: GalleryOptions = {}): Promise<GalleryReference[]> {

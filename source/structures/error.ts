@@ -1,9 +1,9 @@
 /**
- * Error codes for identifying {@link HitomiError}.
+ * Codes for identifying an error.
  *
- * @readonly
  * @enum {string}
- * @see {@link HitomiError.code}
+ * @readonly
+ * @see {@link HitomiError}
  */
 export enum ErrorCode {
 	InvalidArgument = 'INVALID_ARGUMENT',
@@ -44,6 +44,13 @@ export class HitomiError extends Error {
 		return new HitomiError(ErrorCode['UnexpectedResponseBody'], 'Image context', 'parsable');
 	}
 
+	/**
+	 * The code for identifying an error.
+	 *
+	 * @type {ErrorCode}
+	 * @readonly
+	 * @see {@link ErrorCode}
+	 */
 	public readonly code: ErrorCode;
 
 	// @internal
