@@ -53,7 +53,7 @@ export enum NameInitial {
  */
 export class TagManager extends Base {
 	// @internal
-	private static readonly NAME_INITIALS: Set<NameInitial> = new Set<NameInitial>(Object.values(NameInitial));
+	private static readonly NAME_INITIALS: Set<NameInitial> = new Set<NameInitial>(Object.values<NameInitial>(NameInitial));
 
 	// @internal
 	constructor(hitomi: Hitomi) {

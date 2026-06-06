@@ -6,7 +6,7 @@ export function defineProperties<T>(target: T, properties: Record<string, unknow
 		};
 	}
 
-	Object.defineProperties(target, properties as PropertyDescriptorMap);
+	Object.defineProperties<T>(target, properties as PropertyDescriptorMap);
 }
 
 // @internal

@@ -21,7 +21,7 @@ export enum ErrorCode {
 export class HitomiError extends Error {
 	// @internal
 	public static invalidMember<T>(name: string, iteratable: Iterable<T>): HitomiError {
-		return new HitomiError(ErrorCode['InvalidArgument'], name, 'one of ' + (iteratable[Symbol['iterator']] ? Array.from(iteratable) : Object.values(iteratable)).join(', '));
+		return new HitomiError(ErrorCode['InvalidArgument'], name, 'one of ' + (iteratable[Symbol['iterator']] ? Array.from<T>(iteratable) : Object.values(iteratable)).join(', '));
 	}
 
 	// @internal
