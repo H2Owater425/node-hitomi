@@ -95,7 +95,6 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 	});
 }
 
-// To match return value with browser hash function implementation
 // @internal
 export function hash(text: string): Promise<Uint8Array> {
 	return Promise.resolve(createHash('sha256').update(text).digest().subarray(0, 4));
