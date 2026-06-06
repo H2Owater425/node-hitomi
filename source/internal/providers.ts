@@ -3,7 +3,6 @@ import type { Hitomi } from '../hitomi';
 import { ErrorCode, HitomiError } from '../structures/error';
 import { Base } from './base';
 import { RESOURCE_DOMAIN } from './constants';
-import { compareBuffers } from './functions';
 import type { Node } from './types';
 
 // @internal
@@ -40,6 +39,23 @@ export class Provider<T> extends Base {
 
 // @internal
 export class IndexProvider extends Provider<string> {
+	// @internal - Reference compare_arraybuffers in search.js
+	private static compareBuffers(a: Uint8Array, b: Uint8Array): number {
+		const length: number = a['byteLength'] < b['byteLength'] ? a['byteLength'] : b['byteLength'];
+
+		for(let i: number = 0; i < length; i++) {
+			if(a[i] < b[i]) {
+				return -1;
+			}
+
+			if(a[i] > b[i]) {
+				return 1;
+			}
+		}
+
+		return 0;
+	}
+
 	constructor(
 		hitomi: Hitomi,
 		private field: 'galleries' | 'languages'
@@ -56,7 +72,7 @@ export class IndexProvider extends Provider<string> {
 			return;
 		}
 
-		// decode_node in search.js
+		// Reference decode_node in search.js
 		const node: Node = [[], [], []];
 		const keyCount: number = view.getInt32(0);
 		let offset: number = 4;
@@ -66,7 +82,7 @@ export class IndexProvider extends Provider<string> {
 			const keySize: number = view.getInt32(offset);
 
 			if(keySize < 1 || keySize > 31) {
-				throw new HitomiError(ErrorCode['UnexpectedResourceFormat'], 'KeySize', 'between 1 and 31');
+				throw new HitomiError(ErrorCode['UnexpectedResponseBody'], 'KeySize', 'between 1 and 31');
 			}
 
 			node[0].push(new Uint8Array(view['buffer'], view['byteOffset'] + (offset += 4), keySize));
@@ -102,7 +118,7 @@ export class IndexProvider extends Provider<string> {
 		let index: number = 0;
 
 		while(index < node[0]['length'] &&
-			(compareResult = compareBuffers(key, node[0][index])) === 1) {
+			(compareResult = IndexProvider.compareBuffers(key, node[0][index])) === 1) {
 			index++;
 		}
 

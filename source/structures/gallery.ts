@@ -4,7 +4,7 @@ import { Language, type Tag } from './tag';
 import { Base } from '../internal/base';
 
 /**
- * A title associated with a {@link Gallery}.
+ * A title associated with a gallery.
  *
  * @see {@link Gallery}
  */
@@ -51,9 +51,10 @@ export class GalleryReference extends Base {
 	}
 
 	/**
-	 * Retrieves the full {@link Gallery} for this reference.
+	 * Retrieves the full gallery for this reference.
 	 *
-	 * @returns {Promise<Gallery>} A `Promise` that resolves to the full {@link Gallery}.
+	 * @returns {Promise<Gallery>} A `Promise` that resolves to the full gallery.
+	 * @see {@link Gallery}
 	 */
 	public retrieve(): Promise<Gallery> {
 		return this['hitomi']['galleries'].retrieve(this['id']);
@@ -63,6 +64,7 @@ export class GalleryReference extends Base {
 /**
  * A translated gallery reference for a specific language.
  *
+ * @extends {Gallery}
  * @see {@link Gallery}
  */
 export class TranslatedGallery extends GalleryReference {
@@ -75,6 +77,7 @@ export class TranslatedGallery extends GalleryReference {
 		 *
 		 * @type {Language | null}
 		 * @readonly
+		 * @see {@link Language}
 		 */
 		public readonly language: Language | null,
 		/**
@@ -92,9 +95,20 @@ export class TranslatedGallery extends GalleryReference {
 /**
  * A complete gallery including metadata, media files, and relationships.
  *
+ * @extends {TranslatedGallery}
  * @see {@link GalleryManager}
  */
 export class Gallery extends TranslatedGallery {
+	// @internal
+	public static readonly TYPES: Set<Gallery['type']> = new Set<Gallery['type']>([
+		'doujinshi',
+		'manga',
+		'artistcg',
+		'gamecg',
+		'imageset',
+		'anime'
+	]);
+
 	// @internal
 	constructor(
 		hitomi: Hitomi,
@@ -106,6 +120,7 @@ export class Gallery extends TranslatedGallery {
 		 *
 		 * @type {Title}
 		 * @readonly
+		 * @see {@link Title}
 		 */
 		public readonly title: Title,
 		/**
@@ -118,57 +133,65 @@ export class Gallery extends TranslatedGallery {
 		/**
 		 * Artist tags associated with the gallery.
 		 *
-		 * @type {readonly Tag[]}
+		 * @type {Tag[]}
 		 * @readonly
+		 * @see {@link Tag}
 		 */
 		public readonly artists: readonly Tag[],
 		/**
 		 * Group tags associated with the gallery.
 		 *
-		 * @type {readonly Tag[]}
+		 * @type {Tag[]}
 		 * @readonly
+		 * @see {@link Tag}
 		 */
 		public readonly groups: readonly Tag[],
 		/**
 		 * Series (parody) tags associated with the gallery.
 		 *
-		 * @type {readonly Tag[]}
+		 * @type {Tag[]}
 		 * @readonly
+		 * @see {@link Tag}
 		 */
 		public readonly series: readonly Tag[],
 		/**
 		 * Character tags associated with the gallery.
 		 *
-		 * @type {readonly Tag[]}
+		 * @type {Tag[]}
 		 * @readonly
+		 * @see {@link Tag}
 		 */
 		public readonly characters: readonly Tag[],
 		/**
 		 * General, male, and female tags associated with the gallery.
 		 *
-		 * @type {readonly Tag[]}
+		 * @type {Tag[]}
 		 * @readonly
+		 * @see {@link Tag}
 		 */
 		public readonly tags: readonly Tag[],
 		/**
 		 * The image files in the gallery.
 		 *
-		 * @type {readonly Image[]}
+		 * @type {Image[]}
 		 * @readonly
+		 * @see {@link Image}
 		 */
 		public readonly files: readonly Image[],
 		/**
 		 * Available translations in other languages.
 		 *
-		 * @type {readonly TranslatedGallery[]}
+		 * @type {TranslatedGallery[]}
 		 * @readonly
+		 * @see {@link TranslatedGallery}
 		 */
 		public readonly translations: readonly TranslatedGallery[],
 		/**
 		 * References to related galleries.
 		 *
-		 * @type {readonly GalleryReference[]}
+		 * @type {GalleryReference[]}
 		 * @readonly
+		 * @see {@link GalleryReference}
 		 */
 		public readonly relations: readonly GalleryReference[],
 		/**
@@ -197,6 +220,7 @@ export class Gallery extends TranslatedGallery {
 		 *
 		 * @type {Video | null}
 		 * @readonly
+		 * @see {@link Video}
 		 */
 		public readonly video: Video | null = null
 	) {
@@ -207,6 +231,7 @@ export class Gallery extends TranslatedGallery {
 	 * Returns a pair of representative thumbnail images.
 	 *
 	 * @returns {[Image, Image]} A tuple of the first and middle images from the gallery.
+	 * @see {@link Image}
 	 */
 	public getThumbnails(): [Image, Image] {
 		return [this['files'][0], this['files'][Math.floor(this['files']['length'] / 2)]]

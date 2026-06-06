@@ -1,18 +1,19 @@
 import { ResponseType } from '@platform';
 import { ErrorCode, HitomiError } from '../structures/error';
 import type { Hitomi } from '../hitomi';
-import { TAG_TYPES, TAG_INDEX_DOMAIN, GALLERY_TYPES, LANGUAGE_NAMES, FRONT_DOMAIN } from '../internal/constants';
+import { TAG_INDEX_DOMAIN, FRONT_DOMAIN } from '../internal/constants';
 import { Base } from '../internal/base';
-import { Tag } from '../structures/tag';
+import { Language, Tag } from '../structures/tag';
+import { Gallery } from '../structures/gallery';
 
 /**
  * Initial character filters for listing tags.
  *
- * @readonly
  * @enum {string}
+ * @readonly
  * @see {@link TagManager.list}
  */
-export const enum NameInitial {
+export enum NameInitial {
 	A = 'a',
 	B = 'b',
 	C = 'c',
@@ -52,20 +53,24 @@ export const enum NameInitial {
  */
 export class TagManager extends Base {
 	// @internal
+	private static readonly NAME_INITIALS: Set<NameInitial> = new Set<NameInitial>(Object.values<NameInitial>(NameInitial));
+
+	// @internal
 	constructor(hitomi: Hitomi) {
 		super(hitomi);
 	}
 
 	/**
-	 * Creates a new {@link Tag} from the given type and name.
+	 * Creates a new tag from the given type and name.
 	 *
 	 * The same name constraints as {@link Tag.prototype.name | Tag.name} apply.
 	 *
 	 * @param {Tag['type']} type The tag type.
 	 * @param {Tag['name']} name The tag name.
 	 * @param {boolean} [isNegative=false] Whether to create a negative tag.
-	 * @returns {Tag} A new {@link Tag}.
+	 * @returns {Tag} A new tag.
 	 * @throws {HitomiError} If `type` or `name` is invalid.
+	 * @see {@link Tag}
 	 */
 	public create(type: Tag['type'], name: Tag['name'], isNegative: boolean = false): Tag {
 		if(!name['length']) {
@@ -84,6 +89,7 @@ export class TagManager extends Base {
 	 *
 	 * @param {string} expression A space-separated tag expression string.
 	 * @returns {Tag[]} An array of parsed tags.
+	 * @see {@link Tag}
 	 */
 	public parse(expression: string): Tag[] {
 		expression = expression.trim() + ' ';
@@ -121,11 +127,12 @@ export class TagManager extends Base {
 	/**
 	 * Searches for tags matching the given term.
 	 *
-	 * Returns each matching {@link Tag} paired with its gallery count.
+	 * Returns each matching tag paired with its gallery count.
 	 *
 	 * @param {string} term The search term, optionally prefixed with a tag type and colon (e.g. `"artist:name"`).
 	 * @returns {Promise<[Tag, number][]>} A `Promise` that resolves to an array of `[Tag, count]` tuples.
 	 * @throws {HitomiError} If the specified tag type is invalid.
+	 * @see {@link Tag}
 	 */
 	public async search(term: string): Promise<[Tag, number][]> {
 		const isNegative: boolean = term[0] === '-';
@@ -135,8 +142,8 @@ export class TagManager extends Base {
 		if(i) {
 			const type: Tag['type'] = term.slice(isNegative as unknown as number, i - 1) as Tag['type'];
 
-			if(!TAG_TYPES.has(type)) {
-				throw HitomiError['InvalidTagType'];
+			if(!Tag['TYPES'].has(type)) {
+				throw HitomiError.invalidMember('Type', Tag['TYPES']);
 			}
 
 			path = '/' + type;
@@ -172,6 +179,7 @@ export class TagManager extends Base {
 	 * @param {NameInitial} [startsWith] The initial character filter. Required for all types except `'language'` and `'type'`.
 	 * @returns {Promise<Tag[]>} A `Promise` that resolves to an array of tags.
 	 * @throws {HitomiError} If `startsWith` is missing for types that require it, or if `type` is invalid.
+	 * @see {@link Tag}
 	 */
 	public async list(type: Tag['type'], startsWith?: NameInitial): Promise<Tag[]> {
 		const tags: Tag[] = [];
@@ -179,11 +187,11 @@ export class TagManager extends Base {
 
 		switch(type) {
 			case 'type': {
-				names = GALLERY_TYPES;
+				names = Gallery['TYPES'];
 			}
 			case 'language': {
 				if(!names) {
-					names = LANGUAGE_NAMES;
+					names = Language['NAMES'];
 				}
 
 				for(const name of names) {
@@ -195,7 +203,11 @@ export class TagManager extends Base {
 
 			default: {
 				if(!startsWith) {
-					throw new HitomiError(ErrorCode['InvalidArgument'], 'StartsWith', 'provided except for language and type');
+					throw new HitomiError(ErrorCode['InvalidCombination'], 'StartsWith', 'provided except for language and type');
+				}
+
+				if(!TagManager['NAME_INITIALS'].has(startsWith)) {
+					throw HitomiError.invalidMember('StartsWith', TagManager['NAME_INITIALS']);
 				}
 
 				// createTagUrn
@@ -228,7 +240,7 @@ export class TagManager extends Base {
 					}
 
 					default: {
-						throw HitomiError['InvalidTagType'];
+						throw HitomiError.invalidMember('Type', Tag['TYPES']);
 					}
 				}
 

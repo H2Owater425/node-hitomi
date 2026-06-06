@@ -10,10 +10,10 @@ import { ResponseType } from '@platform';
 /**
  * Supported image file formats.
  *
- * @readonly
  * @enum {string}
+ * @readonly
  */
-export const enum Extension {
+export enum Extension {
 	Avif = 'avif',
 	Webp = 'webp',
 	Jxl = 'jxl'
@@ -22,10 +22,10 @@ export const enum Extension {
 /**
  * Available thumbnail size presets.
  *
- * @readonly
  * @enum {string}
+ * @readonly
  */
-export const enum ThumbnailSize {
+export enum ThumbnailSize {
 	Small = 'small',
 	Medium = 'smallbig',
 	Big = 'big'
@@ -69,7 +69,7 @@ abstract class Media extends Base {
 }
 
 /**
- * An image file belonging to a {@link Gallery}.
+ * An image file belonging to a gallery.
  *
  * @see {@link Gallery}
  */
@@ -143,6 +143,8 @@ export class Image extends Media {
 	 * @param {ThumbnailSize} [thumbnailSize] The thumbnail size preset. Omit for a full-size image URL.
 	 * @returns {Promise<string>} A `Promise` that resolves to the image URL.
 	 * @throws {HitomiError} If the `extension` and `thumbnailSize` combination is invalid.
+	 * @see {@link Extension}
+	 * @see {@link ThumbnailSize}
 	 * @see {@link Image.hasAvif}
 	 * @see {@link Image.hasWebp}
 	 * @see {@link Image.hasJxl}
@@ -151,7 +153,7 @@ export class Image extends Media {
 	public async resolveUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
 		// @ts-expect-error - Typescript internal error
 		if(!extension || !this['has' + capitalize(extension)]) {
-			throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'Extension', 'supported');
+			throw new HitomiError(ErrorCode['InvalidCombination'], 'Extension', 'supported');
 		}
 
 		let subdomain: string;
@@ -161,25 +163,25 @@ export class Image extends Media {
 			let member: string = 'Big';
 
 			switch(thumbnailSize) {
-				case 'smallbig': {
-					if(extension !== 'avif') {
-						throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'ThumbnailSize.Medium', 'used only with avif');
+				case ThumbnailSize['Medium']: {
+					if(extension !== Extension['Avif']) {
+						throw new HitomiError(ErrorCode['InvalidCombination'], 'ThumbnailSize.Medium', 'used only with avif');
 					}
 
 					member = 'Medium';
 				}
-				case 'big': {
+				case ThumbnailSize['Big']: {
 					if(!this['hasThumbnail']) {
-						throw new HitomiError(ErrorCode['UnsupportedMediaVariant'], 'ThumbnailSize.' + member, 'used only with image that has thumbnail');
+						throw new HitomiError(ErrorCode['InvalidCombination'], 'ThumbnailSize.' + member, 'used only with image that has thumbnail');
 					}
 				}
-				case 'small': {
+				case ThumbnailSize['Small']: {
 					break;
 				}
 
 				default: {
 					// @ts-expect-error
-					throw HitomiError.InvalidMember('ThumbnailSize', ThumbnailSize);
+					throw HitomiError.invalidMember('ThumbnailSize', ThumbnailSize);
 				}
 			}
 
@@ -205,6 +207,8 @@ export class Image extends Media {
 	 * @param {ThumbnailSize} [thumbnailSize] The thumbnail size preset. Omit for a full-size image.
 	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the image as a `Uint8Array`.
 	 * @throws {HitomiError} If the `extension` and `thumbnailSize` combination is invalid.
+	 * @see {@link Extension}
+	 * @see {@link ThumbnailSize}
 	 */
 	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Uint8Array> {
 		return super.request(await this.resolveUrl(extension, thumbnailSize));
@@ -212,7 +216,7 @@ export class Image extends Media {
 }
 
 /**
- * A video file belonging to a {@link Gallery}.
+ * A video file belonging to a gallery.
  *
  * @see {@link Gallery}
  */

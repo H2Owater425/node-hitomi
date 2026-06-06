@@ -1,14 +1,14 @@
 import type { ImageContext } from './internal/types';
 import { GalleryManager } from './managers/gallery';
 import { TagManager } from './managers/tag';
-import { DEFAULT_HEADERS, RESOURCE_DOMAIN, MAXIMUM_AGE_PROPERTIES } from './internal/constants';
-import { defineProperties, capitalize } from './internal/functions';
-import { Provider, IndexProvider } from './internal/provider';
+import { DEFAULT_HEADERS, RESOURCE_DOMAIN } from './internal/constants';
+import { defineProperties } from './internal/functions';
+import { Provider, IndexProvider } from './internal/providers';
 import { ErrorCode, HitomiError } from './structures/error';
 import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
 
 /**
- * Options for creating a {@link Hitomi} client.
+ * Options for creating a hitomi client.
  *
  * @template T The platform-specific request options type.
  * @see {@link Hitomi}
@@ -56,6 +56,7 @@ export class Hitomi {
 	 *
 	 * @type {GalleryManager}
 	 * @readonly
+	 * @see {@link GalleryManager}
 	 */
 	public readonly galleries: GalleryManager;
 	/**
@@ -63,6 +64,7 @@ export class Hitomi {
 	 *
 	 * @type {TagManager}
 	 * @readonly
+	 * @see {@link TagManager}
 	 */
 	public readonly tags: TagManager;
 
@@ -82,6 +84,23 @@ export class Hitomi {
 	// @internal
 	public readonly imageContext!: Provider<ImageContext>;
 
+	// @internal
+	private static getMaximumAge(options: HitomiOptions, key: 'indexMaximumAge' | 'imageContextMaximumAge', defaultValue: number): number {
+		if(options[key] === 0) {
+			return 0;
+		}
+
+		if(!options[key]) {
+			return defaultValue;
+		}
+
+		if(!Number.isInteger(options[key]) || options[key] < 0) {
+			throw new HitomiError(ErrorCode['InvalidArgument'], 'Options.' + key, 'a non-negative integer');
+		}
+
+		return options[key];
+	}
+
 	/**
 	 * Creates a new Hitomi client.
 	 *
@@ -89,26 +108,19 @@ export class Hitomi {
 	 * @throws {HitomiError} If `options.indexMaximumAge` or `options.imageContextMaximumAge` is provided as a negative integer.
 	 */
 	constructor(options: HitomiOptions = {}) {
-		for(let i: number = 0; i < MAXIMUM_AGE_PROPERTIES['length']; i++) {
-			if(options[MAXIMUM_AGE_PROPERTIES[i]] && (!Number.isInteger(options[MAXIMUM_AGE_PROPERTIES[i]]) || options[MAXIMUM_AGE_PROPERTIES[i]] as number < 0)) {
-				throw new HitomiError(ErrorCode['InvalidArgument'], capitalize(MAXIMUM_AGE_PROPERTIES[i]), 'a non-negative integer');
-			}
-		}
-
 		// Options might be modified
-		const optionsAgent: unknown | undefined = options['agent']; // TODO: Remove in v10
-		const optionsRequest: RequestFunction | undefined = options['request'];
-		const optionsOnRequest: OnRequestFunction | undefined = optionsAgent ? function (context: RequestContext): RequestContext {
-			// @ts-ignore
-			context['options']['agent'] = optionsAgent;
+		options = Object.assign<{}, HitomiOptions>({}, options);
+		options.onRequest = options['agent'] ? function (context: RequestContext): RequestContext {
+			// @ts-ignore - Can not use https.RequestOptions as generic
+			context['options']['agent'] = options['agent'];
 
 			return context;
-		} : options['onRequest'];
-		const optionsHash: HashFunction | undefined = options['hash'];
+		} : options.onRequest;
 
 		defineProperties(this, {
-			request: optionsRequest ? async function (host: string, path: string, type: ResponseType, range?: string): Promise<Uint8Array | DataView | string | unknown> {
-				const buffer: Uint8Array = await optionsRequest(host, path, Object.assign<Record<string, string>, Record<string, string>>(range ? {
+			request: options.request ? async function (host: string, path: string, type: ResponseType, range?: string): Promise<Uint8Array | DataView | string | unknown> {
+				// @ts-expect-error - Typescript internal error
+				const buffer: Uint8Array = await options.request(host, path, Object.assign<Record<string, string>, Record<string, string>>(range ? {
 					range: 'bytes=' + range
 				} : {
 					'accept-encoding': 'gzip'
@@ -132,11 +144,12 @@ export class Hitomi {
 					}
 				}
 			} : request.bind(this),
-			onRequest: optionsOnRequest || function (): void {},
-			hash: optionsHash ? async function (data: string): Promise<Uint8Array> {
-				return (await optionsHash(data)).subarray(0, 4);
+			onRequest: options.onRequest || function (): void {},
+			hash: options.hash ? async function (data: string): Promise<Uint8Array> {
+				// @ts-expect-error - Typescript internal error
+				return (await options.hash(data)).subarray(0, 4);
 			} : hash,
-			indexMaximumAge: options['indexMaximumAge'] || options['indexMaximumAge'] === 0 ? options['indexMaximumAge'] : 600000
+			indexMaximumAge: Hitomi.getMaximumAge(options, 'indexMaximumAge', 600000)
 		});
 
 		this['galleries'] = new GalleryManager(this);
@@ -159,7 +172,7 @@ export class Hitomi {
 					const subdomainCode: number = +response.slice(currentIndex, nextIndex);
 
 					if(!Number.isInteger(subdomainCode)) {
-						throw HitomiError['UnparsableImageContext'];
+						throw HitomiError['unparsableImageContext'];
 					}
 
 					context[0].add(subdomainCode);
@@ -168,7 +181,7 @@ export class Hitomi {
 				}
 
 				if(!context[0]['size']) {
-					throw HitomiError['UnparsableImageContext'];
+					throw HitomiError['unparsableImageContext'];
 				}
 
 				currentIndex = response.indexOf('var o = ') + 8;
@@ -176,7 +189,7 @@ export class Hitomi {
 				const rawIsSuffix1: number = +response.slice(currentIndex, response.indexOf(';', currentIndex));
 
 				if(!Number.isInteger(rawIsSuffix1)) {
-					throw HitomiError['UnparsableImageContext'];
+					throw HitomiError['unparsableImageContext'];
 				}
 
 				context[1] = !rawIsSuffix1;
@@ -184,17 +197,17 @@ export class Hitomi {
 				currentIndex = response.lastIndexOf('b: \'') + 4;
 
 				if(currentIndex === 3) {
-					throw HitomiError['UnparsableImageContext'];
+					throw HitomiError['unparsableImageContext'];
 				}
 
 				context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
 
 				if(!context[2]['length']) {
-					throw HitomiError['UnparsableImageContext'];
+					throw HitomiError['unparsableImageContext'];
 				}
 
 				return context;
-			}, options['imageContextMaximumAge'] || options['imageContextMaximumAge'] === 0 ? options['imageContextMaximumAge'] : 3600000)
+			}, Hitomi.getMaximumAge(options, 'imageContextMaximumAge', 3600000))
 		});
 	}
 }

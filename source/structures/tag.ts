@@ -1,16 +1,64 @@
 import type { Hitomi } from '../hitomi';
 import { Base } from '../internal/base';
 import { HitomiError } from './error';
-import { BINARY_ORDERED_LANGUAGES, GALLERY_TYPES, LANGUAGE_NAMES } from '../internal/constants';
 import type { Node } from '../internal/types';
-import type { Gallery } from './gallery';
+import { Gallery } from './gallery';
 
 /**
- * A language associated with a {@link Gallery}.
+ * A language associated with a gallery.
  *
  * @see {@link Gallery}
  */
 export class Language extends Base {
+	// @internal - Binary ordered name and localName
+	public static readonly ORDERED: readonly [string, string][] = [
+		['indonesian', 'Bahasa Indonesia'],
+		['javanese', 'Basa Jawa'],
+		['catalan', 'Català'],
+		['cebuano', 'Cebuano'],
+		['czech', 'Čeština'],
+		['danish', 'Dansk'],
+		['german', 'Deutsch'],
+		['estonian', 'Eesti'],
+		['english', 'English'],
+		['spanish', 'Español'],
+		['esperanto', 'Esperanto'],
+		['french', 'Français'],
+		['hindi', 'Hindi'],
+		['icelandic', 'Íslenska'],
+		['italian', 'Italiano'],
+		['latin', 'Latina'],
+		['hungarian', 'Magyar'],
+		['dutch', 'Nederlands'],
+		['norwegian', 'Norsk'],
+		['polish', 'Polski'],
+		['portuguese', 'Português'],
+		['romanian', 'Română'],
+		['albanian', 'Shqip'],
+		['slovak', 'Slovenčina'],
+		['serbian', 'Srpski'],
+		['finnish', 'Suomi'],
+		['swedish', 'Svenska'],
+		['tagalog', 'Tagalog'],
+		['vietnamese', 'Tiếng Việt'],
+		['turkish', 'Türkçe'],
+		['greek', 'Ελληνικά'],
+		['bulgarian', 'Български'],
+		['mongolian', 'Монгол'],
+		['russian', 'Русский'],
+		['ukrainian', 'Українська'],
+		['hebrew', 'עברית'],
+		['arabic', 'العربية'],
+		['persian', 'فارسی'],
+		['thai', 'ไทย'],
+		['burmese', 'မြန်မာဘာသာ'],
+		['korean', '한국어'],
+		['chinese', '中文'],
+		['japanese', '日本語']
+	];
+	// @internal
+	public static readonly NAMES: Set<string> = new Set<string>();
+
 	/**
 	 * The URL path for browsing galleries filtered by this language.
 	 *
@@ -43,14 +91,19 @@ export class Language extends Base {
 	}
 
 	/**
-	 * Converts this language into a {@link Tag} of type `'language'`.
+	 * Converts this language into a tag of type `'language'`.
 	 *
 	 * @param {boolean} [isNegative=false] Whether to create a negative tag.
-	 * @returns {Tag} A new {@link Tag}.
+	 * @returns {Tag} A new tag.
+	 * @see {@link Tag}
 	 */
 	public toTag(isNegative: boolean = false): Tag {
 		return new Tag(this['hitomi'], 'language', this['name'], isNegative);
 	}
+}
+
+for(let i: number = 0; i < Language['ORDERED']['length']; i++) {
+	Language['NAMES'].add(Language['ORDERED'][i][0]);
 }
 
 /**
@@ -60,6 +113,32 @@ export class Language extends Base {
  * @see {@link TagManager}
  */
 export class Tag extends Base {
+	// @internal
+	public static readonly TYPES: Set<Tag['type']> = new Set<Tag['type']>([
+		'artist',
+		'group',
+		'type',
+		'language',
+		'series',
+		'character',
+		'male',
+		'female',
+		'tag'
+	]);
+
+	// @internal
+	public static compare(a: Tag, b: Tag): number {
+		if(!(a instanceof Tag)) {
+			return b instanceof Tag ? 1 : 0;
+		}
+
+		if(!(b instanceof Tag)) {
+			return -1;
+		}
+
+		return (a['isNegative'] as unknown as number) - (b['isNegative'] as unknown as number);
+	}
+
 	/**
 	 * The URL path for browsing galleries matching this tag.
 	 *
@@ -106,8 +185,8 @@ export class Tag extends Base {
 			}
 
 			case 'type': {
-				if(!GALLERY_TYPES.has(name as Gallery['type'])) {
-					throw HitomiError.InvalidMember('Name', GALLERY_TYPES);
+				if(!Gallery['TYPES'].has(name as Gallery['type'])) {
+					throw HitomiError.invalidMember('Name', Gallery['TYPES']);
 				}
 			}
 			case 'artist':
@@ -121,8 +200,8 @@ export class Tag extends Base {
 			}
 
 			case 'language': {
-				if(!LANGUAGE_NAMES.has(name)) {
-					throw HitomiError.InvalidMember('Name', LANGUAGE_NAMES);
+				if(!Language['NAMES'].has(name)) {
+					throw HitomiError.invalidMember('Name', Language['NAMES']);
 				}
 
 				this['url'] = '/index-' + name + '.html';
@@ -131,7 +210,7 @@ export class Tag extends Base {
 			}
 
 			default: {
-				throw HitomiError['InvalidTagType'];
+				throw HitomiError.invalidMember('Type', Tag['TYPES']);
 			}
 		}
 
@@ -142,6 +221,7 @@ export class Tag extends Base {
 	 * Lists the available languages for galleries matching this tag.
 	 *
 	 * @returns {Promise<Language[]>} A `Promise` that resolves to an array of languages.
+	 * @see {@link Language}
 	 */
 	public async listLanguages(): Promise<Language[]> {
 		const languages: Language[] = [];
@@ -157,13 +237,13 @@ export class Tag extends Base {
 			}
 
 			case 'language': {
-				for(; i < BINARY_ORDERED_LANGUAGES['length']; i++) {
-					if(this['name'] === BINARY_ORDERED_LANGUAGES[i][0]) {
-						return [new Language(this['hitomi'], BINARY_ORDERED_LANGUAGES[i][0], BINARY_ORDERED_LANGUAGES[i][1])];
+				for(; i < Language['ORDERED']['length']; i++) {
+					if(this['name'] === Language['ORDERED'][i][0]) {
+						return [new Language(this['hitomi'], Language['ORDERED'][i][0], Language['ORDERED'][i][1])];
 					}
 				}
 
-				throw HitomiError['InvalidTagName'];
+				throw HitomiError['invalidTagName'];
 			}
 
 			default: {
@@ -175,19 +255,18 @@ export class Tag extends Base {
 		const rootNode: Node | undefined = await this['hitomi']['languageIndex'].getNodeAtAddress(0n, version);
 
 		if(!rootNode) {
-			throw HitomiError['EmptyRootNode'];
+			throw HitomiError['emptyRootNode'];
 		}
 
 		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(await this['hitomi'].hash(term), rootNode, version);
 
 		if(!data) {
-			throw HitomiError['InvalidTagName'];
+			throw HitomiError['invalidTagName'];
 		}
 
-		for(let mask: bigint = 1n; i < BINARY_ORDERED_LANGUAGES['length']; i++, mask <<= 1n) {
+		for(let mask: bigint = 1n; i < Language['ORDERED']['length']; i++, mask <<= 1n) {
 			if(data[0] & mask) {
-				// @ts-expect-error
-				languages.push(new Language(this['hitomi'], ...BINARY_ORDERED_LANGUAGES[i]));
+				languages.push(new Language(this['hitomi'], ...Language['ORDERED'][i]));
 			}
 		}
 
