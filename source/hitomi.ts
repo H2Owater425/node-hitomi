@@ -86,7 +86,11 @@ export class Hitomi {
 
 	// @internal
 	private static getMaximumAge(options: HitomiOptions, key: 'indexMaximumAge' | 'imageContextMaximumAge', defaultValue: number): number {
-		if(!options[key] || options[key] === 0) {
+		if(options[key] === 0) {
+			return 0;
+		}
+
+		if(!options[key]) {
 			return defaultValue;
 		}
 
