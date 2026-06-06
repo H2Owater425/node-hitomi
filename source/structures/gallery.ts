@@ -2,6 +2,7 @@ import type { Hitomi } from '../hitomi';
 import { Image, Video } from './media';
 import { Language, type Tag } from './tag';
 import { Base } from '../internal/base';
+import type { GalleryManager } from '../managers/gallery';
 
 /**
  * A title associated with a gallery.

@@ -3,6 +3,7 @@ import { Base } from '../internal/base';
 import { HitomiError } from './error';
 import type { Node } from '../internal/types';
 import { Gallery } from './gallery';
+import type { TagManager } from '../managers/tag';
 
 /**
  * A language associated with a gallery.
