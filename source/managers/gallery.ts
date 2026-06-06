@@ -242,8 +242,8 @@ export class GalleryManager extends Base {
 	}
 
 	// @internal
-	private async requestIds(url: [string, string], range?: string, isNegative: boolean = false): Promise<Set<Gallery['id']>> {
-		const view: DataView = await this['hitomi'].request(url[0], url[1], ResponseType['VIEW'], range);
+	private async requestIds(path: string, range?: string, isNegative: boolean = false): Promise<Set<Gallery['id']>> {
+		const view: DataView = await this['hitomi'].request(RESOURCE_DOMAIN, path, ResponseType['VIEW'], range);
 		const ids: Set<Gallery['id']> = new Set<Gallery['id']>();
 
 		for(let i: number = 0; i < view['byteLength']; i += 4) {
@@ -259,11 +259,11 @@ export class GalleryManager extends Base {
 	}
 
 	// @internal
-	private static createNozomiUrl(options: {
+	private static createNozomiPath(options: {
 		tag?: Tag;
 		language?: string;
 		orderBy?: SortType;
-	} = {}): [string, string] {
+	} = {}): string {
 		const language: string = options['language'] || 'all';
 		let orderBy: string = '';
 
@@ -295,7 +295,7 @@ export class GalleryManager extends Base {
 		}
 
 		if(!options['tag'] || options['tag']['type'] === 'language') {
-			return [RESOURCE_DOMAIN, '/n/' + (orderBy || 'index') + '-' + language + '.nozomi'];
+			return '/n/' + (orderBy || 'index') + '-' + language + '.nozomi';
 		}
 
 		if(orderBy) {
@@ -318,7 +318,7 @@ export class GalleryManager extends Base {
 			}
 		}
 
-		return [RESOURCE_DOMAIN, '/n/' + area + orderBy + encodeURIComponent(options['tag']['name']) + '-' + language + '.nozomi'];
+		return '/n/' + area + orderBy + encodeURIComponent(options['tag']['name']) + '-' + language + '.nozomi';
 	}
 
 	// @internal
@@ -400,14 +400,14 @@ export class GalleryManager extends Base {
 					throw new HitomiError(ErrorCode['InvalidCombination'], 'Page', 'used with negative tag', false);
 				}
 
-				return this.createReferences(await this.requestIds(GalleryManager.createNozomiUrl({
+				return this.createReferences(await this.requestIds(GalleryManager.createNozomiPath({
 					tag: tags[+(tags[0]['type'] === 'language') /* selects non-language tag */],
 					orderBy: options['orderBy'],
 					language: language
 				}), range), isRandom);
 			}
 
-			idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
+			idSets.push(await this.requestIds(GalleryManager.createNozomiPath({
 				tag: tags[i++] /* if first tag is negative i becomes -1, therefore tags give undefined  */,
 				orderBy: options['orderBy'],
 				language: language
@@ -415,23 +415,23 @@ export class GalleryManager extends Base {
 
 			for(; i < tags['length']; i++) {
 				if(tags[i]['type'] !== 'language' || !language && tags[i]['isNegative']) {
-					idSets.push(await this.requestIds(GalleryManager.createNozomiUrl({
+					idSets.push(await this.requestIds(GalleryManager.createNozomiPath({
 						tag: tags[i],
 						language: language
 					}), undefined, tags[i]['isNegative']));
 				}
 			}
 		} else {
-			const url: [string, string] = GalleryManager.createNozomiUrl({
+			const path: string = GalleryManager.createNozomiPath({
 				orderBy: options['orderBy']
 			});
 
 			if(range) {
-				return this.createReferences(await this.requestIds(url, range), isRandom);
+				return this.createReferences(await this.requestIds(path, range), isRandom);
 			}
 
 			if(options['orderBy']) {
-				idSets.push(await this.requestIds(url));
+				idSets.push(await this.requestIds(path));
 			}
 		}
 
@@ -455,7 +455,7 @@ export class GalleryManager extends Base {
 						return [];
 					}
 
-					idSets.push(await this.requestIds([RESOURCE_DOMAIN, '/galleriesindex/galleries.' + version + '.data'], (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n)));
+					idSets.push(await this.requestIds('/galleriesindex/galleries.' + version + '.data', (data[0] + 4n) + '-' + (data[0] + BigInt(data[1]) - 1n)));
 				}
 
 				i = j + 1;
@@ -478,7 +478,7 @@ export class GalleryManager extends Base {
 				}
 			}
 		} else {
-			idSets.push(await this.requestIds(GalleryManager.createNozomiUrl()));
+			idSets.push(await this.requestIds(GalleryManager.createNozomiPath()));
 		}
 
 		return this.createReferences(idSets[0], isRandom);
