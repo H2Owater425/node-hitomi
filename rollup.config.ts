@@ -6,6 +6,13 @@ import type { Plugin, RollupOptions } from "rollup";
 import type { SourceFile, TransformationContext, Node, PropertyAssignment, Expression } from 'typescript';
 import { isEnumDeclaration, visitEachChild, NodeFlags, visitNode } from 'typescript';
 
+const CLASS_PATHS: Record<string, string> = {
+	'Hitomi': '../hitomi',
+	'Gallery': './gallery',
+	'GalleryManager': '../managers/gallery',
+	'TagManager': '../managers/tag',
+};
+
 function replace(type: 'cjs' | 'esm' | 'browser' | 'types'): Plugin {
 	const isTypes: boolean = type === 'types';
 
@@ -24,12 +31,10 @@ function replace(type: 'cjs' | 'esm' | 'browser' | 'types'): Plugin {
 				.replace(/^require\('\.\/platform\/node\.cjs'\);\n/gm, '')
 				.replace(/^import '\.\/platform\/node\.mjs';\n/gm, '');
 			} else {
-				if(code.includes('@link Hitomi') && !code.includes('class Hitomi') && !code.includes('\'./hitomi.js\'')) {
-					code = code.replace(/^$/m, 'import { Hitomi } from \'../hitomi.js\';\n');
-				}
-
-				if(code.includes('@link Gallery') && !code.includes('class Gallery') && !code.includes('\'./gallery.js\'')) {
-					code = code.replace(/^$/m, 'import { Gallery } from \'./gallery.js\';\n');
+				for(const _class in CLASS_PATHS) {
+					if(code.includes('{@link ' + _class + '}') && !code.includes('class ' + _class) && !(new RegExp('({ |, )' + _class + '( }|, )', 'g')).test(code)) {
+						code = code.replace(/^$/m, 'import { ' + _class + ' } from \'' + CLASS_PATHS[_class] + '.js\';\n');
+					}
 				}
 
 				code = code.replace(/^declare const enum /gm, 'declare enum ');
