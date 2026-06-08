@@ -155,8 +155,26 @@ export class TagManager extends Base {
 			path = '/global';
 		}
 
-		while(i < term['length'] && term[i] !== ':') {
-			path += '/' + term[i++];
+		for(; i < term['length'] && term[i] !== ':'; i++) {
+			path += '/'
+
+			switch(term[i]) {
+				case '.': {
+					path += 'dot';
+
+					break;
+				}
+
+				case '/': {
+					path += 'slash';
+
+					break;
+				}
+
+				default: {
+					path += term[i];
+				}
+			}
 		}
 
 		const response: [string, number, Tag['type']][] = await this['hitomi'].request(TAG_INDEX_DOMAIN, path + '.json', ResponseType['JSON']) as [string, number, Tag['type']][];
