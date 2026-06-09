@@ -216,7 +216,7 @@ export class Image extends Media {
 	 * @see {@link ThumbnailSize}
 	 */
 	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Uint8Array> {
-		return super.request(await this.resolveUrl(extension, thumbnailSize));
+		return this.request(await this.resolveUrl(extension, thumbnailSize));
 	}
 }
 
@@ -267,7 +267,7 @@ export class Video extends Media {
 	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the video as a `Uint8Array`.
 	 */
 	public fetch(): Promise<Uint8Array> {
-		return super.request(this['url']);
+		return this.request(this['url']);
 	}
 
 	/**
@@ -276,6 +276,6 @@ export class Video extends Media {
 	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the poster as a `Uint8Array`.
 	 */
 	public fetchPoster(): Promise<Uint8Array> {
-		return super.request(this['posterUrl']);
+		return this.request(this['posterUrl']);
 	}
 }
