@@ -237,6 +237,7 @@ export class GalleryManager extends Base {
 			Boolean(rawGallery['blocked']),
 			new Date(rawGallery['date']),
 			rawGallery['datepublished'] ? new Date(rawGallery['datepublished']) : null,
+			// Video gallery always have thumbnail and poster
 			rawGallery['videofilename'] ? new Video(this['hitomi'], files[1]['width'], files[1]['height'], rawGallery['videofilename'], files[1]['hash']) : null
 		);
 	}
@@ -377,9 +378,7 @@ export class GalleryManager extends Base {
 			// bring positive tags to front
 			const tags: Tag[] = options['tags'].slice().sort(Tag.compare);
 
-			if(tags[0]['isNegative']) {
-				i = -1;
-			} else {
+			if(!tags[0]['isNegative']) {
 				for(; i < tags['length'] && !tags[i]['isNegative']; i++) {
 					if(tags[i]['type'] === 'language') {
 						language = tags[i]['name'];
@@ -408,7 +407,7 @@ export class GalleryManager extends Base {
 			}
 
 			idSets.push(await this.requestIds(GalleryManager.createNozomiPath({
-				tag: tags[i++] /* if first tag is negative i becomes -1, therefore tags give undefined  */,
+				tag: tags[0]['isNegative'] ? undefined : tags[i++],
 				orderBy: options['orderBy'],
 				language: language
 			})));
