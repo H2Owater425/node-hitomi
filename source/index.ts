@@ -7,7 +7,7 @@ export { ErrorCode, HitomiError } from './structures/error';
 export { Title, GalleryReference, TranslatedGallery, Gallery } from './structures/gallery';
 export { Extension, ThumbnailSize, Image, Video } from './structures/media';
 export { Language, Tag } from './structures/tag';
-export { type RequestContext, type RequestFunction, type ComputeHashFunction, type OnRequestFunction, ResponseType } from '@platform';
+export { type RequestContext, type TransportFunction, type ComputeHashFunction, type OnRequestFunction, ResponseType } from '@platform';
 
 /**
  * A default hitomi client.

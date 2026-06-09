@@ -7,4 +7,4 @@ export type RequestCall = {
 	range: string | undefined;
 };
 
-export { ResponseType, RequestFunction } from '@/platform/shared';
+export { ResponseType, TransportFunction } from '@/platform/shared';

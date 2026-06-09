@@ -1,11 +1,11 @@
 import type { ImageContext } from './internal/types';
 import { GalleryManager } from './managers/gallery';
 import { TagManager } from './managers/tag';
-import { DEFAULT_HEADERS, RESOURCE_DOMAIN } from './internal/constants';
+import { RESOURCE_DOMAIN } from './internal/constants';
 import { defineProperties } from './internal/functions';
 import { Provider, IndexProvider } from './internal/providers';
 import { ErrorCode, HitomiError } from './structures/error';
-import { request, type RequestFunction, hashTerm, type ComputeHashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
+import { request, type TransportFunction, hashTerm, type ComputeHashFunction, ResponseType, toString, RequestContext, OnRequestFunction, createContext } from '@platform';
 
 /**
  * Options for creating a hitomi client.
@@ -22,9 +22,9 @@ export interface HitomiOptions<T = any> {
 	 */
 	agent?: unknown; // TODO: Remove in v10
 	/**
-	 * A custom function for making HTTPS requests.
+	 * A custom transport function for making HTTPS requests.
 	 */
-	request?: RequestFunction;
+	transport?: TransportFunction<T>;
 	/**
 	 * A hook function invoked before each HTTP request.
 	 */
@@ -164,20 +164,20 @@ export class Hitomi {
 		// Options might be modified
 		options = Object.assign<{}, HitomiOptions>({}, options);
 		options.onRequest = options['agent'] ? function (context: RequestContext): RequestContext {
-			// @ts-ignore - Can not use https.RequestOptions as generic
+			// @ts-expect-error - Can not use https.RequestOptions as generic
 			context['options']['agent'] = options['agent'];
 
 			return context;
 		} : options.onRequest;
 
 		defineProperties(this, {
-			request: options.request ? async function (host: string, path: string, type: ResponseType, range?: string): Promise<Uint8Array | DataView | string | unknown> {
+			request: options.transport ? async function (this: Hitomi, host: string, path: string, type: ResponseType, range?: string): Promise<Uint8Array | DataView | string | unknown> {
+				let context: RequestContext = createContext(host, path, type, range);
+
+				context = await this.onRequest(context) || context;
+
 				// @ts-expect-error - Typescript internal error
-				const buffer: Uint8Array = await options.request(host, path, Object.assign<Record<string, string>, Record<string, string>>(range ? {
-					range: 'bytes=' + range
-				} : {
-					'accept-encoding': 'gzip'
-				}, DEFAULT_HEADERS));
+				const buffer: Uint8Array = await options.transport(context);
 
 				switch(type) {
 					case ResponseType['BYTE']: {
