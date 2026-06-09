@@ -63,7 +63,7 @@ export type RequestFunction = (host: string, path: string, headers: Record<strin
  * @param {string} text The input string to hash.
  * @returns {Uint8Array | Promise<Uint8Array>} The hash digest as a `Uint8Array`, or a `Promise` that resolves to one.
  */
-export type HashFunction = (text: string) => Uint8Array | Promise<Uint8Array>;
+export type ComputeHashFunction = (text: string) => Uint8Array | Promise<Uint8Array>;
 
 /**
  * A hook function invoked before each HTTP request.

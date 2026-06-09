@@ -5,7 +5,7 @@ import { DEFAULT_HEADERS, RESOURCE_DOMAIN } from './internal/constants';
 import { defineProperties } from './internal/functions';
 import { Provider, IndexProvider } from './internal/providers';
 import { ErrorCode, HitomiError } from './structures/error';
-import { request, type RequestFunction, hash, type HashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
+import { request, type RequestFunction, hashTerm, type ComputeHashFunction, ResponseType, toString, RequestContext, OnRequestFunction } from '@platform';
 
 /**
  * Options for creating a hitomi client.
@@ -32,7 +32,7 @@ export interface HitomiOptions<T = any> {
 	/**
 	 * A custom function for computing SHA-256 hashes.
 	 */
-	hash?: HashFunction;
+	computeHash?: ComputeHashFunction;
 	/**
 	 * Maximum age in milliseconds, before the cached index version is refreshed.
 	 *
@@ -76,7 +76,7 @@ export class Hitomi {
 		((host: string, path: string, type: ResponseType.TEXT, range?: string) => Promise<string>) &
 		((host: string, path: string, type: ResponseType.JSON, range?: string) => Promise<unknown>);
 	// @internal
-	public hash!: HashFunction;
+	public hashTerm!: ComputeHashFunction;
 	// @internal
 	public readonly indexMaximumAge!: number;
 	// @internal
@@ -198,10 +198,10 @@ export class Hitomi {
 				}
 			} : request,
 			onRequest: options.onRequest || function (): void {},
-			hash: options.hash ? async function (data: string): Promise<Uint8Array> {
+			hashTerm: options.computeHash ? async function (text: string): Promise<Uint8Array> {
 				// @ts-expect-error - Typescript internal error
-				return (await options.hash(data)).subarray(0, 4);
-			} : hash,
+				return (await options.computeHash(text)).subarray(0, 4);
+			} : hashTerm,
 			indexMaximumAge: Hitomi.getMaximumAge(options, 'indexMaximumAge', 600000)
 		});
 

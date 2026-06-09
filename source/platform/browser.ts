@@ -56,7 +56,7 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 const encoder: TextEncoder = new TextEncoder();
 
 // @internal
-export async function hash(text: string): Promise<Uint8Array> {
+export async function hashTerm(text: string): Promise<Uint8Array> {
 	return new Uint8Array(await crypto['subtle'].digest('sha256', encoder.encode(text)), 0, 4);
 }
 

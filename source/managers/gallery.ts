@@ -448,7 +448,7 @@ export class GalleryManager extends Base {
 
 			while(j !== -1) {
 				if(j - i) {
-					const data: Node[1][number] | undefined = await this['index'].binarySearch(await this['hitomi'].hash(title.slice(i, j)), rootNode, version);
+					const data: Node[1][number] | undefined = await this['index'].binarySearch(await this['hitomi'].hashTerm(title.slice(i, j)), rootNode, version);
 
 					if(!data) {
 						return [];
