@@ -141,12 +141,16 @@ export class IndexProvider extends Provider<string> {
 			return;
 		}
 
-		const nextNode: Node | undefined = await this.getNodeAtAddress(node[2][index], version);
+		if(!node[2][index]) {
+			throw new HitomiError(ErrorCode['UnexpectedResponseBody'], 'SubnodeAddress', '0', false);
+		}
 
-		if(!nextNode) {
+		const subnode: Node | undefined = await this.getNodeAtAddress(node[2][index], version);
+
+		if(!subnode) {
 			return;
 		}
 
-		return this.binarySearch(key, nextNode, version);
+		return this.binarySearch(key, subnode, version);
 	}
 }
