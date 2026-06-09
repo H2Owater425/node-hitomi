@@ -8,6 +8,7 @@
 
 [![npm version](https://img.shields.io/npm/v/node-hitomi?style=flat-square)](https://npmjs.org/package/node-hitomi)
 [![npm type definition](https://img.shields.io/npm/types/node-hitomi?style=flat-square)](https://npmjs.org/package/node-hitomi)
+[![ci status](https://img.shields.io/github/actions/workflow/status/H2Owater425/node-hitomi/continuous-integration.yml?branch=main&style=flat-square&logo=github&label=ci)](https://github.com/H2Owater425/node-hitomi/actions/workflows/continuous-integration.yml)
 [![license](https://img.shields.io/github/license/H2Owater425/node-hitomi?style=flat-square)](https://github.com/H2Owater425/node-hitomi/blob/main/LICENSE)
 
 </div>
