@@ -46,16 +46,16 @@ export interface RequestContext<T = unknown> {
 }
 
 /**
- * A custom function for making HTTPS requests.
+ * A custom transport function for making HTTPS requests.
  *
  * The response body must be decompressed before returning if the server sends a compressed response.
  *
- * @param {string} host The target hostname.
- * @param {string} path The target path.
- * @param {Record<string, string>} headers The request headers.
+ * @template T The platform-specific request options type.
+ * @param {RequestContext<T>} context The final request context after `onRequest` is invoked.
  * @returns {Uint8Array | Promise<Uint8Array>} The response body as a `Uint8Array`, or a `Promise` that resolves to one.
+ * @see {@link RequestContext}
  */
-export type RequestFunction = (host: string, path: string, headers: Record<string, string>) => Uint8Array | Promise<Uint8Array>;
+export type TransportFunction<T = unknown> = (context: RequestContext<T>) => Uint8Array | Promise<Uint8Array>;
 
 /**
  * A custom function for computing a SHA-256 hash.
@@ -63,7 +63,7 @@ export type RequestFunction = (host: string, path: string, headers: Record<strin
  * @param {string} text The input string to hash.
  * @returns {Uint8Array | Promise<Uint8Array>} The hash digest as a `Uint8Array`, or a `Promise` that resolves to one.
  */
-export type HashFunction = (text: string) => Uint8Array | Promise<Uint8Array>;
+export type ComputeHashFunction = (text: string) => Uint8Array | Promise<Uint8Array>;
 
 /**
  * A hook function invoked before each HTTP request.

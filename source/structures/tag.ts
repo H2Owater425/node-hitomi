@@ -259,7 +259,7 @@ export class Tag extends Base {
 			throw HitomiError['emptyRootNode'];
 		}
 
-		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(await this['hitomi'].hash(term), rootNode, version);
+		const data: Node[1][number] | undefined = await this['hitomi']['languageIndex'].binarySearch(await this['hitomi'].hashTerm(term), rootNode, version);
 
 		if(!data) {
 			throw HitomiError['invalidTagName'];

@@ -13,12 +13,8 @@ const agent: Agent = new Agent({
 });
 
 // @internal
-export function request(host: string, path: string, type: ResponseType.BYTE, range?: string): Promise<Uint8Array>;
-export function request(host: string, path: string, type: ResponseType.VIEW, range?: string): Promise<DataView>;
-export function request(host: string, path: string, type: ResponseType.TEXT, range?: string): Promise<string>;
-export function request(host: string, path: string, type: ResponseType.JSON, range?: string): Promise<unknown>;
-export async function request(this: Hitomi, host: string, path: string, type: ResponseType, range?: string): Promise<unknown> {
-	let context: RequestContext<RequestOptions> = {
+export function createContext(host: string, path: string, type: ResponseType, range?: string): RequestContext<RequestOptions> {
+	return {
 		host: host,
 		path: path,
 		type: type,
@@ -31,6 +27,15 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 			}, DEFAULT_HEADERS)
 		}
 	};
+}
+
+// @internal
+export function request(host: string, path: string, type: ResponseType.BYTE, range?: string): Promise<Uint8Array>;
+export function request(host: string, path: string, type: ResponseType.VIEW, range?: string): Promise<DataView>;
+export function request(host: string, path: string, type: ResponseType.TEXT, range?: string): Promise<string>;
+export function request(host: string, path: string, type: ResponseType.JSON, range?: string): Promise<unknown>;
+export async function request(this: Hitomi, host: string, path: string, type: ResponseType, range?: string): Promise<unknown> {
+	let context: RequestContext<RequestOptions> = createContext(host, path, type, range);
 
 	context = (await this.onRequest(context) as RequestContext<RequestOptions>) || context;
 
@@ -96,7 +101,7 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 }
 
 // @internal
-export function hash(text: string): Promise<Uint8Array> {
+export function hashTerm(text: string): Promise<Uint8Array> {
 	return Promise.resolve(createHash('sha256').update(text).digest().subarray(0, 4));
 }
 

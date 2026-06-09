@@ -157,7 +157,7 @@ describe('Tag', function (): void {
 			root?: Node;
 		}[] = []; 
 		const hitomi: Hitomi = createMock<Hitomi>({
-			hash: function (term: string): Promise<Uint8Array> {
+			hashTerm: function (term: string): Promise<Uint8Array> {
 				return Promise.resolve(createHash('sha256').update(term).digest().subarray(0, 4));
 			},
 			languageIndex: createMock<Hitomi['languageIndex']>({
