@@ -101,6 +101,59 @@ export class Hitomi {
 		return options[key];
 	}
 
+	// @internal - Must use in or bind to Provider
+	private static async fetchImageContext(this: Provider<ImageContext>): Promise<ImageContext> {
+		const response: string = await this['hitomi'].request(RESOURCE_DOMAIN, '/gg.js', ResponseType['TEXT']);
+		const context: ImageContext = [new Set<number>(), false, ''];
+
+		let currentIndex: number = 0;
+		let nextIndex: number;
+
+		while(
+			// Kind of do-while loop
+			(currentIndex = response.indexOf('case ', currentIndex) + 5) !== 4 &&
+			(nextIndex = response.indexOf(':', currentIndex)) !== -1
+		) {
+			const subdomainCode: number = +response.slice(currentIndex, nextIndex);
+
+			if(!Number.isInteger(subdomainCode)) {
+				throw HitomiError['unparsableImageContext'];
+			}
+
+			context[0].add(subdomainCode);
+
+			currentIndex = nextIndex + 1;
+		}
+
+		if(!context[0]['size']) {
+			throw HitomiError['unparsableImageContext'];
+		}
+
+		currentIndex = response.indexOf('var o = ') + 8;
+
+		const rawIsSuffix1: number = +response.slice(currentIndex, response.indexOf(';', currentIndex));
+
+		if(!Number.isInteger(rawIsSuffix1)) {
+			throw HitomiError['unparsableImageContext'];
+		}
+
+		context[1] = !rawIsSuffix1;
+
+		currentIndex = response.lastIndexOf('b: \'') + 4;
+
+		if(currentIndex === 3) {
+			throw HitomiError['unparsableImageContext'];
+		}
+
+		context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
+
+		if(!context[2]['length']) {
+			throw HitomiError['unparsableImageContext'];
+		}
+
+		return context;
+	}
+
 	/**
 	 * Creates a new Hitomi client.
 	 *
@@ -143,7 +196,7 @@ export class Hitomi {
 						return JSON.parse(toString(buffer));
 					}
 				}
-			} : request.bind(this),
+			} : request,
 			onRequest: options.onRequest || function (): void {},
 			hash: options.hash ? async function (data: string): Promise<Uint8Array> {
 				// @ts-expect-error - Typescript internal error
@@ -157,57 +210,7 @@ export class Hitomi {
 
 		defineProperties(this, {
 			languageIndex: new IndexProvider(this, 'languages'),
-			imageContext: new Provider<ImageContext>(this, async function (this: Provider<ImageContext>): Promise<ImageContext> {
-				const response: string = await this['hitomi'].request(RESOURCE_DOMAIN, '/gg.js', ResponseType['TEXT']);
-				const context: ImageContext = [new Set<number>(), false, ''];
-
-				let currentIndex: number = 0;
-				let nextIndex: number;
-
-				while(
-					// Kind of do-while loop
-					(currentIndex = response.indexOf('case ', currentIndex) + 5) !== 4 &&
-					(nextIndex = response.indexOf(':', currentIndex)) !== -1
-				) {
-					const subdomainCode: number = +response.slice(currentIndex, nextIndex);
-
-					if(!Number.isInteger(subdomainCode)) {
-						throw HitomiError['unparsableImageContext'];
-					}
-
-					context[0].add(subdomainCode);
-
-					currentIndex = nextIndex + 1;
-				}
-
-				if(!context[0]['size']) {
-					throw HitomiError['unparsableImageContext'];
-				}
-
-				currentIndex = response.indexOf('var o = ') + 8;
-
-				const rawIsSuffix1: number = +response.slice(currentIndex, response.indexOf(';', currentIndex));
-
-				if(!Number.isInteger(rawIsSuffix1)) {
-					throw HitomiError['unparsableImageContext'];
-				}
-
-				context[1] = !rawIsSuffix1;
-
-				currentIndex = response.lastIndexOf('b: \'') + 4;
-
-				if(currentIndex === 3) {
-					throw HitomiError['unparsableImageContext'];
-				}
-
-				context[2] = response.slice(currentIndex, response.indexOf('\'', currentIndex));
-
-				if(!context[2]['length']) {
-					throw HitomiError['unparsableImageContext'];
-				}
-
-				return context;
-			}, Hitomi.getMaximumAge(options, 'imageContextMaximumAge', 3600000))
+			imageContext: new Provider<ImageContext>(this, Hitomi.fetchImageContext, Hitomi.getMaximumAge(options, 'imageContextMaximumAge', 3600000))
 		});
 	}
 }

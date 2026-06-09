@@ -13,7 +13,7 @@ export class Provider<T> extends Base {
 
 	constructor(
 		hitomi: Hitomi,
-		private update: () => Promise<T>,
+		private fetch: () => Promise<T>,
 		private maximumAge: number
 	) {
 		super(hitomi);
@@ -26,7 +26,7 @@ export class Provider<T> extends Base {
 			}
 
 			try {
-				this['value'] = await (this['promise'] = this.update());
+				this['value'] = await (this['promise'] = this.fetch());
 				this['expiresAt'] = Date.now() + this['maximumAge'];
 			} finally {
 				this['promise'] = undefined;
@@ -60,8 +60,10 @@ export class IndexProvider extends Provider<string> {
 		hitomi: Hitomi,
 		private field: 'galleries' | 'languages'
 	) {
+		const path: string = '/' + field + 'index/version';
+
 		super(hitomi, function (this: IndexProvider): Promise<string> {
-			return this['hitomi'].request(RESOURCE_DOMAIN, '/' + this['field'] + 'index/version', ResponseType['TEXT']);
+			return this['hitomi'].request(RESOURCE_DOMAIN, path, ResponseType['TEXT']);
 		}, hitomi['indexMaximumAge']);
 	}
 
@@ -117,10 +119,7 @@ export class IndexProvider extends Provider<string> {
 		let compareResult: number = -1;
 		let index: number = 0;
 
-		while(index < node[0]['length'] &&
-			(compareResult = IndexProvider.compareBuffers(key, node[0][index])) === 1) {
-			index++;
-		}
+		for(; index < node[0]['length'] && (compareResult = IndexProvider.compareBuffers(key, node[0][index])) === 1; index++);
 
 		if(!compareResult) {
 			return node[1][index];
@@ -130,26 +129,28 @@ export class IndexProvider extends Provider<string> {
 			return;
 		}
 
-		let isLeaf: boolean = true;
+		let j: number = 0;
 
-		for(let i: number = 0; i < node[2]['length']; i++) {
-			if(node[2][i]) {
-				isLeaf = false;
-
+		for(; j < node[2]['length']; j++) {
+			if(node[2][j]) {
 				break;
 			}
 		}
 
-		if(isLeaf) {
+		if(j === node[2]['length']) {
 			return;
 		}
 
-		const nextNode: Node | undefined = await this.getNodeAtAddress(node[2][index], version);
+		if(!node[2][index]) {
+			throw new HitomiError(ErrorCode['UnexpectedResponseBody'], 'SubnodeAddress', '0', false);
+		}
 
-		if(!nextNode) {
+		const subnode: Node | undefined = await this.getNodeAtAddress(node[2][index], version);
+
+		if(!subnode) {
 			return;
 		}
 
-		return this.binarySearch(key, nextNode, version);
+		return this.binarySearch(key, subnode, version);
 	}
 }

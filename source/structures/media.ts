@@ -39,6 +39,11 @@ export enum ThumbnailSize {
  * @see {@link Video}
  */
 abstract class Media extends Base {
+	// @internal - Reference real_full_path_from_hash in common.js
+	protected static createHashPath(hash: string, separator: string = '/'): string {
+		return hash.slice(-1) + separator + hash.slice(-3, -1);
+	}
+
 	// @internal
 	constructor(
 		hitomi: Hitomi,
@@ -160,7 +165,7 @@ export class Image extends Media {
 		let path: string;
 
 		if(thumbnailSize) {
-			let member: string = 'Big';
+			let member: keyof typeof ThumbnailSize = 'Big';
 
 			switch(thumbnailSize) {
 				case ThumbnailSize['Medium']: {
@@ -186,9 +191,9 @@ export class Image extends Media {
 			}
 
 			subdomain = 'tn';
-			path = extension + thumbnailSize + 'tn/' + this['hash'].slice(-1) + '/' + this['hash'].slice(-3, -1) + '/' + this['hash'];
+			path = extension + thumbnailSize + 'tn/' + Media.createHashPath(this['hash']) + '/' + this['hash'];
 		} else {
-			const hashCode: number = Number.parseInt(this['hash'].slice(-1) + this['hash'].slice(-3, -1), 16);
+			const hashCode: number = Number.parseInt(Media.createHashPath(this['hash'], ''), 16);
 			const context: ImageContext = await this['hitomi']['imageContext'].retrieve();
 
 			subdomain = extension[0] + (context[0].has(hashCode) === context[1] /* nxor */ ? '2' : '1');
@@ -211,7 +216,7 @@ export class Image extends Media {
 	 * @see {@link ThumbnailSize}
 	 */
 	public async fetch(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<Uint8Array> {
-		return super.request(await this.resolveUrl(extension, thumbnailSize));
+		return this.request(await this.resolveUrl(extension, thumbnailSize));
 	}
 }
 
@@ -253,7 +258,7 @@ export class Video extends Media {
 		super(hitomi, width, height);
 
 		this['url'] = '//streaming.' + BASE_DOMAIN + '/videos/' + fileName;
-		this['posterUrl'] = '//a.' + BASE_DOMAIN + '/videos/posters/' + hash.slice(-1) + '/' + hash.slice(-3, -1) + '/' + hash + '.webp';
+		this['posterUrl'] = '//a.' + BASE_DOMAIN + '/videos/posters/' + Media.createHashPath(hash) + '/' + hash + '.webp';
 	}
 
 	/**
@@ -262,7 +267,7 @@ export class Video extends Media {
 	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the video as a `Uint8Array`.
 	 */
 	public fetch(): Promise<Uint8Array> {
-		return super.request(this['url']);
+		return this.request(this['url']);
 	}
 
 	/**
@@ -271,6 +276,6 @@ export class Video extends Media {
 	 * @returns {Promise<Uint8Array>} A `Promise` that resolves to the poster as a `Uint8Array`.
 	 */
 	public fetchPoster(): Promise<Uint8Array> {
-		return super.request(this['posterUrl']);
+		return this.request(this['posterUrl']);
 	}
 }
