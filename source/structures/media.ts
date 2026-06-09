@@ -160,7 +160,7 @@ export class Image extends Media {
 		let path: string;
 
 		if(thumbnailSize) {
-			let member: string = 'Big';
+			let member: keyof typeof ThumbnailSize = 'Big';
 
 			switch(thumbnailSize) {
 				case ThumbnailSize['Medium']: {
