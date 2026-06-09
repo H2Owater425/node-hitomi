@@ -61,6 +61,7 @@ export class IndexProvider extends Provider<string> {
 		private field: 'galleries' | 'languages'
 	) {
 		const path: string = '/' + field + 'index/version';
+
 		super(hitomi, function (this: IndexProvider): Promise<string> {
 			return this['hitomi'].request(RESOURCE_DOMAIN, path, ResponseType['TEXT']);
 		}, hitomi['indexMaximumAge']);
@@ -118,10 +119,7 @@ export class IndexProvider extends Provider<string> {
 		let compareResult: number = -1;
 		let index: number = 0;
 
-		while(index < node[0]['length'] &&
-			(compareResult = IndexProvider.compareBuffers(key, node[0][index])) === 1) {
-			index++;
-		}
+		for(; index < node[0]['length'] && (compareResult = IndexProvider.compareBuffers(key, node[0][index])) === 1; index++);
 
 		if(!compareResult) {
 			return node[1][index];
@@ -131,17 +129,15 @@ export class IndexProvider extends Provider<string> {
 			return;
 		}
 
-		let isLeaf: boolean = true;
+		let j: number = 0;
 
-		for(let i: number = 0; i < node[2]['length']; i++) {
-			if(node[2][i]) {
-				isLeaf = false;
-
+		for(; j < node[2]['length']; j++) {
+			if(node[2][j]) {
 				break;
 			}
 		}
 
-		if(isLeaf) {
+		if(j === node[2]['length']) {
 			return;
 		}
 
