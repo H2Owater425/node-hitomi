@@ -60,8 +60,9 @@ export class IndexProvider extends Provider<string> {
 		hitomi: Hitomi,
 		private field: 'galleries' | 'languages'
 	) {
+		const path: string = '/' + field + 'index/version';
 		super(hitomi, function (this: IndexProvider): Promise<string> {
-			return this['hitomi'].request(RESOURCE_DOMAIN, '/' + this['field'] + 'index/version', ResponseType['TEXT']);
+			return this['hitomi'].request(RESOURCE_DOMAIN, path, ResponseType['TEXT']);
 		}, hitomi['indexMaximumAge']);
 	}
 
