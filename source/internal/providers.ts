@@ -13,7 +13,7 @@ export class Provider<T> extends Base {
 
 	constructor(
 		hitomi: Hitomi,
-		private update: () => Promise<T>,
+		private fetch: () => Promise<T>,
 		private maximumAge: number
 	) {
 		super(hitomi);
@@ -26,7 +26,7 @@ export class Provider<T> extends Base {
 			}
 
 			try {
-				this['value'] = await (this['promise'] = this.update());
+				this['value'] = await (this['promise'] = this.fetch());
 				this['expiresAt'] = Date.now() + this['maximumAge'];
 			} finally {
 				this['promise'] = undefined;
