@@ -172,12 +172,10 @@ export class Hitomi {
 
 		defineProperties(this, {
 			request: options.transport ? async function (this: Hitomi, host: string, path: string, type: ResponseType, range?: string): Promise<Uint8Array | DataView | string | unknown> {
-				let context: RequestContext = createContext(host, path, type, range);
-
-				context = await this.onRequest(context) || context;
+				const context: RequestContext = createContext(host, path, type, range);
 
 				// @ts-expect-error - Typescript internal error
-				const buffer: Uint8Array = await options.transport(context);
+				const buffer: Uint8Array = await options.transport(await this.onRequest(context) || context);
 
 				switch(type) {
 					case ResponseType['BYTE']: {

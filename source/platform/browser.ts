@@ -53,7 +53,7 @@ export async function request(this: Hitomi, host: string, path: string, type: Re
 		}
 
 		default: {
-			throw HitomiError.unexpectedResponseStatus(host, path, response['status']);
+			throw HitomiError.unexpectedResponseStatus(context['host'], context['path'], response['status']);
 		}
 	}
 }
