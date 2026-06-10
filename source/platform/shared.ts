@@ -34,15 +34,17 @@ export interface RequestContext<T = unknown> {
 	 * The expected response type.
 	 *
 	 * @type {ResponseType}
+	 * @readonly
 	 */
-	type: ResponseType;
+	readonly type: ResponseType;
 
 	/**
 	 * Platform-specific request options.
 	 *
 	 * @type {T}
+	 * @readonly
 	 */
-	options: T;
+	readonly options: T;
 }
 
 /**
