@@ -44,20 +44,34 @@ export class HitomiError extends Error {
 		return new HitomiError(ErrorCode['UnexpectedResponseBody'], 'Image context', 'parsable');
 	}
 
-	/**
-	 * The code for identifying an error.
-	 *
-	 * @type {ErrorCode}
-	 * @readonly
-	 * @see {@link ErrorCode}
-	 */
-	public readonly code: ErrorCode;
-
 	// @internal
-	constructor(code: ErrorCode, messageOrTarget: string, state?: string, isAffirmative: boolean = true) {
-		super(messageOrTarget + (arguments['length'] === 2 ? '' : ' must ' + (isAffirmative ? '' : 'not ') + 'be ' + state));
+	constructor(
+		/**
+		 * The code for identifying an error.
+		 *
+		 * @type {ErrorCode}
+		 * @readonly
+		 * @see {@link ErrorCode}
+		 */
+		public readonly code: ErrorCode,
+		messageOrTarget: string,
+		state?: string,
+		isAffirmative: boolean = true
+	) {
+		let message: string = messageOrTarget;
+
+		if(arguments['length'] !== 2) {
+			message += ' must ';
+
+			if(!isAffirmative) {
+				message += 'not ';
+			}
+
+			message += 'be ' + state;
+		}
+
+		super(message);
 
 		this['name'] = 'HitomiError [' + code + ']';
-		this['code'] = code;
 	}
 }
