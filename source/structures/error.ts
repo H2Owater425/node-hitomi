@@ -1,3 +1,5 @@
+import type { Extension } from './media';
+
 /**
  * Codes for identifying an error.
  *
@@ -27,6 +29,11 @@ export class HitomiError extends Error {
 	// @internal
 	public static unexpectedResponseStatus(host: string, path: string, code: number): HitomiError {
 		return new HitomiError(ErrorCode['UnexpectedResponseStatus'], 'https://' + host + path + ' must not respond with ' + code);
+	}
+
+	// @internal
+	public static get unavailableExtension(): HitomiError {
+		return new HitomiError(ErrorCode['InvalidCombination'], 'Extension', 'available');
 	}
 
 	// @internal

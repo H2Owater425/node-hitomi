@@ -1,6 +1,5 @@
 import type { Hitomi } from '../hitomi';
 import { BASE_DOMAIN } from '../internal/constants';
-import { capitalize } from '../internal/functions';
 import { Base } from '../internal/base';
 import { ErrorCode, HitomiError } from './error';
 import type { ImageContext } from '../internal/types';
@@ -156,9 +155,35 @@ export class Image extends Media {
 	 * @see {@link Image.hasThumbnail}
 	 */
 	public async resolveUrl(extension: Extension, thumbnailSize?: ThumbnailSize): Promise<string> {
-		// @ts-expect-error - Typescript internal error
-		if(!extension || !this['has' + capitalize(extension)]) {
-			throw new HitomiError(ErrorCode['InvalidCombination'], 'Extension', 'supported');
+		switch(extension) {
+			case Extension['Avif']: {
+				if(!this['hasAvif']) {
+					throw HitomiError['unavailableExtension'];
+				}
+
+				break;
+			}
+
+			case Extension['Jxl']: {
+				if(!this['hasJxl']) {
+					throw HitomiError['unavailableExtension'];
+				}
+
+				break;
+			}
+
+			case Extension['Webp']: {
+				if(!this['hasWebp']) {
+					throw HitomiError['unavailableExtension'];
+				}
+
+				break;
+			}
+
+			default: {
+				// @ts-expect-error
+				throw HitomiError.invalidMember('Extension', Extension);
+			}
 		}
 
 		let subdomain: string;
