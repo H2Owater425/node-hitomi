@@ -14,7 +14,7 @@ describe('Image', function (): void {
 
 		await assert.rejects(function (): Promise<string> {
 			return image.resolveUrl(Extension['Avif']);
-		}, /Extension must be supported/);
+		}, /Extension must be available/);
 	});
 
 	test('resolveUrl rejects invalid thumbnail and extension combinations', async function (): Promise<void> {
