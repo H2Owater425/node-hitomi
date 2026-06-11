@@ -3,7 +3,6 @@ import { ErrorCode, HitomiError } from '../structures/error';
 import { Gallery, TranslatedGallery, GalleryReference, Title } from '../structures/gallery';
 import type { Hitomi } from '../hitomi';
 import { RESOURCE_DOMAIN } from '../internal/constants';
-import { defineProperties } from '../internal/functions';
 import { IndexProvider } from '../internal/providers';
 import { Base } from '../internal/base';
 import type { Node } from '../internal/types';
@@ -89,7 +88,7 @@ export class GalleryManager extends Base {
 	constructor(hitomi: Hitomi) {
 		super(hitomi);
 
-		defineProperties(this, {
+		this.defineProperties({
 			index: new IndexProvider(hitomi, 'galleries')
 		});
 	}

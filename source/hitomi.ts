@@ -2,10 +2,10 @@ import type { ImageContext } from './internal/types';
 import { GalleryManager } from './managers/gallery';
 import { TagManager } from './managers/tag';
 import { RESOURCE_DOMAIN } from './internal/constants';
-import { defineProperties } from './internal/functions';
 import { Provider, IndexProvider } from './internal/providers';
 import { ErrorCode, HitomiError } from './structures/error';
 import { request, type TransportFunction, hashTerm, type ComputeHashFunction, ResponseType, toString, RequestContext, OnRequestFunction, createContext } from '@platform';
+import { defineProperties } from './internal/base';
 
 /**
  * Options for creating a hitomi client.
