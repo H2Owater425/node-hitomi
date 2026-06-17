@@ -218,6 +218,30 @@ describe('Tag', function (): void {
 			assert.deepEqual(languages[i]['localName'], binaryOrderedLanguages[i][1]);
 		}
 	});
+
+	test('listLanguages rejects invalid tag name', async function (): Promise<void> {
+		const hitomi: Hitomi = createMock<Hitomi>({
+			hashTerm: function (): Promise<Uint8Array> {
+				return Promise.resolve(Buffer.alloc(4));
+			},
+			languageIndex: createMock<Hitomi['languageIndex']>({
+				retrieve: function (): Promise<string> {
+					return Promise.resolve('12345678');
+				},
+				getNodeAtAddress: function (): Promise<Node> {
+					return Promise.resolve([[Buffer.alloc(0)], [], [0n]]);
+				},
+				binarySearch: function (): Promise<Node[1][number] | undefined> {
+					return Promise.resolve(undefined);
+				}
+			})
+		});
+		const tag: Tag = new Tag(hitomi, 'female', 'unknown');
+
+		await assert.rejects(function (): Promise<Language[]> {
+			return tag.listLanguages();
+		}, createError(ErrorCode['InvalidField'], /Name must be valid/));
+	});
 });
 
 describe('TagManager', function (): void {
