@@ -23,13 +23,12 @@ function replace(type: 'cjs' | 'esm' | 'browser' | 'types'): Plugin {
 				code = code.replace(/(?<=^\t*) {4}/gm, '	');
 			}
 
+			code = code.replace(/"([^'"]+)"/gm, '\'$1\'');
+
 			if(!isTypes) {
-				code = code.replace(/\[\s*["']([a-zA-Z_$][a-zA-Z0-9_$]*)["']\s*\]/g, '.$1')
-				.replace(/(?<=(while|if|switch|for)) /gm, '')
-				.replace(/\n+\t+(?=else)/gm, ' ')
-				.replace(/^import '\.\/platform\/browser\.js';\n/gm, '')
-				.replace(/^require\('\.\/platform\/node\.cjs'\);\n/gm, '')
-				.replace(/^import '\.\/platform\/node\.mjs';\n/gm, '');
+				code = code.replace(/(?<=[^\s\t])\[\s*'([a-zA-Z_$][a-zA-Z0-9_$]*)'\s*\]/g, '.$1')
+					.replace(/(?<=(while|if|switch|for)) /g, '')
+					.replace(/\n+\t+(?=else)/gm, ' ');
 			} else {
 				for(const _class in CLASS_PATHS) {
 					if(code.includes('{@link ' + _class + '}') && !code.includes('class ' + _class) && !(new RegExp('({ |, )' + _class + '( }|, )', 'g')).test(code)) {
@@ -37,11 +36,10 @@ function replace(type: 'cjs' | 'esm' | 'browser' | 'types'): Plugin {
 					}
 				}
 
-				code = code.replace(/^declare const enum /gm, 'declare enum ');
+				code = code.replace(/^declare const enum /g, 'declare enum ');
 			}
 
-			return code.replace(/{\n}/gm, '{}')
-				.replace(/"([^'"]+)"/gm, '\'$1\'');
+			return code.replace(/{(\n|\s)+}/gm, '{}');
 		}
 	};
 }
@@ -68,12 +66,15 @@ function configuration(type: 'cjs' | 'esm' | 'browser'): RollupOptions {
 			dir: 'distribution/' + type,
 			format: isCjs ? 'cjs' : 'esm',
 			exports: isCjs ? 'named' : 'auto',
-      preserveModules: true,
-      preserveModulesRoot: 'source',
+			preserveModules: true,
+			preserveModulesRoot: 'source',
 			entryFileNames: '[name].' + (isCjs ? 'c' : type === 'esm' ? 'm' : '') + 'js',
 			generatedCode: {
 				constBindings: true
 			}
+		},
+		treeshake: {
+			moduleSideEffects: false
 		},
 		external: ['util', 'https', 'zlib', 'crypto'],
 		plugins: [
@@ -139,8 +140,8 @@ export default [
 		input: 'source/index.ts',
 		output: {
 			dir: 'distribution/types',
-      preserveModules: true,
-      preserveModulesRoot: 'source',
+			preserveModules: true,
+			preserveModulesRoot: 'source'
 		},
 		external: ['util', 'https', 'zlib', 'crypto'],
 		plugins: [
