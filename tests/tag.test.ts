@@ -2,10 +2,11 @@ import { describe, test } from 'mocha';
 import assert from 'assert';
 
 import { Language, Tag } from '@/structures/tag';
+import { ErrorCode } from '@/structures/error';
 import { TagManager, NameInitial } from '@/managers/tag';
 import { Hitomi } from '@/hitomi';
 import type { Node } from '@/internal/types';
-import { assertInstanceOf, createMock } from './shared/functions';
+import { assertInstanceOf, createError, createMock } from './shared/functions';
 import { createHash } from 'crypto';
 import { PARTIAL_TAG_TYPES } from './shared/constants';
 import { ResponseType, RequestCall } from './shared/types';
@@ -97,13 +98,13 @@ describe('Tag', function (): void {
 		assert.throws(function (): void {
 			// @ts-expect-error
 			new Tag(hitomi, 'company', 'frost nova');
-		}, /Type must be one of/);
+		}, createError(ErrorCode['InvalidArgument'], /Type must be one of/));
 		assert.throws(function (): void {
 			new Tag(hitomi, 'language', 'typescript');
-		}, /Name must be one of/);
+		}, createError(ErrorCode['InvalidArgument'], /Name must be one of/));
 		assert.throws(function (): void {
 			new Tag(hitomi, 'type', 'encyclopedia');
-		}, /Name must be one of/);
+		}, createError(ErrorCode['InvalidArgument'], /Name must be one of/));
 	});
 
 	test('constructor sets generated url', function (): void {
@@ -244,11 +245,11 @@ describe('TagManager', function (): void {
 		assert.throws(function (): void {
 			// @ts-expect-error
 			manager.create('species', 'ghost');
-		}, /Type must be one of/);
+		}, createError(ErrorCode['InvalidArgument'], /Type must be one of/));
 
 		assert.throws(function (): void {
 			manager.create('tag', '');
-		}, /Name must not be empty/);
+		}, createError(ErrorCode['InvalidArgument'], /Name must not be empty/));
 	});
 
 	test('search builds request path and maps response pairs', async function (): Promise<void> {
@@ -317,7 +318,7 @@ describe('TagManager', function (): void {
 
 		await assert.rejects(function (): Promise<[Tag, number][]> {
 			return manager.search('-company:frost_nova::');
-		}, /Type must be one of/);
+		}, createError(ErrorCode['InvalidArgument'], /Type must be one of/));
 	});
 
 	test('list returns language and type tags without network request', async function (): Promise<void> {
@@ -406,7 +407,7 @@ describe('TagManager', function (): void {
 		for(const type of PARTIAL_TAG_TYPES) {
 			await assert.rejects(function (): Promise<Tag[]> {
 				return manager.list(type);
-			}, /StartsWith must be provided except for language and type/);
+			}, createError(ErrorCode['InvalidCombination'], /StartsWith must be provided except for language and type/));
 		}
 	});
 });

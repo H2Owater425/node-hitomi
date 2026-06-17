@@ -3,9 +3,10 @@ import assert from 'assert';
 
 import { Image, Video } from '@/structures/media';
 import { Extension, ThumbnailSize } from '@/structures/media';
+import { ErrorCode } from '@/structures/error';
 import { Hitomi } from '@/hitomi';
 import type { ImageContext } from '@/internal/types';
-import { createMock } from './shared/functions';
+import { createError, createMock } from './shared/functions';
 import { ResponseType, RequestCall } from './shared/types';
 
 describe('Image', function (): void {
@@ -14,7 +15,7 @@ describe('Image', function (): void {
 
 		await assert.rejects(function (): Promise<string> {
 			return image.resolveUrl(Extension['Avif']);
-		}, /Extension must be available/);
+		}, createError(ErrorCode['InvalidCombination'], /Extension must be available/));
 	});
 
 	test('resolveUrl rejects invalid thumbnail and extension combinations', async function (): Promise<void> {
@@ -23,10 +24,10 @@ describe('Image', function (): void {
 
 		await assert.rejects(function (): Promise<string> {
 			return imageWithThumbnail.resolveUrl(Extension['Webp'], ThumbnailSize['Medium']);
-		}, /ThumbnailSize.Medium must be used only with avif/);
+		}, createError(ErrorCode['InvalidCombination'], /ThumbnailSize.Medium must be used only with avif/));
 		await assert.rejects(function (): Promise<string> {
 			return image.resolveUrl(Extension['Webp'], ThumbnailSize['Big']);
-		}, /ThumbnailSize.Big must be used only with image that has thumbnail/);
+		}, createError(ErrorCode['InvalidCombination'], /ThumbnailSize.Big must be used only with image that has thumbnail/));
 	});
 
 	test('resolveUrl uses imageContext for full-size url', async function (): Promise<void> {

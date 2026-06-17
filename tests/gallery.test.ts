@@ -5,10 +5,11 @@ import { Title, GalleryReference, TranslatedGallery, Gallery } from '@/structure
 import { Tag } from '@/structures/tag';
 import { Language } from '@/structures/tag';
 import { Image, Video } from '@/structures/media';
+import { ErrorCode } from '@/structures/error';
 import { BASE_DOMAIN } from '@/internal/constants';
 import { GalleryManager, SortType } from '@/managers/gallery';
 import { Hitomi } from '@/hitomi';
-import { createMock, assertInstanceOf } from './shared/functions';
+import { createMock, assertInstanceOf, createError } from './shared/functions';
 import { ResponseType, RequestCall } from './shared/types';
 
 describe('Title', function (): void {
@@ -274,7 +275,7 @@ describe('GalleryManager', function (): void {
 					size: 10
 				}
 			});
-		}, /Page must not be used with multiple tags/);
+		}, createError(ErrorCode['InvalidCombination'], /Page must not be used with multiple tags/));
 	});
 
 	test('list returns paginated references for tag query', async function (): Promise<void> {
