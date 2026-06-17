@@ -1,5 +1,5 @@
 import { ErrorCode, HitomiError } from '@/index';
-import assert from 'assert';
+import { strict as assert } from 'assert';
 
 export function createMock<T>(value: Partial<T>): T {
 	return value as T;

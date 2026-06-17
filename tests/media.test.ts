@@ -1,5 +1,5 @@
 import { describe, test } from 'mocha';
-import assert from 'assert';
+import { strict as assert } from 'assert';
 
 import { Image, Video } from '@/structures/media';
 import { Extension, ThumbnailSize } from '@/structures/media';
@@ -48,8 +48,8 @@ describe('Image', function (): void {
 
 		const url: string = await image.resolveUrl(Extension['Webp']);
 
-		assert.strictEqual(url, '//w2.gold-usergeneratedcontent.net/galleries/' + hashCode + '/' + hash + '.webp');
-		assert.strictEqual(retrieveCalls, 1);
+		assert.equal(url, '//w2.gold-usergeneratedcontent.net/galleries/' + hashCode + '/' + hash + '.webp');
+		assert.equal(retrieveCalls, 1);
 	});
 
 	test('fetch requests resolved url through client.request', async function (): Promise<void> {
@@ -71,8 +71,8 @@ describe('Image', function (): void {
 
 		const imageBuffer: Uint8Array = await image.fetch(Extension['Webp'], ThumbnailSize['Small']);
 
-		assert.strictEqual(imageBuffer, response);
-		assert.deepStrictEqual(calls, [{
+		assert.equal(imageBuffer, response);
+		assert.deepEqual(calls, [{
 			host: 'tn.gold-usergeneratedcontent.net',
 			path: '/webpsmalltn/5/34/abcdef012345.webp',
 			type: ResponseType['BYTE'],
@@ -86,8 +86,8 @@ describe('Video', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 		const video: Video = new Video(hitomi, 1280, 720, 'video-123456.mp4', '0123456789abcdef');
 
-		assert.strictEqual(video.url, '//streaming.gold-usergeneratedcontent.net/videos/video-123456.mp4');
-		assert.strictEqual(video.posterUrl, '//a.gold-usergeneratedcontent.net/videos/posters/f/de/0123456789abcdef.webp');
+		assert.equal(video.url, '//streaming.gold-usergeneratedcontent.net/videos/video-123456.mp4');
+		assert.equal(video.posterUrl, '//a.gold-usergeneratedcontent.net/videos/posters/f/de/0123456789abcdef.webp');
 	});
 
 	test('fetch and fetchPoster request resolved urls through client.request', async function (): Promise<void> {
@@ -117,9 +117,9 @@ describe('Video', function (): void {
 		const videoBuffer: Uint8Array = await video.fetch();
 		const posterBuffer: Uint8Array = await video.fetchPoster();
 
-		assert.strictEqual(videoBuffer, videoResponse);
-		assert.strictEqual(posterBuffer, posterResponse);
-		assert.deepStrictEqual(calls, [{
+		assert.equal(videoBuffer, videoResponse);
+		assert.equal(posterBuffer, posterResponse);
+		assert.deepEqual(calls, [{
 			host: 'streaming.gold-usergeneratedcontent.net',
 			path: '/videos/video-123456.mp4',
 			type: ResponseType['BYTE'],

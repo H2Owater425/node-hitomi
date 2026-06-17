@@ -1,5 +1,5 @@
 import { describe, test } from 'mocha';
-import assert from 'assert';
+import { strict as assert } from 'assert';
 
 import { Language, Tag } from '@/structures/tag';
 import { ErrorCode } from '@/structures/error';
@@ -18,13 +18,13 @@ describe('Language', function (): void {
 		const language: Language = new Language(hitomi, 'english', 'English');
 		const tag: Tag = language.toTag(true);
 
-		assert.strictEqual(language['url'], '/index-english.html');
+		assert.equal(language['url'], '/index-english.html');
 
 		assertInstanceOf(tag, Tag);
-		assert.strictEqual(tag['type'], 'language');
-		assert.strictEqual(tag['name'], 'english');
-		assert.strictEqual(tag['isNegative'], true);
-		assert.strictEqual(tag['url'], '/index-english.html');
+		assert.equal(tag['type'], 'language');
+		assert.equal(tag['name'], 'english');
+		assert.equal(tag['isNegative'], true);
+		assert.equal(tag['url'], '/index-english.html');
 	});
 
 	test('constructor accepts all known language tuples', function (): void {
@@ -33,9 +33,9 @@ describe('Language', function (): void {
 		for(let i: number = 0; i < Language['ORDERED']['length']; i++) {
 			const language: Language = new Language(hitomi, Language['ORDERED'][i][0], Language['ORDERED'][i][1]);
 
-			assert.strictEqual(language['name'], Language['ORDERED'][i][0]);
-			assert.strictEqual(language['localName'], Language['ORDERED'][i][1]);
-			assert.strictEqual(language['url'], '/index-' + Language['ORDERED'][i][0] + '.html');
+			assert.equal(language['name'], Language['ORDERED'][i][0]);
+			assert.equal(language['localName'], Language['ORDERED'][i][1]);
+			assert.equal(language['url'], '/index-' + Language['ORDERED'][i][0] + '.html');
 		}
 	});
 });
@@ -47,9 +47,9 @@ describe('Tag', function (): void {
 		for(const name of Language['NAMES']) {
 			const tag: Tag = new Tag(hitomi, 'language', name);
 
-			assert.strictEqual(tag['type'], 'language');
-			assert.strictEqual(tag['name'], name);
-			assert.strictEqual(tag['url'], '/index-' + name + '.html');
+			assert.equal(tag['type'], 'language');
+			assert.equal(tag['name'], name);
+			assert.equal(tag['url'], '/index-' + name + '.html');
 		}
 	});
 
@@ -59,9 +59,9 @@ describe('Tag', function (): void {
 		for(const type of Gallery['TYPES']) {
 			const tag: Tag = new Tag(hitomi, 'type', type);
 
-			assert.strictEqual(tag['type'], 'type');
-			assert.strictEqual(tag['name'], type);
-			assert.strictEqual(tag['url'], '/type/' + encodeURIComponent(type) + '-all.html');
+			assert.equal(tag['type'], 'type');
+			assert.equal(tag['name'], type);
+			assert.equal(tag['url'], '/type/' + encodeURIComponent(type) + '-all.html');
 		}
 	});
 
@@ -86,9 +86,9 @@ describe('Tag', function (): void {
 				}
 			}
 
-			assert.strictEqual(tag['type'], type);
-			assert.strictEqual(tag['name'], name);
-			assert.strictEqual(tag['url'], url + encodeURIComponent(name) + '-all.html');
+			assert.equal(tag['type'], type);
+			assert.equal(tag['name'], name);
+			assert.equal(tag['url'], url + encodeURIComponent(name) + '-all.html');
 		}
 	})
 
@@ -112,16 +112,16 @@ describe('Tag', function (): void {
 		const maleTag: Tag = new Tag(hitomi, 'male', 'male tag');
 		const artistTag: Tag = new Tag(hitomi, 'artist', 'artist tag');
 
-		assert.strictEqual(maleTag['url'], '/tag/male%3Amale%20tag-all.html');
-		assert.strictEqual(artistTag['url'], '/artist/artist%20tag-all.html');
+		assert.equal(maleTag['url'], '/tag/male%3Amale%20tag-all.html');
+		assert.equal(artistTag['url'], '/artist/artist%20tag-all.html');
 	});
 
 	test('toString returns formatted expression', function (): void {
 		const hitomi: Hitomi = createMock<Hitomi>({});
 		const tag: Tag = new Tag(hitomi, 'tag', 'general tag', true);
 
-		assert.strictEqual(tag.toString(), '-tag:general_tag');
-		assert.strictEqual(tag.toString(false), 'tag:general_tag');
+		assert.equal(tag.toString(), '-tag:general_tag');
+		assert.equal(tag.toString(false), 'tag:general_tag');
 	})
 
 	test('listLanguages returns direct mapping for language tag without index access', async function (): Promise<void> {
@@ -142,9 +142,9 @@ describe('Tag', function (): void {
 
 		const languages: Language[] = await tag.listLanguages();
 
-		assert.strictEqual(languages['length'], 1);
-		assert.strictEqual(languages[0]['name'], 'japanese');
-		assert.strictEqual(languages[0]['localName'], '日本語');
+		assert.equal(languages['length'], 1);
+		assert.equal(languages[0]['name'], 'japanese');
+		assert.equal(languages[0]['localName'], '日本語');
 	});
 
 	test('listLanguages uses language index for non-language tags', async function (): Promise<void> {
@@ -194,7 +194,7 @@ describe('Tag', function (): void {
 
 		const languages: Language[] = await tag.listLanguages();
 
-		assert.deepStrictEqual(calls, [{
+		assert.deepEqual(calls, [{
 			function: 'retrieve'
 		}, {
 			function: 'getNodeAtAddress',
@@ -228,15 +228,15 @@ describe('TagManager', function (): void {
 
 		const tags: Tag[] = manager.parse('artist:artist_tag -tag:general_tag invalid artist:artist_tag');
 
-		assert.strictEqual(tags['length'], 2);
+		assert.equal(tags['length'], 2);
 
-		assert.strictEqual(tags[0]['type'], 'artist');
-		assert.strictEqual(tags[0]['name'], 'artist tag');
-		assert.strictEqual(tags[0]['isNegative'], false);
+		assert.equal(tags[0]['type'], 'artist');
+		assert.equal(tags[0]['name'], 'artist tag');
+		assert.equal(tags[0]['isNegative'], false);
 
-		assert.strictEqual(tags[1]['type'], 'tag');
-		assert.strictEqual(tags[1]['name'], 'general tag');
-		assert.strictEqual(tags[1]['isNegative'], true);
+		assert.equal(tags[1]['type'], 'tag');
+		assert.equal(tags[1]['name'], 'general tag');
+		assert.equal(tags[1]['isNegative'], true);
 	});
 
 	test('create rejects invalid type and empty name', function (): void {
@@ -275,7 +275,7 @@ describe('TagManager', function (): void {
 		const tagAndCounts: [Tag, number][] = await manager.search('-sw');
 		const femaleTagAndCounts: [Tag, number][] = await manager.search('-female:sw:::unreachable:');
 
-		assert.deepStrictEqual(calls, [{
+		assert.deepEqual(calls, [{
 			host: 'tagindex.hitomi.la',
 			path: '/global/s/w.json',
 			type: ResponseType['JSON'],
@@ -287,24 +287,24 @@ describe('TagManager', function (): void {
 			range: undefined
 		}]);
 
-		assert.strictEqual(tagAndCounts['length'], rawTagAndCounts['length']);
+		assert.equal(tagAndCounts['length'], rawTagAndCounts['length']);
 
 		for(let i: number = 0; i < tagAndCounts['length']; i++) {
 			assertInstanceOf(tagAndCounts[i][0], Tag);
-			assert.strictEqual(tagAndCounts[i][0]['type'], rawTagAndCounts[i][2]);
-			assert.strictEqual(tagAndCounts[i][0]['name'], rawTagAndCounts[i][0]);
-			assert.strictEqual(tagAndCounts[i][0]['isNegative'], false);
-			assert.strictEqual(tagAndCounts[i][1], rawTagAndCounts[i][1]);
+			assert.equal(tagAndCounts[i][0]['type'], rawTagAndCounts[i][2]);
+			assert.equal(tagAndCounts[i][0]['name'], rawTagAndCounts[i][0]);
+			assert.equal(tagAndCounts[i][0]['isNegative'], false);
+			assert.equal(tagAndCounts[i][1], rawTagAndCounts[i][1]);
 		}
 
-		assert.strictEqual(femaleTagAndCounts['length'], rawTagAndCounts['length']);
+		assert.equal(femaleTagAndCounts['length'], rawTagAndCounts['length']);
 
 		for(let i: number = 0; i < femaleTagAndCounts['length']; i++) {
 			assertInstanceOf(femaleTagAndCounts[i][0], Tag);
-			assert.strictEqual(femaleTagAndCounts[i][0]['type'], rawTagAndCounts[i][2]);
-			assert.strictEqual(femaleTagAndCounts[i][0]['name'], rawTagAndCounts[i][0]);
-			assert.strictEqual(femaleTagAndCounts[i][0]['isNegative'], false);
-			assert.strictEqual(femaleTagAndCounts[i][1], rawTagAndCounts[i][1]);
+			assert.equal(femaleTagAndCounts[i][0]['type'], rawTagAndCounts[i][2]);
+			assert.equal(femaleTagAndCounts[i][0]['name'], rawTagAndCounts[i][0]);
+			assert.equal(femaleTagAndCounts[i][0]['isNegative'], false);
+			assert.equal(femaleTagAndCounts[i][1], rawTagAndCounts[i][1]);
 		}
 	});
 
@@ -333,8 +333,8 @@ describe('TagManager', function (): void {
 		const languageTags: Tag[] = await manager.list('language');
 		const typeTags: Tag[] = await manager.list('type');
 
-		assert.strictEqual(languageTags['length'], Language['ORDERED']['length']);
-		assert.strictEqual(typeTags['length'], Gallery['TYPES']['size']);
+		assert.equal(languageTags['length'], Language['ORDERED']['length']);
+		assert.equal(typeTags['length'], Gallery['TYPES']['size']);
 	});
 
 	test('list requests and parses browsable tags', async function (): Promise<void> {
@@ -362,7 +362,7 @@ describe('TagManager', function (): void {
 		const maleTags: Tag[] = await manager.list('male', NameInitial._123);
 		const femaleTags: Tag[] = await manager.list('female', NameInitial._123);
 
-		assert.deepStrictEqual(calls, [{
+		assert.deepEqual(calls, [{
 			host: 'hitomi.la',
 			path: '/alltags-123.html',
 			type: ResponseType['TEXT'],
@@ -381,23 +381,23 @@ describe('TagManager', function (): void {
 			range: undefined
 		}]);
 
-		assert.strictEqual(generalTags['length'], 2);
-		assert.strictEqual(generalTags[0]['type'], 'tag');
-		assert.strictEqual(generalTags[0]['name'], '1 general tag');
-		assert.strictEqual(generalTags[0]['isNegative'], false);
-		assert.strictEqual(generalTags[1]['type'], 'tag');
-		assert.strictEqual(generalTags[1]['name'], '2 general tag');
-		assert.strictEqual(generalTags[1]['isNegative'], false);
+		assert.equal(generalTags['length'], 2);
+		assert.equal(generalTags[0]['type'], 'tag');
+		assert.equal(generalTags[0]['name'], '1 general tag');
+		assert.equal(generalTags[0]['isNegative'], false);
+		assert.equal(generalTags[1]['type'], 'tag');
+		assert.equal(generalTags[1]['name'], '2 general tag');
+		assert.equal(generalTags[1]['isNegative'], false);
 
-		assert.strictEqual(maleTags['length'], 1);
-		assert.strictEqual(maleTags[0]['type'], 'male');
-		assert.strictEqual(maleTags[0]['name'], '3 male tag');
-		assert.strictEqual(maleTags[0]['isNegative'], false);
+		assert.equal(maleTags['length'], 1);
+		assert.equal(maleTags[0]['type'], 'male');
+		assert.equal(maleTags[0]['name'], '3 male tag');
+		assert.equal(maleTags[0]['isNegative'], false);
 
-		assert.strictEqual(femaleTags['length'], 1);
-		assert.strictEqual(femaleTags[0]['type'], 'female');
-		assert.strictEqual(femaleTags[0]['name'], '4 female tag');
-		assert.strictEqual(femaleTags[0]['isNegative'], false);
+		assert.equal(femaleTags['length'], 1);
+		assert.equal(femaleTags[0]['type'], 'female');
+		assert.equal(femaleTags[0]['name'], '4 female tag');
+		assert.equal(femaleTags[0]['isNegative'], false);
 	});
 
 	test('list rejects specific types without startsWith initial', async function (): Promise<void> {

@@ -1,5 +1,5 @@
 import { describe, test } from 'mocha';
-import assert from 'assert';
+import { strict as assert } from 'assert';
 
 import { Title, GalleryReference, TranslatedGallery, Gallery } from '@/structures/gallery';
 import { Tag } from '@/structures/tag';
@@ -17,9 +17,9 @@ describe('Title', function (): void {
 		const title: Title = new Title('Title');
 		const withJapanese: Title = new Title('Title', '題目');
 
-		assert.strictEqual(title['display'], 'Title');
-		assert.strictEqual(title['japanese'], null);
-		assert.strictEqual(withJapanese['japanese'], '題目');
+		assert.equal(title['display'], 'Title');
+		assert.equal(title['japanese'], null);
+		assert.equal(withJapanese['japanese'], '題目');
 	});
 });
 
@@ -42,8 +42,8 @@ describe('GalleryReference', function (): void {
 		const reference: GalleryReference = new GalleryReference(hitomi, id);
 		const retrievedGallery: Gallery = await reference.retrieve();
 
-		assert.deepStrictEqual(calls, [id]);
-		assert.strictEqual(retrievedGallery, gallery);
+		assert.deepEqual(calls, [id]);
+		assert.equal(retrievedGallery, gallery);
 	});
 });
 
@@ -83,13 +83,13 @@ describe('Gallery', function (): void {
 
 		const thumbnails: [Image, Image] = gallery.getThumbnails();
 
-		assert.strictEqual(gallery['id'], id);
-		assert.strictEqual(gallery['language'], language);
-		assert.strictEqual(gallery['url'], '/galleries/' + id + '.html');
-		assert.strictEqual(translation['id'], translationId);
-		assert.strictEqual(translation['url'], '/galleries/' + translationId + '.html');
-		assert.strictEqual(translation['language'], translationLanguage);
-		assert.deepStrictEqual(thumbnails, [files[0], files[Math.floor(files['length'] / 2)]]);
+		assert.equal(gallery['id'], id);
+		assert.equal(gallery['language'], language);
+		assert.equal(gallery['url'], '/galleries/' + id + '.html');
+		assert.equal(translation['id'], translationId);
+		assert.equal(translation['url'], '/galleries/' + translationId + '.html');
+		assert.equal(translation['language'], translationLanguage);
+		assert.deepEqual(thumbnails, [files[0], files[Math.floor(files['length'] / 2)]]);
 	});
 });
 
@@ -168,7 +168,7 @@ describe('GalleryManager', function (): void {
 
 		const gallery: Gallery = await manager.retrieve(id);
 
-		assert.deepStrictEqual(calls, [{
+		assert.deepEqual(calls, [{
 			host: 'ltn.gold-usergeneratedcontent.net',
 			path: '/galleries/' + id + '.js',
 			type: ResponseType['TEXT'],
@@ -177,25 +177,25 @@ describe('GalleryManager', function (): void {
 
 		assertInstanceOf(gallery, Gallery);
 
-		assert.strictEqual(gallery['id'], +rawGallery['id']);
-		assert.strictEqual(gallery['url'], rawGallery['galleryurl']);
+		assert.equal(gallery['id'], +rawGallery['id']);
+		assert.equal(gallery['url'], rawGallery['galleryurl']);
 
-		assert.strictEqual(gallery['title']['display'], rawGallery['title']);
-		assert.strictEqual(gallery['title']['japanese'], rawGallery['japanese_title']);
+		assert.equal(gallery['title']['display'], rawGallery['title']);
+		assert.equal(gallery['title']['japanese'], rawGallery['japanese_title']);
 
-		assert.strictEqual(gallery['type'], rawGallery['type']);
+		assert.equal(gallery['type'], rawGallery['type']);
 
-		assert.strictEqual(gallery['artists']['length'], 0);
+		assert.equal(gallery['artists']['length'], 0);
 
-		assert.strictEqual(gallery['groups']['length'], 0);
+		assert.equal(gallery['groups']['length'], 0);
 
-		assert.strictEqual(gallery['series']['length'], rawGallery['parodys']['length']);
+		assert.equal(gallery['series']['length'], rawGallery['parodys']['length']);
 
 		for(let i: number = 0; i < gallery['series']['length']; i++) {
 			assertInstanceOf(gallery['series'][i], Tag);
 		}
 
-		assert.strictEqual(gallery['characters']['length'], rawGallery['characters']['length']);
+		assert.equal(gallery['characters']['length'], rawGallery['characters']['length']);
 
 		for(let i: number = 0; i < gallery['characters']['length']; i++) {
 			assertInstanceOf(gallery['characters'][i], Tag);
@@ -212,7 +212,7 @@ describe('GalleryManager', function (): void {
 				type = 'female';
 			}
 
-			assert.strictEqual(gallery['tags'][i]['type'], type);
+			assert.equal(gallery['tags'][i]['type'], type);
 		}
 
 		const thumbnailIndex: number = Math.floor(gallery['files']['length'] / 2);
@@ -223,38 +223,38 @@ describe('GalleryManager', function (): void {
 			assert.ok(gallery['files'][i]['hasThumbnail'] === (i === 0 || i === thumbnailIndex));
 		}
 
-		assert.strictEqual(gallery['translations']['length'], rawGallery['languages']['length']);
+		assert.equal(gallery['translations']['length'], rawGallery['languages']['length']);
 
 		for(let i: number = 0; i < gallery['translations']['length']; i++) {
 			assertInstanceOf(gallery['translations'][i], TranslatedGallery);
-			assert.strictEqual(gallery['translations'][i]['id'], rawGallery['languages'][i]['galleryid']);
+			assert.equal(gallery['translations'][i]['id'], rawGallery['languages'][i]['galleryid']);
 
 			assertInstanceOf(gallery['translations'][i]['language'], Language);
 			// @ts-expect-error
-			assert.strictEqual(gallery['translations'][i]['language']['name'], rawGallery['languages'][i]['name']);
+			assert.equal(gallery['translations'][i]['language']['name'], rawGallery['languages'][i]['name']);
 			// @ts-expect-error
-			assert.strictEqual(gallery['translations'][i]['language']['localName'], rawGallery['languages'][i]['language_localname']);
-			assert.strictEqual(gallery['translations'][i]['url'], rawGallery['languages'][i]['url']);
+			assert.equal(gallery['translations'][i]['language']['localName'], rawGallery['languages'][i]['language_localname']);
+			assert.equal(gallery['translations'][i]['url'], rawGallery['languages'][i]['url']);
 		}
 
-		assert.strictEqual(gallery['relations']['length'], rawGallery['related']['length']);
+		assert.equal(gallery['relations']['length'], rawGallery['related']['length']);
 
 		for(let i: number = 0; i < gallery['relations']['length']; i++) {
 			assertInstanceOf(gallery['relations'][i], GalleryReference);
-			assert.strictEqual(gallery['relations'][i]['id'], rawGallery['related'][i]);
+			assert.equal(gallery['relations'][i]['id'], rawGallery['related'][i]);
 		}
 
-		assert.strictEqual(gallery['isBlocked'], false);
+		assert.equal(gallery['isBlocked'], false);
 
-		assert.strictEqual(gallery['addedDate'].toISOString(), rawGallery['date']);
-		assert.strictEqual(gallery['publishedDate']?.toISOString(), rawGallery['datepublished']);
+		assert.equal(gallery['addedDate'].toISOString(), rawGallery['date']);
+		assert.equal(gallery['publishedDate']?.toISOString(), rawGallery['datepublished']);
 
 		assertInstanceOf(gallery['video'], Video);
-		assert.strictEqual(gallery['video']['fileName'], rawGallery['videofilename']);
-		assert.strictEqual(gallery['video']['height'], rawGallery['files'][1]['height']);
-		assert.strictEqual(gallery['video']['width'], rawGallery['files'][1]['width']);
-		assert.strictEqual(gallery['video']['url'], '//streaming.' + BASE_DOMAIN + '/videos/' + rawGallery['videofilename']);
-		assert.strictEqual(gallery['video']['posterUrl'], '//a.' + BASE_DOMAIN + '/videos/posters/' + rawGallery['files'][1]['hash'].slice(-1) + '/' + rawGallery['files'][1]['hash'].slice(-3, -1) + '/' + rawGallery['files'][1]['hash'] + '.webp');
+		assert.equal(gallery['video']['fileName'], rawGallery['videofilename']);
+		assert.equal(gallery['video']['height'], rawGallery['files'][1]['height']);
+		assert.equal(gallery['video']['width'], rawGallery['files'][1]['width']);
+		assert.equal(gallery['video']['url'], '//streaming.' + BASE_DOMAIN + '/videos/' + rawGallery['videofilename']);
+		assert.equal(gallery['video']['posterUrl'], '//a.' + BASE_DOMAIN + '/videos/posters/' + rawGallery['files'][1]['hash'].slice(-1) + '/' + rawGallery['files'][1]['hash'].slice(-3, -1) + '/' + rawGallery['files'][1]['hash'] + '.webp');
 	});
 
 	test('list rejects page with multiple non-language tags', async function (): Promise<void> {
@@ -314,12 +314,12 @@ describe('GalleryManager', function (): void {
 			ids.push(references[i]['id']);
 		}
 
-		assert.deepStrictEqual(calls, [{
+		assert.deepEqual(calls, [{
 			host: 'ltn.gold-usergeneratedcontent.net',
 			path: '/n/artist/john%20doe-all.nozomi',
 			type: ResponseType['VIEW'],
 			range: '8-15'
 		}]);
-		assert.deepStrictEqual(ids, [11, 22]);
+		assert.deepEqual(ids, [11, 22]);
 	});
 });
