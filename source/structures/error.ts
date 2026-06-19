@@ -1,5 +1,3 @@
-import type { Extension } from './media';
-
 /**
  * Codes for identifying an error.
  *
