@@ -1,5 +1,5 @@
 import typescript from '@rollup/plugin-typescript';
-import { resolve as pathResolve } from 'path';
+import { resolveFilename } from './resolver';
 import { dts } from 'rollup-plugin-dts';
 import { rmSync } from 'fs';
 import type { Plugin, RollupOptions } from "rollup";
@@ -45,14 +45,10 @@ function replace(type: 'cjs' | 'esm' | 'browser' | 'types'): Plugin {
 }
 
 function resolve(type: 'cjs' | 'esm' | 'browser'): Plugin {
-	const path: string = pathResolve(import.meta['dirname'], 'source/platform/' + (type === 'browser' ? 'browser' : 'node') + '.ts');
-
 	return {
 		name: 'resolve',
-		resolveId: function (source: string): string | undefined {
-			if(source === '@platform') {
-				return path;
-			}
+		resolveId: function (source: string): string | void {
+			return resolveFilename(source, type);
 		}
 	};
 }

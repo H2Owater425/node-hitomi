@@ -32,9 +32,9 @@
 	"types": "./distribution/types/index.d.ts",
 	"browser": "./distribution/browser/index.js",
 	"scripts": {
-		"build": "rollup --config=rollup.config.ts --configPlugin=@rollup/plugin-typescript",
-		"dev": "node --require=tsconfig-paths/register --require=ts-node/register debug.ts",
-		"test": "mocha --require=tsconfig-paths/register --require=ts-node/register tests/*.test.ts"
+		"build": "rollup --configPlugin=@rollup/plugin-typescript --config=rollup.config.ts",
+		"dev": "node --require=ts-node/register --require=./resolver.ts debug.ts",
+		"test": "mocha --require=ts-node/register --require=./resolver.ts tests/*.test.ts"
 	},
 	"devDependencies": {
 		"@rollup/plugin-typescript": "^12.3.0",
