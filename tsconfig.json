@@ -8,6 +8,7 @@
 		"removeComments": true,
 		"stripInternal": true,
 		"preserveConstEnums": true,
+		"noEmitOnError": true,
 		"paths": {
 			"@/*": ["./source/*"],
 			"@platform": ["./source/platform/node.ts", "./source/platform/browser.ts"]
