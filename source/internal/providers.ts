@@ -27,7 +27,10 @@ export class Provider<T> extends Base {
 
 			try {
 				this['value'] = await (this['promise'] = this.fetch());
-				this['expiresAt'] = Date.now() + this['maximumAge'];
+
+				if(this['maximumAge']) {
+					this['expiresAt'] = Date.now() + this['maximumAge'];
+				}
 			} finally {
 				this['promise'] = undefined;
 			}
