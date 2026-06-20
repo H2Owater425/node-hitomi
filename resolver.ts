@@ -1,7 +1,7 @@
 import Module from 'module';
 import { resolve as pathResolve } from 'path';
 
-const sourcePath: string = pathResolve('source');
+const sourcePath: string = pathResolve(import.meta['dirname'], 'source');
 const platformPath: string = pathResolve(sourcePath, 'platform');
 
 export function resolveFilename(request: string, type: 'cjs' | 'esm' | 'browser' = 'esm'): string | void {
@@ -15,7 +15,7 @@ export function resolveFilename(request: string, type: 'cjs' | 'esm' | 'browser'
 }
 
 // @ts-expect-error
-const originalResolveFilename: Function = Module._resolveFilename;
+const _resolveFilename: Function = Module._resolveFilename;
 const builtinModuleSet: Set<string> = new Set<string>(Module['builtinModules']);
 
 // @ts-expect-error
@@ -24,5 +24,5 @@ Module._resolveFilename = function (request: string): unknown {
 		arguments[0] = resolveFilename(request) || request;
 	}
 
-	return originalResolveFilename.apply(this, arguments);
+	return _resolveFilename.apply(this, arguments);
 };
