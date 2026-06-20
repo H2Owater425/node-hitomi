@@ -3,8 +3,8 @@ import { resolveFilename } from './resolver';
 import { dts } from 'rollup-plugin-dts';
 import { rmSync } from 'fs';
 import type { Plugin, RollupOptions } from "rollup";
-import type { SourceFile, TransformationContext, Node, PropertyAssignment, Expression, CustomTransformers } from 'typescript';
-import { isEnumDeclaration, visitEachChild, NodeFlags, visitNode } from 'typescript';
+import type { SourceFile, TransformationContext, Node, PropertyAssignment, CustomTransformers } from 'typescript';
+import { isEnumDeclaration, visitEachChild, NodeFlags, visitNode, isSourceFile } from 'typescript';
 
 const CLASS_PATHS: Record<string, string> = {
 	'Hitomi': '../hitomi',
@@ -85,11 +85,17 @@ function configuration(type: 'cjs' | 'esm' | 'browser'): RollupOptions {
 								return visitNode(sourceFile, function visitor(node: Node): Node {
 									if(isEnumDeclaration(node)) {
 										const propertyAssignments: PropertyAssignment[] = [];
+										let lasstInitializer: number = -1;
 
 										for(let i: number = 0; i < node['members']['length']; i++) {
+											if(node['members'][i]['initializer']) {
+												// @ts-expect-error
+												lasstInitializer = +node['members'][i]['initializer'].getText();
+											}
+
 											propertyAssignments.push(context['factory'].createPropertyAssignment(
 												node['members'][i]['name'],
-												node['members'][i]['initializer'] as Expression
+												node['members'][i]['initializer'] || context['factory'].createNumericLiteral(++lasstInitializer)
 											));
 										}
 
@@ -110,7 +116,7 @@ function configuration(type: 'cjs' | 'esm' | 'browser'): RollupOptions {
 									}
 
 									return visitEachChild(node, visitor, context);
-								}) as SourceFile;
+								}, isSourceFile);
 							};
 						}]
 					};
