@@ -3,7 +3,7 @@ import { resolveFilename } from './resolver';
 import { dts } from 'rollup-plugin-dts';
 import { rmSync } from 'fs';
 import type { Plugin, RollupOptions } from "rollup";
-import type { SourceFile, TransformationContext, Node, PropertyAssignment, Expression } from 'typescript';
+import type { SourceFile, TransformationContext, Node, PropertyAssignment, Expression, CustomTransformers } from 'typescript';
 import { isEnumDeclaration, visitEachChild, NodeFlags, visitNode } from 'typescript';
 
 const CLASS_PATHS: Record<string, string> = {
@@ -78,45 +78,42 @@ function configuration(type: 'cjs' | 'esm' | 'browser'): RollupOptions {
 			resolve(type),
 			typescript({
 				tsconfig: './tsconfig.json',
-				transformers: {
-					before: [{
-						type: 'program',
-						factory: function (): (context: TransformationContext) => (sourceFile: SourceFile) => SourceFile {
-							return function (context: TransformationContext): (sourceFile: SourceFile) => SourceFile {
-								return function (sourceFile: SourceFile): SourceFile {
-									return visitNode(sourceFile, function visitor(node: Node): Node {
-										if(isEnumDeclaration(node)) {
-											const propertyAssignments: PropertyAssignment[] = [];
+				transformers: function (): CustomTransformers {
+					return {
+						before: [function (context: TransformationContext): (sourceFile: SourceFile) => SourceFile {
+							return function (sourceFile: SourceFile): SourceFile {
+								return visitNode(sourceFile, function visitor(node: Node): Node {
+									if(isEnumDeclaration(node)) {
+										const propertyAssignments: PropertyAssignment[] = [];
 
-											for(let i: number = 0; i < node['members']['length']; i++) {
-												propertyAssignments.push(context['factory'].createPropertyAssignment(
-													node['members'][i]['name'],
-													node['members'][i]['initializer'] as Expression 
-												));
-											}
-
-											return context['factory'].createVariableStatement(
-												node['modifiers'],
-												context['factory'].createVariableDeclarationList([
-													context['factory'].createVariableDeclaration(
-														node['name'],
-														undefined,
-														undefined,
-														context['factory'].createObjectLiteralExpression(
-															propertyAssignments,
-															true
-														)
-													)
-												], NodeFlags['Const'])
-											);
+										for(let i: number = 0; i < node['members']['length']; i++) {
+											propertyAssignments.push(context['factory'].createPropertyAssignment(
+												node['members'][i]['name'],
+												node['members'][i]['initializer'] as Expression
+											));
 										}
 
-										return visitEachChild(node, visitor, context);
-									}) as SourceFile;
-								};
+										return context['factory'].createVariableStatement(
+											node['modifiers'],
+											context['factory'].createVariableDeclarationList([
+												context['factory'].createVariableDeclaration(
+													node['name'],
+													undefined,
+													undefined,
+													context['factory'].createObjectLiteralExpression(
+														propertyAssignments,
+														true
+													)
+												)
+											], NodeFlags['Const'])
+										);
+									}
+
+									return visitEachChild(node, visitor, context);
+								}) as SourceFile;
 							};
-						}
-					}]
+						}]
+					};
 				}
 			}),
 			replace(type)
