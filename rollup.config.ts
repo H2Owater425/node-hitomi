@@ -23,23 +23,24 @@ function replace(type: 'cjs' | 'esm' | 'browser' | 'types'): Plugin {
 				code = code.replace(/(?<=^\t*) {4}/gm, '	');
 			}
 
-			code = code.replace(/"([^'"]+)"/gm, '\'$1\'');
+			code = code.replace(/"([^'"]+)"/g, '\'$1\'');
 
 			if(!isTypes) {
 				code = code.replace(/(?<=[^\s\t])\[\s*'([a-zA-Z_$][a-zA-Z0-9_$]*)'\s*\]/g, '.$1')
 					.replace(/(?<=(while|if|switch|for)) /g, '')
-					.replace(/\n+\t+(?=else)/gm, ' ');
+					.replace(/\n+\t+(?=else)/g, ' ');
 			} else {
 				for(const _class in CLASS_PATHS) {
 					if(code.includes('{@link ' + _class + '}') && !code.includes('class ' + _class) && !(new RegExp('({ |, )' + _class + '( }|, )', 'g')).test(code)) {
-						code = code.replace(/^$/m, 'import { ' + _class + ' } from \'' + CLASS_PATHS[_class] + '.js\';\n');
+						code = code.replace('\n\n', '\nimport { ' + _class + ' } from \'' + CLASS_PATHS[_class] + '.js\';\n\n');
 					}
 				}
 
-				code = code.replace(/^declare const enum /g, 'declare enum ');
+				code = code.replace(/^declare const enum /g, 'declare enum ')
+					.replace(/{(\n|\s)+}/g, '{}');
 			}
 
-			return code.replace(/{(\n|\s)+}/gm, '{}');
+			return code;
 		}
 	};
 }
