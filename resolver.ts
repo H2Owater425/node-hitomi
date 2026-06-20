@@ -1,7 +1,7 @@
 import Module from 'module';
 import { resolve as pathResolve } from 'path';
 
-const sourcePath: string = pathResolve(import.meta['dirname'], 'source');
+const sourcePath: string = pathResolve('source');
 const platformPath: string = pathResolve(sourcePath, 'platform');
 
 export function resolveFilename(request: string, type: 'cjs' | 'esm' | 'browser' = 'esm'): string | void {
