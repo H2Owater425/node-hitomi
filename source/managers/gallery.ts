@@ -160,9 +160,10 @@ export class GalleryManager extends Base {
 			type = i !== 2 ? GalleryManager['RAW_TYPES'][i] as Tag['type'] : 'series';
 
 			if(rawGallery[rawPluralType]) {
-				for(let j: number = 0; j < rawGallery[rawPluralType]['length']; j++)
+				for(let j: number = 0; j < rawGallery[rawPluralType]['length']; j++) {
 					// @ts-expect-error - Typescript internal error
 					dedicatedTags[i].push(new Tag(this['hitomi'], type, rawGallery[rawPluralType][j][GalleryManager['RAW_TYPES'][i]]));
+				}
 			}
 		}
 
