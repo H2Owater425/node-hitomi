@@ -323,7 +323,7 @@ export class GalleryManager extends Base {
 	}
 
 	// @internal
-	private createReferences(ids: Set<number>, shouldShuffle: boolean): GalleryReference[] {
+	private createReferences(ids: Iterable<number>, shouldShuffle: boolean): GalleryReference[] {
 		const references: GalleryReference[] = [];
 
 		for(const id of ids) {
@@ -333,12 +333,14 @@ export class GalleryManager extends Base {
 		if(shouldShuffle) {
 			let currentIndex: number = references['length'];
 			let targetIndex: number;
+			let temporary: GalleryReference;
 
-			while(currentIndex) {
-				targetIndex = Math.floor(Math.random() * currentIndex--);
+			while(--currentIndex) {
+				if((targetIndex = Math.ceil(Math.random() * currentIndex)) === currentIndex) {
+					continue;
+				}
 
-				const temporary: GalleryReference = references[targetIndex];
-
+				temporary = references[targetIndex];
 				references[targetIndex] = references[currentIndex];
 				references[currentIndex] = temporary;
 			}
