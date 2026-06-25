@@ -381,30 +381,30 @@ export class GalleryManager extends Base {
 			if(!tags[0]['isNegative']) {
 				for(; i < tags['length'] && !tags[i]['isNegative']; i++) {
 					if(tags[i]['type'] === 'language') {
-						language = tags[i]['name'];
+						language = tags[i++]['name'];
 
 						break;
 					}
 				}
-
-				i = 0;
 			}
 
 			if(range) {
-				if(tags['length'] > 2 || tags['length'] === 2 && !language) {
-					throw new HitomiError(ErrorCode['InvalidCombination'], 'Page', 'used with multiple tags', false);
-				}
-
 				if(tags[tags['length'] - 1]['isNegative']) {
 					throw new HitomiError(ErrorCode['InvalidCombination'], 'Page', 'used with negative tag', false);
 				}
 
+				if(tags['length'] > 2 || tags['length'] === 2 && !language) {
+					throw new HitomiError(ErrorCode['InvalidCombination'], 'Page', 'used with multiple tags', false);
+				}
+
 				return this.createReferences(await this.requestIds(GalleryManager.createNozomiPath({
-					tag: tags[+(tags[0]['type'] === 'language') /* selects non-language tag */],
+					tag: tags[tags['length'] - i /* selects non-language tag */],
 					orderBy: options['orderBy'],
 					language: language
 				}), range), isRandom);
 			}
+
+			i = 0;
 
 			idSets.push(await this.requestIds(GalleryManager.createNozomiPath({
 				tag: tags[0]['isNegative'] ? undefined : tags[i++],
